@@ -1,0 +1,11 @@
+{
+  "debug": false,
+  "timezone": "America/Chicago",
+  "storage": {
+    "mode": "FLATFILE",
+    "host": "",
+    "port": "",
+    "username": "",
+    "password": ""
+  }
+}

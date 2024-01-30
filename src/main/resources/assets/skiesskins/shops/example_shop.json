@@ -1,0 +1,31 @@
+{
+  "options": {
+    "currency": {
+      "provider": "",
+      "currency": ""
+    },
+    "aliases": [
+      "shop_example"
+    ]
+  },
+  "skins": {
+    "amount": 5,
+    "random": {
+      "skins": {
+        "pikachu_example": {
+          "price": 100,
+          "weight": 100
+        }
+      }
+    },
+    "resetTimes": [
+      "6:00",
+      "12:00",
+      "18:00"
+    ]
+  },
+  "package": {
+    "id": "example_package",
+    "endTime": ""
+  }
+}

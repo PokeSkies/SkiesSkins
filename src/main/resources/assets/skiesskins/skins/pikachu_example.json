@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "name": "<red>Example Pikachu",
+  "species": "cobblemon:pikachu",
+  "aspects": {
+    "apply": [
+      "test"
+    ],
+    "required": [],
+    "blacklist": []
+  }
+}
