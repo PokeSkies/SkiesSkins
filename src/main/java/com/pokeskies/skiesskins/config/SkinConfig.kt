@@ -6,8 +6,10 @@ import net.minecraft.resources.ResourceLocation
 
 class SkinConfig(
     val enabled: Boolean = true,
-    val name: String = "",
     val species: ResourceLocation = ResourceLocation(""),
+    val name: String = "",
+    @JsonAdapter(FlexibleListAdaptorFactory::class)
+    val description: List<String> = emptyList(),
     val aspects: Aspects = Aspects(),
 ) {
     class Aspects(
@@ -24,6 +26,6 @@ class SkinConfig(
     }
 
     override fun toString(): String {
-        return "SkinEntry(enabled=$enabled, name='$name', species=$species, aspects=$aspects)"
+        return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, aspects=$aspects)"
     }
 }
