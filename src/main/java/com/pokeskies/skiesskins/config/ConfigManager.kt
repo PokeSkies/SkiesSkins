@@ -15,6 +15,10 @@ import java.io.InputStreamReader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.StandardCopyOption
+import java.util.stream.Collectors
+
+
+
 
 class ConfigManager(val configDir: File) {
     companion object {
@@ -125,8 +129,12 @@ class ConfigManager(val configDir: File) {
 
         val dir = configDir.resolve("skins")
         if (dir.exists() && dir.isDirectory) {
-            val files = dir.listFiles()
+            val files = Files.walk(dir.toPath())
+                .filter { path: Path -> Files.isRegularFile(path) }
+                .map { it.toFile() }
+                .collect(Collectors.toList())
             if (files != null) {
+                SkiesSkins.LOGGER.info("Found ${files.size} Skin files: ${files.map { it.name }}")
                 for (file in files) {
                     val fileName = file.name
                     if (file.isFile && fileName.contains(".json")) {

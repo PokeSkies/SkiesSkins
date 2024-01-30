@@ -65,7 +65,11 @@ class ApplyGui(
                 .onClick { cons ->
                     val pokemon = Cobblemon.storage.getParty(player).get(i)
                     if (pokemon != null) {
-                        println("!! ${pokemon.species} ${PokemonSpecies.getByIdentifier(skin.species)}")
+                        SkiesSkinsAPI.getPokemonSkin(pokemon)?.let {
+                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
+                            player.sendMessage(Utils.deserializeText("<red>This Pokemon already has the skin ${it.name}<reset> <red>applied!"))
+                            return@onClick
+                        }
 
                         // Check if correct species
                         val species = PokemonSpecies.getByIdentifier(skin.species)!!
@@ -93,11 +97,9 @@ class ApplyGui(
                         }
 
                         val user = SkiesSkinsAPI.getUserData(player)
-                        println(user.inventory)
-                        println(skinData)
                         val removed = user.inventory.remove(skinData)
 
-                        if (!removed) {
+                        if (!removed || !SkiesSkinsAPI.saveUserData(player, user)) {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Component.literal("There was an error while applying this skin!")
                                 .withStyle { it.withColor(ChatFormatting.RED) })
@@ -109,6 +111,8 @@ class ApplyGui(
                         for (aspect in skin.aspects.apply) {
                             PokemonProperties.parse(aspect).apply(pokemon)
                         }
+
+                        pokemon.persistentData.putString(SkiesSkinsAPI.TAG_SKIN_DATA, skinData.id)
 
                         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                         player.sendMessage(Component.literal("Successfully applied the skin!")
