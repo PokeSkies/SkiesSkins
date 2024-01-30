@@ -1,0 +1,124 @@
+{
+  "title": "Apply Skin %skin%",
+  "size": 3,
+  "party_slots": {
+    "1": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 10,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 10,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    },
+    "2": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 11,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 11,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    },
+    "3": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 12,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 12,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    },
+    "4": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 14,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 14,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    },
+    "5": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 15,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 15,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    },
+    "6": {
+      "filled": {
+        "item": "cobblemon:pokemon_model",
+        "slots": 16,
+        "name": "<aqua><b>Filled Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      },
+      "empty": {
+        "item": "cobblemon:poke_ball",
+        "slots": 16,
+        "name": "<aqua><b>Empty Slot",
+        "lore": [
+          "<gray>Example Description!"
+        ]
+      }
+    }
+  },
+  "items": {
+    "border": {
+      "item": "minecraft:gray_stained_glass_pane",
+      "slots": [
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 13, 17,
+        18, 19, 20, 21, 22, 23, 24, 25, 26
+      ]
+    }
+  }
+}

@@ -5,6 +5,7 @@ import com.google.common.collect.HashBiMap
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.config.gui.ApplyConfig
 import com.pokeskies.skiesskins.config.gui.InventoryConfig
 import com.pokeskies.skiesskins.utils.Utils
 import java.io.File
@@ -18,7 +19,8 @@ import java.nio.file.StandardCopyOption
 class ConfigManager(val configDir: File) {
     companion object {
         lateinit var CONFIG: MainConfig
-        lateinit var INVENTORY_CONFIG: InventoryConfig
+        lateinit var INVENTORY_GUI: InventoryConfig
+        lateinit var APPLY_GUI: ApplyConfig
         var SKINS: BiMap<String, SkinConfig> = HashBiMap.create()
         var PACKAGES: BiMap<String, String> = HashBiMap.create()
     }
@@ -30,7 +32,8 @@ class ConfigManager(val configDir: File) {
     fun reload() {
         copyDefaults()
         CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", MainConfig())
-        INVENTORY_CONFIG = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
+        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
+        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
         loadSkins()
     }
 
@@ -59,6 +62,18 @@ class ConfigManager(val configDir: File) {
                 Files.copy(inputStream, inventoryFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             } catch (e: Exception) {
                 SkiesSkins.LOGGER.error("Failed to copy the default inventory GUI file: $e")
+            }
+        }
+
+        // Apply GUI Config
+        val applyFile = configDir.resolve("guis/apply.json")
+        if (!applyFile.exists()) {
+            applyFile.mkdirs()
+            try {
+                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/guis/apply.json")
+                Files.copy(inputStream, applyFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (e: Exception) {
+                SkiesSkins.LOGGER.error("Failed to copy the default apply GUI file: $e")
             }
         }
 

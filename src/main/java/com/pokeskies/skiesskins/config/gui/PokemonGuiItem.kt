@@ -1,6 +1,10 @@
 package com.pokeskies.skiesskins.config.gui
 
+import com.cobblemon.mod.common.item.PokemonItem
+import com.cobblemon.mod.common.pokemon.Pokemon
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
@@ -10,18 +14,20 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 
-class   GuiItem(
+class PokemonGuiItem(
     val item: Item = Items.BARRIER,
+    @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
     val amount: Int = 1,
     val name: String? = null,
+    @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
     val nbt: CompoundTag? = null,
     @SerializedName("click_actions")
     val clickActions: Map<String, String> = emptyMap()
 ) {
-    fun createItemStack(): ItemStack {
-        val stack = ItemStack(item, amount)
+    fun createItemStack(pokemon: Pokemon?): ItemStack {
+        val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
         val tag = stack.orCreateTag
 
         if (name != null) {
@@ -73,6 +79,7 @@ class   GuiItem(
     }
 
     override fun toString(): String {
-        return "GuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt, click_actions=$clickActions)"
+        return "PokemonGuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt, clickActions=$clickActions)"
     }
+
 }

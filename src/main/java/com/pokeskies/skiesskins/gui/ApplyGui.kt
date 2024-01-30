@@ -14,6 +14,7 @@ import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
+import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.data.UserData
 import com.pokeskies.skiesskins.utils.Utils
@@ -30,41 +31,35 @@ class ApplyGui(
     val skinData: UserData.SkinData,
     val skin: SkinConfig
 ) : UpdateEmitter<Page?>(), Page {
-    private val template: ChestTemplate = ChestTemplate.Builder(3)
-        .fill(GooeyButton.builder()
-            .display(
-                Utils.hideFlags(
-                    ItemStack(Items.GRAY_STAINED_GLASS_PANE),
-                    ItemStack.TooltipPart.ADDITIONAL
-                )
-            )
-            .title("")
-            .build())
+    private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.APPLY_GUI.size)
         .build()
-    private val slots = intArrayOf(10, 11, 12, 14, 15, 16)
+
+    private var shouldClose = false
 
     init {
         refresh()
     }
 
     fun refresh() {
-        val party: PlayerPartyStore = Cobblemon.storage.getParty(player.uuid)
+        for ((id, item) in ConfigManager.APPLY_GUI.items) {
+            val button = GooeyButton.builder()
+                .display(item.createItemStack())
+                .build();
+            for (slot in item.slots) {
+                this.template.set(slot, button)
+            }
+        }
 
+        val party: PlayerPartyStore = Cobblemon.storage.getParty(player.uuid)
         for (i in 0..5) {
+            val slotItem = ConfigManager.APPLY_GUI.partySlots[i + 1] ?: continue
             val pokemon: Pokemon? = party.get(i)
-            template.set(slots[i], GooeyButton.builder()
+            val button = GooeyButton.builder()
                 .display(
                     Utils.getOrRunOther(
                         pokemon,
-                        { Utils.hideFlags(Utils.nullPokemonToItem(pokemon), ItemStack.TooltipPart.ADDITIONAL) },
-                        { ItemStack(CobblemonItems.POKE_BALL) }
-                    )
-                )
-                .title(
-                    Utils.getOrOther(
-                        pokemon,
-                        Utils.deserializeText("<green>Slot " + (i + 1) + " - " + pokemon?.getDisplayName()?.string),
-                        Utils.deserializeText("<red>Empty Slot")
+                        { slotItem.filled.createItemStack(pokemon) },
+                        { slotItem.empty.createItemStack(pokemon) }
                     )
                 )
                 .onClick { cons ->
@@ -98,12 +93,15 @@ class ApplyGui(
                         }
 
                         val user = SkiesSkinsAPI.getUserData(player)
+                        println(user.inventory)
+                        println(skinData)
                         val removed = user.inventory.remove(skinData)
 
                         if (!removed) {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Component.literal("There was an error while applying this skin!")
                                 .withStyle { it.withColor(ChatFormatting.RED) })
+                            shouldClose = true
                             UIManager.closeUI(player)
                             return@onClick
                         }
@@ -115,11 +113,15 @@ class ApplyGui(
                         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                         player.sendMessage(Component.literal("Successfully applied the skin!")
                             .withStyle { it.withColor(ChatFormatting.GREEN) })
+                        shouldClose = true
                         UIManager.closeUI(player)
                     }
                 }
                 .build()
-            )
+
+            for (slot in (if (pokemon != null) slotItem.filled else slotItem.empty).slots) {
+                template.set(slot, button)
+            }
         }
     }
 
@@ -128,10 +130,12 @@ class ApplyGui(
     }
 
     override fun getTitle(): Component {
-        return Utils.deserializeText("Applying ${skin.name}")
+        return Utils.deserializeText(ConfigManager.APPLY_GUI.title)
     }
 
     override fun onClose(action: PageAction) {
-
+        if (!shouldClose) {
+            SkiesSkinsAPI.openSkinInventory(player)
+        }
     }
 }

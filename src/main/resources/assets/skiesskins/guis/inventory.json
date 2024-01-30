@@ -14,31 +14,26 @@
     ]
   },
   "next_page": {
+    "item": "minecraft:paper",
     "slots": [ 53 ],
-    "item": {
-      "id": "minecraft:paper",
-      "name": "<aqua><b>Next Page",
-      "lore": [
-        "<gray>Example Description!"
-      ]
-    }
+    "name": "<aqua><b>Next Page",
+    "lore": [
+      "<gray>Example Description!"
+    ]
   },
   "previous_page": {
+    "item": "minecraft:paper",
     "slots": [ 45 ],
-    "item": {
-      "id": "minecraft:paper",
-      "name": "<aqua><b>Previous Page",
-      "lore": [
-        "<gray>Example Description!"
-      ]
-    }
+    "name": "<aqua><b>Previous Page",
+    "lore": [
+      "<gray>Example Description!"
+    ]
   },
   "items": {
     "border": {
+      "item": "minecraft:gray_stained_glass_pane",
       "slots": [ 46, 47, 48, 49, 50, 51, 52 ],
-      "item": {
-        "id": "minecraft:grey_stained_glass_pane"
-      }
+      "name": ""
     }
   }
 }

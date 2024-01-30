@@ -1,6 +1,8 @@
 package com.pokeskies.skiesskins.config.gui
 
+import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
 class InventoryConfig(
     val title: String = "Skin Inventory",
@@ -8,13 +10,15 @@ class InventoryConfig(
     @SerializedName("skin_options")
     val skinOptions: SkinSlotOptions = SkinSlotOptions(),
     @SerializedName("next_page")
-    val nextPage: GuiItem = GuiItem(),
+    val nextPage: GenericGuiItem = GenericGuiItem(),
     @SerializedName("previous_page")
-    val previousPage: GuiItem = GuiItem(),
-    val items: Map<String, GuiItem> = emptyMap()
+    val previousPage: GenericGuiItem = GenericGuiItem(),
+    val items: Map<String, GenericGuiItem> = emptyMap()
 ) {
     class SkinSlotOptions(
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
         val slots: List<Int> = emptyList(),
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
         val lore: List<String> = emptyList()
     ) {
         override fun toString(): String {

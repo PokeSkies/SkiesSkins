@@ -18,7 +18,7 @@ import net.minecraft.server.level.ServerPlayer
 class InventoryGui(
     val player: ServerPlayer
 ) : UpdateEmitter<Page>(), Page {
-    private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.INVENTORY_CONFIG.size)
+    private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.INVENTORY_GUI.size)
         .build()
 
     private var page = 0
@@ -30,21 +30,15 @@ class InventoryGui(
 
     fun refresh() {
         val user = SkiesSkinsAPI.getUserData(player)
-        println("!1 - $user")
-        val slots = ConfigManager.INVENTORY_CONFIG.skinOptions.slots
-        println("!2 - ${slots.size}")
+        val slots = ConfigManager.INVENTORY_GUI.skinOptions.slots
         maxPages = (user.inventory.size / (slots.size + 1)) + 1
-        println("!3 - $maxPages ${user.inventory.size / (slots.size + 1)} (${user.inventory.size} / (${slots.size} + 1)) + 1 ")
 
         this.template.clear()
 
         var index = 0
-        println("!4 - $page ${slots.size} ${user.inventory.size}")
         for (skin in user.inventory.subList(slots.size * page, user.inventory.size)) {
-            println("!5 - $skin")
             if (index < slots.size) {
                 val slot = slots[index++]
-                println("!6 $slot")
                 val skinEntry: SkinConfig? = ConfigManager.SKINS[skin.id]
                 if (skinEntry == null) {
                     this.template.set(slot, Utils.getErrorButton("<red>Error while fetching Skin! Missing Entry?"))
@@ -60,7 +54,7 @@ class InventoryGui(
                         .title(Utils.deserializeText(skinEntry.name))
                         .lore(
                             Component::class.java,
-                            ConfigManager.INVENTORY_CONFIG.skinOptions.lore.map {
+                            ConfigManager.INVENTORY_GUI.skinOptions.lore.map {
                                 Utils.deserializeText(it)
                             }
                         )
@@ -71,9 +65,9 @@ class InventoryGui(
         }
 
         // NEXT AND PREVIOUS PAGE
-        for (slot in ConfigManager.INVENTORY_CONFIG.previousPage.slots) {
+        for (slot in ConfigManager.INVENTORY_GUI.previousPage.slots) {
             this.template.set(slot, GooeyButton.builder()
-                .display(ConfigManager.INVENTORY_CONFIG.previousPage.createItemStack())
+                .display(ConfigManager.INVENTORY_GUI.previousPage.createItemStack())
                 .onClick { ctx ->
                     if (page > 0) {
                         page--
@@ -83,11 +77,10 @@ class InventoryGui(
                 .build()
             )
         }
-        for (slot in ConfigManager.INVENTORY_CONFIG.nextPage.slots) {
+        for (slot in ConfigManager.INVENTORY_GUI.nextPage.slots) {
             this.template.set(slot, GooeyButton.builder()
-                .display(ConfigManager.INVENTORY_CONFIG.nextPage.createItemStack())
+                .display(ConfigManager.INVENTORY_GUI.nextPage.createItemStack())
                 .onClick { ctx ->
-                    println("$maxPages - $page")
                     if (maxPages > page + 1) {
                         page++
                         refresh()
@@ -97,18 +90,14 @@ class InventoryGui(
             )
         }
 
-        for ((id, item) in ConfigManager.INVENTORY_CONFIG.items) {
-            println("!items - $id $item")
+        for ((id, item) in ConfigManager.INVENTORY_GUI.items) {
             val button = GooeyButton.builder()
                 .display(item.createItemStack())
                 .build();
             for (slot in item.slots) {
-                println("!items - $slot")
                 this.template.set(slot, button)
             }
         }
-
-        println("! FINAL")
     }
 
     override fun getTemplate(): Template {
@@ -116,6 +105,6 @@ class InventoryGui(
     }
 
     override fun getTitle(): Component {
-        return Utils.deserializeText(ConfigManager.INVENTORY_CONFIG.title)
+        return Utils.deserializeText(ConfigManager.INVENTORY_GUI.title)
     }
 }
