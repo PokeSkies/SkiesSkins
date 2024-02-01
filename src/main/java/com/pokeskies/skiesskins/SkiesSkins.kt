@@ -8,6 +8,7 @@ import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.config.gui.actions.ActionType
 import com.pokeskies.skiesskins.config.gui.actions.ClickType
+import com.pokeskies.skiesskins.economy.EconomyManager
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
@@ -46,7 +47,7 @@ class SkiesSkins : ModInitializer {
     var adventure: FabricServerAudiences? = null
     var server: MinecraftServer? = null
 
-    var economyService: ImpactorService? = null
+    lateinit var economyManager: EconomyManager
     lateinit var placeholderManager: PlaceholderManager
     lateinit var shopManager: ShopManager
 
@@ -70,14 +71,7 @@ class SkiesSkins : ModInitializer {
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
 
         this.placeholderManager = PlaceholderManager()
-
-        try {
-            this.economyService = ImpactorService()
-        } catch (ex: IllegalArgumentException) {
-            LOGGER.error("The provided currency '${null}' was not a valid Impactor Currency!}")
-        } catch (ex: Exception) {
-            LOGGER.error("There was an exception while initializing the Impactor Economy Service. Is it loaded?")
-        }
+        this.economyManager = EconomyManager()
 
         this.shopManager = ShopManager()
 
@@ -102,6 +96,7 @@ class SkiesSkins : ModInitializer {
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
         this.shopManager.reload()
         this.placeholderManager = PlaceholderManager()
+        this.economyManager = EconomyManager()
     }
 
     fun <T : Any> loadFile(filename: String, default: T, create: Boolean = false): T {
