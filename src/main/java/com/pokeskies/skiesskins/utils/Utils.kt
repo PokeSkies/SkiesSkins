@@ -69,7 +69,7 @@ object Utils {
         var result = parsePlaceholders(player, string)
         if (pokemon != null) {
             result = result.replace("%pokemon_skin_name%",
-                SkiesSkinsAPI.getPokemonSkin(pokemon)?.name ?: "None"
+                SkiesSkinsAPI.getPokemonSkin(pokemon)?.second?.name ?: "None"
             )
         }
         return deserializeText(result)

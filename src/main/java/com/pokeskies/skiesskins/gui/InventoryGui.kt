@@ -37,6 +37,23 @@ class InventoryGui(
 
         this.template.clear()
 
+        for ((id, item) in ConfigManager.INVENTORY_GUI.items) {
+            val button = GooeyButton.builder()
+                .display(item.createItemStack(player))
+                .onClick { ctx ->
+                    for (actionEntry in item.clickActions) {
+                        val action = actionEntry.value
+                        if (action.matchesClick(ctx.clickType)) {
+                            action.executeAction(player)
+                        }
+                    }
+                }
+                .build();
+            for (slot in item.slots) {
+                this.template.set(slot, button)
+            }
+        }
+
         var index = 0
         for (skin in user.inventory.subList(slots.size * page, user.inventory.size)) {
             if (index < slots.size) {
@@ -93,15 +110,6 @@ class InventoryGui(
                 }
                 .build()
             )
-        }
-
-        for ((id, item) in ConfigManager.INVENTORY_GUI.items) {
-            val button = GooeyButton.builder()
-                .display(item.createItemStack(player))
-                .build();
-            for (slot in item.slots) {
-                this.template.set(slot, button)
-            }
         }
     }
 

@@ -25,9 +25,7 @@ class PokemonGuiItem(
     val name: String? = null,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
-    val nbt: CompoundTag? = null,
-    @SerializedName("click_actions")
-    val clickActions: Map<String, String> = emptyMap()
+    val nbt: CompoundTag? = null
 ) {
     fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
         val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
@@ -84,7 +82,6 @@ class PokemonGuiItem(
     }
 
     override fun toString(): String {
-        return "PokemonGuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt, clickActions=$clickActions)"
+        return "PokemonGuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt)"
     }
-
 }

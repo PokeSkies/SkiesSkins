@@ -44,6 +44,14 @@ class ApplyGui(
         for ((id, item) in ConfigManager.APPLY_GUI.items) {
             val button = GooeyButton.builder()
                 .display(item.createItemStack(player))
+                .onClick { ctx ->
+                    for (actionEntry in item.clickActions) {
+                        val action = actionEntry.value
+                        if (action.matchesClick(ctx.clickType)) {
+                            action.executeAction(player)
+                        }
+                    }
+                }
                 .build();
             for (slot in item.slots) {
                 this.template.set(slot, button)
@@ -67,7 +75,7 @@ class ApplyGui(
                     if (pokemon != null) {
                         SkiesSkinsAPI.getPokemonSkin(pokemon)?.let {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
-                            player.sendMessage(Utils.deserializeText("<red>This Pokemon already has the skin ${it.name}<reset> <red>applied!"))
+                            player.sendMessage(Utils.deserializeText("<red>This Pokemon already has the skin ${it.second.name}<reset> <red>applied!"))
                             return@onClick
                         }
 
@@ -111,8 +119,8 @@ class ApplyGui(
                         for (aspect in skin.aspects.apply) {
                             PokemonProperties.parse(aspect).apply(pokemon)
                         }
-
                         pokemon.persistentData.putString(SkiesSkinsAPI.TAG_SKIN_DATA, skinData.id)
+                        if (ConfigManager.CONFIG.untradable) pokemon.tradeable = false
 
                         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                         player.sendMessage(Component.literal("Successfully applied the skin!")

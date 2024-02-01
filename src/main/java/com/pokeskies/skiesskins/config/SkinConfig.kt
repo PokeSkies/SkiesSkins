@@ -18,10 +18,12 @@ class SkinConfig(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val required: List<String> = emptyList(),
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val blacklist: List<String> = emptyList()
+        val blacklist: List<String> = emptyList(),
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
+        val remove: List<String> = emptyList(),
     ) {
         override fun toString(): String {
-            return "Aspects(apply=$apply, required=$required, blacklist=$blacklist)"
+            return "Aspects(apply=$apply, required=$required, blacklist=$blacklist, remove=$remove)"
         }
     }
 

@@ -39,9 +39,10 @@ object SkiesSkinsAPI {
         UIManager.openUIForcefully(player, InventoryGui(player))
     }
 
-    fun getPokemonSkin(pokemon: Pokemon?): SkinConfig? {
+    fun getPokemonSkin(pokemon: Pokemon?): Pair<String, SkinConfig>? {
         if (pokemon == null) return null
-        ConfigManager.SKINS[pokemon.persistentData.getString(TAG_SKIN_DATA)]?.let { return it }
+        val skinId = pokemon.persistentData.getString(TAG_SKIN_DATA)
+        ConfigManager.SKINS[skinId]?.let { return Pair(skinId, it) }
 
         if (ConfigManager.CONFIG.findEquivalent) {
             for ((id, config) in ConfigManager.SKINS) {
@@ -64,7 +65,7 @@ object SkiesSkinsAPI {
                 }
 
                 if (pokemon.aspects.containsAll(requiredAspects) && pokemon.aspects.none { blacklistedAspects.contains(it) }) {
-                    return config
+                    return Pair(id, config)
                 }
             }
         }

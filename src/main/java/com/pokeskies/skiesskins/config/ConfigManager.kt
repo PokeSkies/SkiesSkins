@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.ApplyConfig
 import com.pokeskies.skiesskins.config.gui.InventoryConfig
+import com.pokeskies.skiesskins.config.gui.RemoverConfig
 import com.pokeskies.skiesskins.utils.Utils
 import java.io.File
 import java.io.FileInputStream
@@ -25,6 +26,7 @@ class ConfigManager(val configDir: File) {
         lateinit var CONFIG: MainConfig
         lateinit var INVENTORY_GUI: InventoryConfig
         lateinit var APPLY_GUI: ApplyConfig
+        lateinit var REMOVER_GUI: RemoverConfig
         var SKINS: BiMap<String, SkinConfig> = HashBiMap.create()
         var PACKAGES: BiMap<String, String> = HashBiMap.create()
     }
@@ -38,6 +40,7 @@ class ConfigManager(val configDir: File) {
         CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", MainConfig())
         INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
         APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
+        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverConfig())
         loadSkins()
     }
 
@@ -78,6 +81,18 @@ class ConfigManager(val configDir: File) {
                 Files.copy(inputStream, applyFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
             } catch (e: Exception) {
                 SkiesSkins.LOGGER.error("Failed to copy the default apply GUI file: $e")
+            }
+        }
+
+        // Remover GUI Config
+        val removerFile = configDir.resolve("guis/remover.json")
+        if (!removerFile.exists()) {
+            removerFile.mkdirs()
+            try {
+                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/guis/remover.json")
+                Files.copy(inputStream, removerFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+            } catch (e: Exception) {
+                SkiesSkins.LOGGER.error("Failed to copy the default remover GUI file: $e")
             }
         }
 

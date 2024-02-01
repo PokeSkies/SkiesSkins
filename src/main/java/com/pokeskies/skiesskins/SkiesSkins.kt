@@ -5,6 +5,9 @@ import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.commands.BaseCommand
 import com.pokeskies.skiesskins.config.ConfigManager
+import com.pokeskies.skiesskins.config.gui.actions.Action
+import com.pokeskies.skiesskins.config.gui.actions.ActionType
+import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
@@ -41,12 +44,15 @@ class SkiesSkins : ModInitializer {
     var storage: IStorage? = null
 
     var adventure: FabricServerAudiences? = null
+    var server: MinecraftServer? = null
 
     var economyService: ImpactorService? = null
     lateinit var placeholderManager: PlaceholderManager
     lateinit var shopManager: ShopManager
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
+        .registerTypeAdapter(Action::class.java, ActionType.ActionTypeAdaptor())
+        .registerTypeAdapter(ClickType::class.java, ClickType.ClickTypeAdaptor())
         .registerTypeAdapter(StorageType::class.java, StorageType.StorageTypeAdaptor())
         .registerTypeAdapter(ResourceLocation::class.java, Utils.ResourceLocationSerializer())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
@@ -75,12 +81,13 @@ class SkiesSkins : ModInitializer {
 
         this.shopManager = ShopManager()
 
-        ServerLifecycleEvents.SERVER_STARTING.register(ServerStarting { server: MinecraftServer? ->
+        ServerLifecycleEvents.SERVER_STARTING.register(ServerStarting { server ->
             this.adventure = FabricServerAudiences.of(
-                server!!
+                server
             )
+            this.server = server
         })
-        ServerLifecycleEvents.SERVER_STOPPED.register(ServerStopped { server: MinecraftServer? ->
+        ServerLifecycleEvents.SERVER_STOPPED.register(ServerStopped { _ ->
             this.adventure = null
         })
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->

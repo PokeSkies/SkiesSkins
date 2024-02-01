@@ -4,10 +4,7 @@ import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
-import com.pokeskies.skiesskins.commands.subcommands.DebugCommand
-import com.pokeskies.skiesskins.commands.subcommands.GiveSkinCommand
-import com.pokeskies.skiesskins.commands.subcommands.ReloadCommand
-import com.pokeskies.skiesskins.commands.subcommands.ShopCommand
+import com.pokeskies.skiesskins.commands.subcommands.*
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
@@ -36,6 +33,7 @@ class BaseCommand {
             ReloadCommand().build(),
             ShopCommand().build(),
             GiveSkinCommand().build(),
+            RemoverCommand().build(),
         )
 
         rootCommands.forEach { root ->

@@ -2,6 +2,7 @@ package com.pokeskies.skiesskins.config.gui
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.nbt.CompoundTag
@@ -24,7 +25,7 @@ class   GenericGuiItem(
     val lore: List<String> = emptyList(),
     val nbt: CompoundTag? = null,
     @SerializedName("click_actions")
-    val clickActions: Map<String, String> = emptyMap()
+    val clickActions: Map<String, Action> = emptyMap(),
 ) {
     fun createItemStack(player: ServerPlayer): ItemStack {
         val stack = ItemStack(item, amount)
