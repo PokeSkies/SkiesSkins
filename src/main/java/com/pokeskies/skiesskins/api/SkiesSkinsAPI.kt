@@ -1,12 +1,13 @@
 package com.pokeskies.skiesskins.api
 
 import ca.landonjw.gooeylibs2.api.UIManager
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.data.UserData
-import com.pokeskies.skiesskins.data.UserData.SkinData
 import com.pokeskies.skiesskins.gui.InventoryGui
 import net.minecraft.server.level.ServerPlayer
 
@@ -38,13 +39,36 @@ object SkiesSkinsAPI {
         UIManager.openUIForcefully(player, InventoryGui(player))
     }
 
-    fun getPokemonSkin(pokemon: Pokemon): SkinConfig? {
-        val data = pokemon.persistentData.getString(TAG_SKIN_DATA)
+    fun getPokemonSkin(pokemon: Pokemon?): SkinConfig? {
+        if (pokemon == null) return null
+        ConfigManager.SKINS[pokemon.persistentData.getString(TAG_SKIN_DATA)]?.let { return it }
 
-        if (data.isNullOrEmpty()) {
-            return null
+        if (ConfigManager.CONFIG.findEquivalent) {
+            for ((id, config) in ConfigManager.SKINS) {
+                val species = PokemonSpecies.getByIdentifier(config.species) ?: continue
+                if (species != pokemon.species) continue
+
+                // gather a list of aspects that must be present
+                val requiredAspects: MutableList<String> = mutableListOf()
+                for (aspect in config.aspects.apply) {
+                    requiredAspects.addAll(PokemonProperties.parse(aspect).aspects)
+                }
+                for (aspect in config.aspects.required) {
+                    requiredAspects.addAll(PokemonProperties.parse(aspect).aspects)
+                }
+
+                // gather a list of aspects that cannot be present
+                val blacklistedAspects: MutableList<String> = mutableListOf()
+                for (aspect in config.aspects.blacklist) {
+                    blacklistedAspects.removeAll(PokemonProperties.parse(aspect).aspects)
+                }
+
+                if (pokemon.aspects.containsAll(requiredAspects) && pokemon.aspects.none { blacklistedAspects.contains(it) }) {
+                    return config
+                }
+            }
         }
 
-        return ConfigManager.SKINS[data]
+        return null
     }
 }

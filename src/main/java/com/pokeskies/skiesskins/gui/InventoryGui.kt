@@ -6,8 +6,10 @@ import ca.landonjw.gooeylibs2.api.data.UpdateEmitter
 import ca.landonjw.gooeylibs2.api.page.Page
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
+import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
@@ -49,14 +51,17 @@ class InventoryGui(
                         continue
                     }
 
+                    val pokemon = species.create()
+                    for (aspect in skinEntry.aspects.apply) {
+                        PokemonProperties.parse(aspect).apply(pokemon)
+                    }
+
                     this.template.set(slot, GooeyButton.builder()
-                        .display(PokemonItem.from(species, skinEntry.aspects.apply.toSet(), 1))
-                        .title(Utils.deserializeText(skinEntry.name))
+                        .display(PokemonItem.from(pokemon, 1))
+                        .title(Utils.parseSkinString(ConfigManager.INVENTORY_GUI.skinOptions.name, player, skinEntry))
                         .lore(
                             Component::class.java,
-                            ConfigManager.INVENTORY_GUI.skinOptions.lore.map {
-                                Utils.deserializeText(it)
-                            }
+                            Utils.parseSkinStringList(ConfigManager.INVENTORY_GUI.skinOptions.lore, player, skinEntry)
                         )
                         .onClick { ctx -> UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry)) }
                         .build())
@@ -67,7 +72,7 @@ class InventoryGui(
         // NEXT AND PREVIOUS PAGE
         for (slot in ConfigManager.INVENTORY_GUI.previousPage.slots) {
             this.template.set(slot, GooeyButton.builder()
-                .display(ConfigManager.INVENTORY_GUI.previousPage.createItemStack())
+                .display(ConfigManager.INVENTORY_GUI.previousPage.createItemStack(player))
                 .onClick { ctx ->
                     if (page > 0) {
                         page--
@@ -79,7 +84,7 @@ class InventoryGui(
         }
         for (slot in ConfigManager.INVENTORY_GUI.nextPage.slots) {
             this.template.set(slot, GooeyButton.builder()
-                .display(ConfigManager.INVENTORY_GUI.nextPage.createItemStack())
+                .display(ConfigManager.INVENTORY_GUI.nextPage.createItemStack(player))
                 .onClick { ctx ->
                     if (maxPages > page + 1) {
                         page++
@@ -92,7 +97,7 @@ class InventoryGui(
 
         for ((id, item) in ConfigManager.INVENTORY_GUI.items) {
             val button = GooeyButton.builder()
-                .display(item.createItemStack())
+                .display(item.createItemStack(player))
                 .build();
             for (slot in item.slots) {
                 this.template.set(slot, button)
@@ -105,6 +110,6 @@ class InventoryGui(
     }
 
     override fun getTitle(): Component {
-        return Utils.deserializeText(ConfigManager.INVENTORY_GUI.title)
+        return Utils.deserializeText(Utils.parsePlaceholders(player, ConfigManager.INVENTORY_GUI.title))
     }
 }

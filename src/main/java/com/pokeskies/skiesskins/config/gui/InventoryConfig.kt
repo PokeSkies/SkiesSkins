@@ -18,11 +18,12 @@ class InventoryConfig(
     class SkinSlotOptions(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val slots: List<Int> = emptyList(),
+        val name: String = "",
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val lore: List<String> = emptyList()
     ) {
         override fun toString(): String {
-            return "InventorySkin(slots=$slots, lore=$lore)"
+            return "SkinSlotOptions(slots=$slots, name='$name', lore=$lore)"
         }
     }
 

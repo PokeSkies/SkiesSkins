@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.commands.BaseCommand
 import com.pokeskies.skiesskins.config.ConfigManager
+import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
 import com.pokeskies.skiesskins.utils.ImpactorService
@@ -42,6 +43,7 @@ class SkiesSkins : ModInitializer {
     var adventure: FabricServerAudiences? = null
 
     var economyService: ImpactorService? = null
+    lateinit var placeholderManager: PlaceholderManager
     lateinit var shopManager: ShopManager
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
@@ -60,6 +62,8 @@ class SkiesSkins : ModInitializer {
         this.configDir = File(FabricLoader.getInstance().configDirectory, "skiesskins")
         this.configManager = ConfigManager(configDir)
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
+
+        this.placeholderManager = PlaceholderManager()
 
         try {
             this.economyService = ImpactorService()
@@ -90,6 +94,7 @@ class SkiesSkins : ModInitializer {
         this.configManager.reload()
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
         this.shopManager.reload()
+        this.placeholderManager = PlaceholderManager()
     }
 
     fun <T : Any> loadFile(filename: String, default: T, create: Boolean = false): T {

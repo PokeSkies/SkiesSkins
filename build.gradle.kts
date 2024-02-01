@@ -57,14 +57,18 @@ dependencies {
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.properties["fabric_kotlin_version"].toString()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.properties["fabric_version"].toString()}")
 
-    // Impactor Economy
-    modImplementation("net.impactdev.impactor.api:economy:5.1.0")
+    // Impactor
+    modImplementation("net.impactdev.impactor:common:5.1.1-SNAPSHOT")
+    modImplementation("net.impactdev.impactor.api:economy:5.1.1-SNAPSHOT")
+    modImplementation("net.impactdev.impactor.api:text:5.1.1-SNAPSHOT")
 
     modImplementation("ca.landonjw.gooeylibs:fabric:3.0.0-1.20.1-SNAPSHOT@jar")
     modImplementation("com.cobblemon:fabric:1.4.1+1.20.1")
 
     // Placeholders
     modImplementation("eu.pb4:placeholder-api:2.1.2+$minecraftVersion")
+    modImplementation("io.github.miniplaceholders:miniplaceholders-api:2.2.2")
+    modImplementation("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.2")
 
     // Adventure Text!
     modImplementation(include("net.kyori:adventure-platform-fabric:5.9.0")!!)
@@ -72,14 +76,10 @@ dependencies {
     // PermissionsAPI
     modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
 
+    // Database
     implementation(include("org.mongodb:mongodb-driver-sync:4.11.0")!!)
     implementation(include("org.mongodb:mongodb-driver-core:4.11.0")!!)
     implementation(include("org.mongodb:bson:4.11.0")!!)
-    implementation(include("org.mariadb.jdbc:mariadb-java-client:3.1.0")!!)
-    implementation(include("com.zaxxer:HikariCP:5.1.0")!!)
-    implementation(include("org.xerial:sqlite-jdbc:3.43.2.2")!!)
-    implementation(include("com.h2database:h2:2.2.224")!!)
-    implementation(include("com.mysql:mysql-connector-j:8.2.0")!!)
 
     modImplementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

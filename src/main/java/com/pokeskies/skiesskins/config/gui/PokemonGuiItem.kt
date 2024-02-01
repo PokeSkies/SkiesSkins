@@ -10,6 +10,9 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.MutableComponent
+import net.minecraft.network.chat.Style
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
@@ -26,21 +29,23 @@ class PokemonGuiItem(
     @SerializedName("click_actions")
     val clickActions: Map<String, String> = emptyMap()
 ) {
-    fun createItemStack(pokemon: Pokemon?): ItemStack {
+    fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
         val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
-        val tag = stack.orCreateTag
 
         if (name != null) {
-            val display = tag.getCompound(ItemStack.TAG_DISPLAY)
-            display.putString(ItemStack.TAG_DISPLAY_NAME, Component.Serializer.toJson(Utils.deserializeText(name)))
-            tag.put(ItemStack.TAG_DISPLAY, display)
+            stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                .append(Utils.parsePokemonString(name, player, pokemon)))
         }
 
+        val tag = stack.orCreateTag
         if (lore.isNotEmpty()) {
             val display = tag.getCompound(ItemStack.TAG_DISPLAY)
             val loreList = ListTag()
             for (line in lore) {
-                loreList.add(StringTag.valueOf(Component.Serializer.toJson(Utils.deserializeText(line))))
+                loreList.add(StringTag.valueOf(Component.Serializer.toJson(
+                    Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                        .append(Utils.parsePokemonString(line, player, pokemon))
+                )))
             }
             display.put(ItemStack.TAG_LORE, loreList)
             tag.put(ItemStack.TAG_DISPLAY, display)
@@ -53,12 +58,12 @@ class PokemonGuiItem(
                 val element = nbt.get(key)
                 if (element != null) {
                     if (element is StringTag) {
-                        nbtCopy.putString(key, element.asString)
+                        nbtCopy.putString(key, Utils.parsePlaceholders(player, element.asString))
                     } else if (element is ListTag) {
                         val parsed = ListTag()
                         for (entry in element) {
                             if (entry is StringTag) {
-                                parsed.add(StringTag.valueOf(entry.asString))
+                                parsed.add(StringTag.valueOf(Utils.parsePlaceholders(player, entry.asString)))
                             } else {
                                 parsed.add(entry)
                             }

@@ -43,7 +43,7 @@ class ApplyGui(
     fun refresh() {
         for ((id, item) in ConfigManager.APPLY_GUI.items) {
             val button = GooeyButton.builder()
-                .display(item.createItemStack())
+                .display(item.createItemStack(player))
                 .build();
             for (slot in item.slots) {
                 this.template.set(slot, button)
@@ -58,8 +58,8 @@ class ApplyGui(
                 .display(
                     Utils.getOrRunOther(
                         pokemon,
-                        { slotItem.filled.createItemStack(pokemon) },
-                        { slotItem.empty.createItemStack(pokemon) }
+                        { slotItem.filled.createItemStack(player, pokemon) },
+                        { slotItem.empty.createItemStack(player, pokemon) }
                     )
                 )
                 .onClick { cons ->
@@ -134,7 +134,7 @@ class ApplyGui(
     }
 
     override fun getTitle(): Component {
-        return Utils.deserializeText(ConfigManager.APPLY_GUI.title)
+        return Utils.parseSkinString(ConfigManager.APPLY_GUI.title, player, skin)
     }
 
     override fun onClose(action: PageAction) {

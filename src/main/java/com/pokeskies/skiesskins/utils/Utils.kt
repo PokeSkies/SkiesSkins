@@ -1,6 +1,7 @@
 package com.pokeskies.skiesskins.utils
 
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
+import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.*
@@ -8,12 +9,15 @@ import com.mojang.serialization.Codec
 import com.mojang.serialization.JsonOps
 import com.mojang.serialization.codecs.RecordCodecBuilder
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
+import com.pokeskies.skiesskins.config.SkinConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.Registry
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import java.lang.reflect.Type
@@ -26,6 +30,49 @@ object Utils {
 
     fun deserializeText(text: String): Component {
         return SkiesSkins.INSTANCE.adventure!!.toNative(miniMessage.deserialize(text))
+    }
+
+    fun parsePlaceholders(player: ServerPlayer, text: String): String {
+        return SkiesSkins.INSTANCE.placeholderManager.parse(player, text)
+    }
+
+    fun parseSkinString(string: String, player: ServerPlayer, skin: SkinConfig): Component {
+        return deserializeText(
+            parsePlaceholders(
+                player,
+                string.replace("%skin_name%", skin.name)
+                    .replace("%skin_species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
+            )
+        )
+    }
+
+    fun parseSkinStringList(list: List<String>, player: ServerPlayer, skin: SkinConfig): List<Component> {
+        val newList: MutableList<Component> = mutableListOf()
+        for (line in list) {
+            val initialParsed = parsePlaceholders(
+                player,
+                line.replace("%skin_name%", skin.name)
+                    .replace("%skin_species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
+            )
+            if (initialParsed.contains("%skin_description%", true)) {
+                for (dLine in skin.description) {
+                    newList.add(deserializeText(initialParsed.replace("%skin_description%", dLine)))
+                }
+            } else {
+                newList.add(deserializeText(initialParsed))
+            }
+        }
+        return newList
+    }
+
+    fun parsePokemonString(string: String, player: ServerPlayer, pokemon: Pokemon?): Component {
+        var result = parsePlaceholders(player, string)
+        if (pokemon != null) {
+            result = result.replace("%pokemon_skin_name%",
+                SkiesSkinsAPI.getPokemonSkin(pokemon)?.name ?: "None"
+            )
+        }
+        return deserializeText(result)
     }
 
     fun printDebug(message: String?, bypassCheck: Boolean = false) {

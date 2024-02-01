@@ -6,7 +6,9 @@ import com.pokeskies.skiesskins.storage.StorageType
 class MainConfig(
     var debug: Boolean = false,
     val timezone: String = "",
-    val storage: Storage = Storage()
+    val storage: Storage = Storage(),
+    @SerializedName("find_equivalent")
+    val findEquivalent: Boolean = true,
 ) {
     class Storage(
         val type: StorageType = StorageType.JSON,
@@ -89,6 +91,6 @@ class MainConfig(
     }
 
     override fun toString(): String {
-        return "MainConfig(debug=$debug, timezone='$timezone', storage=$storage)"
+        return "MainConfig(debug=$debug, timezone='$timezone', storage=$storage, findEquivalent=$findEquivalent)"
     }
 }
