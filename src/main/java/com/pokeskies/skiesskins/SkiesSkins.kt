@@ -12,7 +12,6 @@ import com.pokeskies.skiesskins.economy.EconomyManager
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
-import com.pokeskies.skiesskins.utils.ImpactorService
 import com.pokeskies.skiesskins.utils.Utils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback

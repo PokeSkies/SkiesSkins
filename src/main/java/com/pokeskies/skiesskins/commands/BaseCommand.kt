@@ -3,11 +3,14 @@ package com.pokeskies.skiesskins.commands
 import com.mojang.brigadier.CommandDispatcher
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.commands.subcommands.*
 import me.lucko.fabric.api.permissions.v0.Permissions
+import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands
+import net.minecraft.network.chat.Component
 
 class BaseCommand {
     private val aliases = listOf("skiesskins", "skins")
@@ -44,8 +47,17 @@ class BaseCommand {
 
     companion object {
         private fun execute(ctx: CommandContext<CommandSourceStack>): Int {
-            val player = ctx.source.player
-            if (player != null) SkiesSkinsAPI.openSkinInventory(player)
+            val player = ctx.source.playerOrException
+
+            if (SkiesSkins.INSTANCE.storage == null) {
+                player.sendMessage(
+                    Component.literal("The storage system is not available at the moment. Please try again later.")
+                        .withStyle { it.withColor(ChatFormatting.RED) }
+                )
+                return 1
+            }
+
+            SkiesSkinsAPI.openSkinInventory(player)
             return 1
         }
     }

@@ -8,7 +8,6 @@ import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.Cobblemon
-import com.cobblemon.mod.common.CobblemonItems
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
@@ -16,19 +15,17 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
-import com.pokeskies.skiesskins.data.UserData
+import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
-import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 
 class ApplyGui(
     private val player: ServerPlayer,
-    val skinData: UserData.SkinData,
+    val skinData: UserSkinData,
     val skin: SkinConfig
 ) : UpdateEmitter<Page?>(), Page {
     private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.APPLY_GUI.size)

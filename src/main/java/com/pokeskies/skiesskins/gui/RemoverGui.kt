@@ -12,7 +12,7 @@ import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
-import com.pokeskies.skiesskins.data.UserData
+import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -71,7 +71,11 @@ class RemoverGui(
                         }
 
                         val user = SkiesSkinsAPI.getUserData(player)
-                        val result = user.inventory.add(UserData.SkinData(skinEntry.first))
+                        val result = user.inventory.add(
+                            UserSkinData(
+                                skinEntry.first
+                            )
+                        )
 
                         if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)

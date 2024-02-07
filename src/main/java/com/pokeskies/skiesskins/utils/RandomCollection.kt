@@ -15,7 +15,10 @@ class RandomCollection<E> @JvmOverloads constructor(private val random: Random =
     fun next(remove: Boolean = false): E {
         val value = random.nextDouble() * total
         val entry = map.higherEntry(value)
-        if (remove) map.remove(entry.key)
+        if (remove) {
+            total -= entry.key
+            map.remove(entry.key)
+        }
         return entry.value
     }
 

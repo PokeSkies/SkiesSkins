@@ -130,7 +130,7 @@ object Utils {
     fun getErrorButton(text: String): GooeyButton {
         return GooeyButton.builder()
             .display(ItemStack(Items.BARRIER))
-            .title(text)
+            .title(Utils.deserializeText(text))
             .build()
     }
 

@@ -8,6 +8,7 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.ApplyConfig
 import com.pokeskies.skiesskins.config.gui.InventoryConfig
 import com.pokeskies.skiesskins.config.gui.RemoverConfig
+import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.utils.Utils
 import java.io.File
 import java.io.FileInputStream
@@ -27,8 +28,9 @@ class ConfigManager(val configDir: File) {
         lateinit var INVENTORY_GUI: InventoryConfig
         lateinit var APPLY_GUI: ApplyConfig
         lateinit var REMOVER_GUI: RemoverConfig
-        var SKINS: BiMap<String, SkinConfig> = HashBiMap.create()
-        var PACKAGES: BiMap<String, String> = HashBiMap.create()
+        var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
+        var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
+        var PACKAGES: MutableMap<String, String> = mutableMapOf()
     }
 
     init {
@@ -42,6 +44,7 @@ class ConfigManager(val configDir: File) {
         APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
         REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverConfig())
         loadSkins()
+        loadShops()
     }
 
     fun copyDefaults() {
@@ -140,7 +143,7 @@ class ConfigManager(val configDir: File) {
     }
 
     private fun loadSkins() {
-        SKINS.clear()
+        SKINS = mutableMapOf()
 
         val dir = configDir.resolve("skins")
         if (dir.exists() && dir.isDirectory) {
@@ -160,6 +163,39 @@ class ConfigManager(val configDir: File) {
                             Utils.printInfo("Successfully read and loaded the skin $fileName!")
                         } catch (ex: Exception) {
                             Utils.printError("Error while trying to parse the skin $fileName!")
+                            ex.printStackTrace()
+                        }
+                    } else {
+                        Utils.printError("File $fileName is either not a file or is not a .json file!")
+                    }
+                }
+            }
+        } else {
+            Utils.printError("The 'skins' directory either does not exist or is not a directory!")
+        }
+    }
+
+    private fun loadShops() {
+        SHOPS = mutableMapOf()
+
+        val dir = configDir.resolve("shops")
+        if (dir.exists() && dir.isDirectory) {
+            val files = Files.walk(dir.toPath())
+                .filter { path: Path -> Files.isRegularFile(path) }
+                .map { it.toFile() }
+                .collect(Collectors.toList())
+            if (files != null) {
+                SkiesSkins.LOGGER.info("Found ${files.size} Shop files: ${files.map { it.name }}")
+                for (file in files) {
+                    val fileName = file.name
+                    if (file.isFile && fileName.contains(".json")) {
+                        val id = fileName.substring(0, fileName.lastIndexOf(".json"))
+                        val jsonReader = JsonReader(InputStreamReader(FileInputStream(file), Charsets.UTF_8))
+                        try {
+                            SHOPS[id] = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), ShopConfig::class.java)
+                            Utils.printInfo("Successfully read and loaded the shop $fileName!")
+                        } catch (ex: Exception) {
+                            Utils.printError("Error while trying to parse the shop $fileName!")
                             ex.printStackTrace()
                         }
                     } else {

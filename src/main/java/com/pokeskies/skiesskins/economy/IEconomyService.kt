@@ -11,21 +11,7 @@ interface IEconomyService {
     fun withdraw(player: ServerPlayer, amount: Double, currency: String = "") : Boolean
     fun deposit(player: ServerPlayer, amount: Double, currency: String = "") : Boolean
     fun set(player: ServerPlayer, amount: Double, currency: String = "") : Boolean
-
-    companion object {
-        fun getEconomyService(economyType: EconomyType) : IEconomyService? {
-            if (!economyType.isModPresent()) return null
-
-            return try {
-                when (economyType) {
-                    EconomyType.IMPACTOR -> ImpactorEconomyService()
-                    EconomyType.PEBBLES -> PebblesEconomyService()
-                }
-            } catch (ex: Exception) {
-                Utils.printError("There was an exception while initializing the Economy Service: ${economyType}. Is it loaded?")
-                ex.printStackTrace()
-                null
-            }
-        }
+    fun getCurrencyFormatted(currency: String, singular: Boolean = true): String {
+        return currency
     }
 }
