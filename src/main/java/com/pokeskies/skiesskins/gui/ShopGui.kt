@@ -11,6 +11,7 @@ import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.config.shop.SkinOptions
+import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.data.shop.RandomShopData
 import com.pokeskies.skiesskins.data.shop.RandomShopData.SkinData
 import com.pokeskies.skiesskins.data.shop.UserShopData
@@ -57,6 +58,7 @@ class ShopGui(
             return
         }
 
+        // RANDOM SKINS
         // Iterate through every set of Random skins in this shop
         for ((setId, set) in shop.skins.random) {
             var randomShopData = shopData.randomData[setId]
@@ -88,39 +90,54 @@ class ShopGui(
                             Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
                         )
                     } else {
-                        template.set(slot, GooeyButton.builder()
-                            .display(set.gui.available.createItemStack(player, shop, shopSkinData, config))
-                            .onClick { ctx ->
-                                if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
-                                    refresh()
-                                    return@onClick
+                        if (shopSkinData.limit <= 0 || skinData.purchases < shopSkinData.limit) {
+                            template.set(slot, GooeyButton.builder()
+                                .display(set.gui.available.createItemStack(player, shop, shopSkinData, config))
+                                .onClick { ctx ->
+                                    if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
+                                        refresh()
+                                        return@onClick
+                                    }
+                                    if (shopSkinData.cost.all { it.withdraw(player, shop) }) {
+                                        skinData.purchases += 1
+                                        userData.inventory.add(UserSkinData(skinData.id))
+                                        SkiesSkinsAPI.saveUserData(player, userData)
+                                        refresh()
+                                        player.sendMessage(
+                                            Component.literal("You purchased a skin!")
+                                                .withStyle { it.withColor(ChatFormatting.GREEN) }
+                                        )
+                                        player.playNotifySound(
+                                            SoundEvents.PLAYER_LEVELUP,
+                                            SoundSource.MASTER,
+                                            0.5f,
+                                            0.5f
+                                        )
+                                    } else {
+                                        player.sendMessage(
+                                            Component.literal("You do not have enough to purchase this skin!")
+                                                .withStyle { it.withColor(ChatFormatting.RED) }
+                                        )
+                                        player.playNotifySound(
+                                            SoundEvents.LAVA_EXTINGUISH,
+                                            SoundSource.MASTER,
+                                            0.5f,
+                                            0.5f
+                                        )
+                                    }
                                 }
-                                if (shopSkinData.cost.all { it.withdraw(player, shop) }) {
-                                    SkiesSkinsAPI.giveUserSkin(player, skinData.id, 1)
-                                    player.sendMessage(
-                                        Component.literal("You purchased a skin!")
-                                            .withStyle { it.withColor(ChatFormatting.GREEN) }
-                                    )
-                                    player.playNotifySound(
-                                        SoundEvents.PLAYER_LEVELUP,
-                                        SoundSource.MASTER,
-                                        0.5f,
-                                        0.5f
-                                    )
-                                } else {
-                                    player.sendMessage(
-                                        Component.literal("You do not have enough to purchase this skin!")
-                                            .withStyle { it.withColor(ChatFormatting.RED) }
-                                    )
-                                    player.playNotifySound(
-                                        SoundEvents.LAVA_EXTINGUISH,
-                                        SoundSource.MASTER,
-                                        0.5f,
-                                        0.5f
-                                    )
-                                }
-                            }
-                            .build()
+                                .build()
+                            )
+                        } else {
+                            template.set(slot, GooeyButton.builder()
+                                .display(set.gui.maxUses.createItemStack(player, shop, shopSkinData, config))
+                                .build()
+                            )
+                        }
+                    }
+                }
+            }
+        }
                         )
                     }
                 }

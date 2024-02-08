@@ -31,11 +31,12 @@ class SkinOptions(
 
         class RandomSkin(
             @JsonAdapter(FlexibleListAdaptorFactory::class)
-            val cost: List<ShopCost>,
-            val weight: Int,
+            val cost: List<ShopCost> = emptyList(),
+            val weight: Int = 1,
+            val limit: Int = 0,
         ) {
             override fun toString(): String {
-                return "Skin(cost=$cost, weight=$weight)"
+                return "RandomSkin(cost=$cost, weight=$weight, limit=$limit)"
             }
         }
 

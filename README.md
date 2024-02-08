@@ -16,10 +16,9 @@ Prominent Features:
 
 TODO - Alpha Testing
 - Shop
-  - Static entries
-  - Packages
-  - Command registration
-  - Purchase limits
+  - Implement static entries
+  - Implement packages
+  - Register shop command aliases
 
 Todo - Beta Release
 - Shop

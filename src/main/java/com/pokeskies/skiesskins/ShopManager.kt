@@ -49,7 +49,6 @@ class ShopManager {
     }
 
     fun userNeedsReset(shopId: String, setId: String, time: Long): Boolean {
-        println(time)
         var timePair = resetTimes[shopId]?.get(setId) ?: return false
         val now = ZonedDateTime.now()
         if (now.isAfter(timePair.second)) {
@@ -57,7 +56,6 @@ class ShopManager {
             timePair = resetTimes[shopId]?.get(setId) ?: return false
         }
 
-        println(ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), timezone))
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), timezone).isBefore(timePair.first)
     }
 
