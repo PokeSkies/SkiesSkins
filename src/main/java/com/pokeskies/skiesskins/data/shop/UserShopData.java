@@ -1,7 +1,6 @@
 package com.pokeskies.skiesskins.data.shop;
 
 import com.google.gson.annotations.SerializedName;
-import com.pokeskies.skiesskins.config.shop.SkinOptions;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.HashMap;
@@ -13,7 +12,7 @@ public class UserShopData {
 
     @BsonProperty(value = "static")
     @SerializedName("static")
-    public HashMap<String, StaticShopData> staticData;
+    public HashMap<String, HashMap<String, StaticShopData>> staticData;
 
     @BsonProperty(value = "packages")
     @SerializedName("packages")
@@ -27,7 +26,7 @@ public class UserShopData {
 
     public UserShopData(
             HashMap<String, RandomShopData> randomData,
-            HashMap<String, StaticShopData> staticData,
+            HashMap<String, HashMap<String, StaticShopData>> staticData,
             HashMap<String, PackageShopData> packagesData
     ) {
         this.randomData = randomData;

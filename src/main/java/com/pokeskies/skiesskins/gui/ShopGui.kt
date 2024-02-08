@@ -14,6 +14,7 @@ import com.pokeskies.skiesskins.config.shop.SkinOptions
 import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.data.shop.RandomShopData
 import com.pokeskies.skiesskins.data.shop.RandomShopData.SkinData
+import com.pokeskies.skiesskins.data.shop.StaticShopData
 import com.pokeskies.skiesskins.data.shop.UserShopData
 import com.pokeskies.skiesskins.utils.RandomCollection
 import com.pokeskies.skiesskins.utils.RefreshableGUI
@@ -23,7 +24,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
-import java.util.HashMap
+import kotlin.collections.HashMap
 
 class ShopGui(
     private val player: ServerPlayer,
@@ -92,9 +93,9 @@ class ShopGui(
                     } else {
                         if (shopSkinData.limit <= 0 || skinData.purchases < shopSkinData.limit) {
                             template.set(slot, GooeyButton.builder()
-                                .display(set.gui.available.createItemStack(player, shop, shopSkinData, config))
+                                .display(set.gui.available.createItemStack(player, shop, shopSkinData.cost, config))
                                 .onClick { ctx ->
-                                    if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
+                                    if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData!!.resetTime)) {
                                         refresh()
                                         return@onClick
                                     }
@@ -130,7 +131,7 @@ class ShopGui(
                             )
                         } else {
                             template.set(slot, GooeyButton.builder()
-                                .display(set.gui.maxUses.createItemStack(player, shop, shopSkinData, config))
+                                .display(set.gui.maxUses.createItemStack(player, shop, shopSkinData.cost, config))
                                 .build()
                             )
                         }
@@ -138,11 +139,68 @@ class ShopGui(
                 }
             }
         }
-                        )
+
+        // STATIC SKINS
+        // Iterate through every set of Static skins in this shop
+        for ((setId, set) in shop.skins.static) {
+            for ((skinId, skin) in set.skins) {
+                var button: GooeyButton
+                // Check to ensure that this skin even exists in the configs
+                val config = ConfigManager.SKINS[skinId]
+                if (config == null) {
+                    button = Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
+                } else {
+                    val staticSetData = shopData.staticData[setId] ?: mutableMapOf()
+                    val staticSkinData = staticSetData[skinId] ?: StaticShopData()
+                    if (skin.limit <= 0 || staticSkinData.purchases < skin.limit) {
+                        button = GooeyButton.builder()
+                            .display(set.gui.available.createItemStack(player, shop, skin.cost, config))
+                            .onClick { ctx ->
+                                if (skin.cost.all { it.withdraw(player, shop) }) {
+                                    staticSkinData.purchases += 1
+                                    staticSetData[skinId] = staticSkinData
+                                    shopData.staticData[setId] = HashMap(staticSetData)
+                                    userData.inventory.add(UserSkinData(skinId))
+                                    SkiesSkinsAPI.saveUserData(player, userData)
+                                    refresh()
+                                    player.sendMessage(
+                                        Component.literal("You purchased a skin!")
+                                            .withStyle { it.withColor(ChatFormatting.GREEN) }
+                                    )
+                                    player.playNotifySound(
+                                        SoundEvents.PLAYER_LEVELUP,
+                                        SoundSource.MASTER,
+                                        0.5f,
+                                        0.5f
+                                    )
+                                } else {
+                                    player.sendMessage(
+                                        Component.literal("You do not have enough to purchase this skin!")
+                                            .withStyle { it.withColor(ChatFormatting.RED) }
+                                    )
+                                    player.playNotifySound(
+                                        SoundEvents.LAVA_EXTINGUISH,
+                                        SoundSource.MASTER,
+                                        0.5f,
+                                        0.5f
+                                    )
+                                }
+                            }
+                            .build()
+                    } else {
+                        button = GooeyButton.builder()
+                            .display(set.gui.maxUses.createItemStack(player, shop, skin.cost, config))
+                            .build()
                     }
+                }
+
+                for (slot in skin.slots) {
+                    template.set(slot, button)
                 }
             }
         }
+
+        // PACKAGES
     }
 
     fun generateShopData(): UserShopData {

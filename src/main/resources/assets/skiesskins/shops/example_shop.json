@@ -60,7 +60,45 @@
       }
     },
     "static": {
-
+      "main": {
+        "gui": {
+          "available": {
+            "item": "cobblemon:pokemon_model",
+            "name": "<green>%skin_name% %skin_species%",
+            "lore": []
+          },
+          "max_uses": {
+            "item": "cobblemon:pokemon_model",
+            "name": "<red>%skin_name% %skin_species%",
+            "lore": []
+          }
+        },
+        "skins": {
+          "pikachu_example_1": {
+            "cost": {
+              "amount": 5
+            }
+          },
+          "pikachu_example_2": {
+            "cost": {
+              "currency": "diamonds",
+              "amount": 5
+            }
+          },
+          "pikachu_example_3": {
+            "cost": [
+              {
+                "currency": "diamonds",
+                "amount": 5
+              },
+              {
+                "currency": "gems",
+                "amount": 5
+              }
+            ]
+          }
+        }
+      }
     }
   },
   "packages": {

@@ -30,7 +30,7 @@ class ShopGuiItem(
         val currencyRegex = "%skin_cost_currency:([0-9]+)%".toRegex()
     }
 
-    fun createItemStack(player: ServerPlayer, shopConfig: ShopConfig, skin: SkinOptions.RandomSet.RandomSkin, skinConfig: SkinConfig): ItemStack {
+    fun createItemStack(player: ServerPlayer, shopConfig: ShopConfig, cost: List<ShopCost>, skinConfig: SkinConfig): ItemStack {
         val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
         if (pokemon != null) {
             for (aspect in skinConfig.aspects.apply) {
@@ -41,12 +41,12 @@ class ShopGuiItem(
 
         if (name != null) {
             stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(parseString(name, player, shopConfig, skin, skinConfig)))
+                .append(parseString(name, player, shopConfig, cost, skinConfig)))
         }
 
         val tag = stack.orCreateTag
         if (lore.isNotEmpty()) {
-            val parsedLore = parseStringList(lore, player, shopConfig, skin, skinConfig)
+            val parsedLore = parseStringList(lore, player, shopConfig, cost, skinConfig)
             val display = tag.getCompound(ItemStack.TAG_DISPLAY)
             val loreList = ListTag()
             for (line in parsedLore) {
@@ -99,19 +99,19 @@ class ShopGuiItem(
         string: String,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        skin: SkinOptions.RandomSet.RandomSkin,
+        cost: List<ShopCost>,
         skinConfig: SkinConfig
     ): String {
         var parsed = string.replace("%skin_name%", skinConfig.name)
             .replace("%skin_species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")
-            .replace("%skin_cost%", skin.cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
+            .replace("%skin_cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
 
         amountRegex.findAll(parsed).toList().forEach { matchResult ->
             val idx = matchResult.groupValues[1].toInt()
             parsed = parsed.replace(
                 "%skin_cost_amount:$idx%",
-                if (skin.cost.size > idx)
-                    skin.cost[idx].amount.toString()
+                if (cost.size > idx)
+                    cost[idx].amount.toString()
                 else ""
             )
         }
@@ -120,8 +120,8 @@ class ShopGuiItem(
             val idx = matchResult.groupValues[1].toInt()
             parsed = parsed.replace(
                 "%skin_cost_currency:$idx%",
-                if (skin.cost.size > idx)
-                    skin.cost[idx].let { it.getCurrencyFormatted(shopConfig, (it.amount > 1)) }
+                if (cost.size > idx)
+                    cost[idx].let { it.getCurrencyFormatted(shopConfig, (it.amount > 1)) }
                 else ""
             )
         }
@@ -133,24 +133,24 @@ class ShopGuiItem(
         string: String,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        skin: SkinOptions.RandomSet.RandomSkin,
+        cost: List<ShopCost>,
         skinConfig: SkinConfig
     ): Component {
-        return Utils.deserializeText(Utils.parsePlaceholders(player, parseStringSimple(string, player, shopConfig, skin, skinConfig)))
+        return Utils.deserializeText(Utils.parsePlaceholders(player, parseStringSimple(string, player, shopConfig, cost, skinConfig)))
     }
 
     private fun parseStringList(
         list: List<String>,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        skin: SkinOptions.RandomSet.RandomSkin,
+        cost: List<ShopCost>,
         skinConfig: SkinConfig
     ): List<Component> {
         val newList: MutableList<Component> = mutableListOf()
         for (line in list) {
             val initialParsed = Utils.parsePlaceholders(
                 player,
-                parseStringSimple(line, player, shopConfig, skin, skinConfig)
+                parseStringSimple(line, player, shopConfig, cost, skinConfig)
             )
             if (initialParsed.contains("%skin_description%", true)) {
                 for (dLine in skinConfig.description) {

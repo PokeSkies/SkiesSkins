@@ -9,7 +9,6 @@ class SkinOptions(
     val random: Map<String, RandomSet>,
     val static: Map<String, StaticSet>,
 ) {
-
     class RandomSet(
         val gui: RandomGUIOptions,
         val skins: Map<String, RandomSkin>,
@@ -45,7 +44,38 @@ class SkinOptions(
         }
     }
 
-    class StaticSet {
+    class StaticSet(
+        val gui: StaticGUIOptions,
+        val skins: Map<String, StaticSkin>
+    ) {
+        class StaticGUIOptions(
+            val available: ShopGuiItem,
+            @SerializedName("max_uses")
+            val maxUses: ShopGuiItem,
+        ) {
+            override fun toString(): String {
+                return "StaticGUIOptions(available=$available, maxUses=$maxUses)"
+            }
+        }
 
+        class StaticSkin(
+            @JsonAdapter(FlexibleListAdaptorFactory::class)
+            val slots: List<Int>,
+            @JsonAdapter(FlexibleListAdaptorFactory::class)
+            val cost: List<ShopCost> = emptyList(),
+            val limit: Int = 0,
+        ) {
+            override fun toString(): String {
+                return "StaticSkin(slots=$slots, cost=$cost, limit=$limit)"
+            }
+        }
+
+        override fun toString(): String {
+            return "StaticSet(gui=$gui, skins=$skins)"
+        }
+    }
+
+    override fun toString(): String {
+        return "SkinOptions(random=$random, static=$static)"
     }
 }
