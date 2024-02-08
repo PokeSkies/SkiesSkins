@@ -159,8 +159,11 @@ class ConfigManager(val configDir: File) {
                         val id = fileName.substring(0, fileName.lastIndexOf(".json"))
                         val jsonReader = JsonReader(InputStreamReader(FileInputStream(file), Charsets.UTF_8))
                         try {
-                            SKINS[id] = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), SkinConfig::class.java)
-                            Utils.printInfo("Successfully read and loaded the skin $fileName!")
+                            val config = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), SkinConfig::class.java)
+                            if (config.enabled) {
+                                SKINS[id] = config
+                                Utils.printInfo("Successfully read and loaded the skin $fileName!")
+                            }
                         } catch (ex: Exception) {
                             Utils.printError("Error while trying to parse the skin $fileName!")
                             ex.printStackTrace()

@@ -1,5 +1,6 @@
 package com.pokeskies.skiesskins
 
+import ca.landonjw.gooeylibs2.api.UIManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
@@ -12,6 +13,7 @@ import com.pokeskies.skiesskins.economy.EconomyManager
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
+import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
@@ -32,6 +34,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.io.IOException
 import java.nio.file.Files
+import java.util.UUID
 
 class SkiesSkins : ModInitializer {
     companion object {
@@ -49,6 +52,8 @@ class SkiesSkins : ModInitializer {
     lateinit var economyManager: EconomyManager
     lateinit var placeholderManager: PlaceholderManager
     lateinit var shopManager: ShopManager
+
+    var inventoryControllers: MutableMap<UUID, RefreshableGUI> = mutableMapOf()
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
         .registerTypeAdapter(Action::class.java, ActionType.ActionTypeAdaptor())
@@ -93,9 +98,17 @@ class SkiesSkins : ModInitializer {
     fun reload() {
         this.configManager.reload()
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
-        this.shopManager.reload()
+        this.shopManager.reload(ConfigManager.CONFIG.ticksPerUpdate)
         this.placeholderManager = PlaceholderManager()
         this.economyManager = EconomyManager()
+
+        // Reset all players with active GUIs
+        this.inventoryControllers.forEach { (uuid, _) ->
+            this.server?.playerList?.getPlayer(uuid)?.let { player ->
+                UIManager.closeUI(player)
+            }
+        }
+        this.inventoryControllers.clear()
     }
 
     fun <T : Any> loadFile(filename: String, default: T, create: Boolean = false): T {

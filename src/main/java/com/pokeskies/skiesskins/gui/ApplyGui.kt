@@ -12,10 +12,12 @@ import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.data.UserSkinData
+import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -27,17 +29,19 @@ class ApplyGui(
     private val player: ServerPlayer,
     val skinData: UserSkinData,
     val skin: SkinConfig
-) : UpdateEmitter<Page?>(), Page {
+) : RefreshableGUI() {
     private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.APPLY_GUI.size)
         .build()
 
     private var shouldClose = false
 
     init {
+        this.subscribe(this, Runnable { refresh() })
+        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
         refresh()
     }
 
-    fun refresh() {
+    override fun refresh() {
         for ((id, item) in ConfigManager.APPLY_GUI.items) {
             val button = GooeyButton.builder()
                 .display(item.createItemStack(player))
@@ -143,6 +147,7 @@ class ApplyGui(
     }
 
     override fun onClose(action: PageAction) {
+        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
         if (!shouldClose) {
             SkiesSkinsAPI.openSkinInventory(player)
         }

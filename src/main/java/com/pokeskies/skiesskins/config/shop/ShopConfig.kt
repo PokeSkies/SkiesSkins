@@ -10,6 +10,7 @@ class ShopConfig(
     val packages: PackageOptions,
 ) {
     class ShopOptions(
+        val enabled: Boolean,
         val economy: EconomyOptions,
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val aliases: List<String>,
@@ -26,7 +27,7 @@ class ShopConfig(
         }
 
         override fun toString(): String {
-            return "ShopOptions(economy=$economy, aliases=$aliases, size=$size, title='$title')"
+            return "ShopOptions(enabled=$enabled, economy=$economy, aliases=$aliases, size=$size, title='$title')"
         }
     }
 }

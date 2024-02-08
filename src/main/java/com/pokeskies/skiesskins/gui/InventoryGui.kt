@@ -4,22 +4,25 @@ import ca.landonjw.gooeylibs2.api.UIManager
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
 import ca.landonjw.gooeylibs2.api.data.UpdateEmitter
 import ca.landonjw.gooeylibs2.api.page.Page
+import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
+import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
 class InventoryGui(
     val player: ServerPlayer
-) : UpdateEmitter<Page>(), Page {
+) : RefreshableGUI() {
     private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.INVENTORY_GUI.size)
         .build()
 
@@ -27,10 +30,12 @@ class InventoryGui(
     private var maxPages = 1
 
     init {
+        this.subscribe(this, Runnable { refresh() })
+        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
         refresh()
     }
 
-    fun refresh() {
+    override fun refresh() {
         val user = SkiesSkinsAPI.getUserData(player)
         val slots = ConfigManager.INVENTORY_GUI.skinOptions.slots
         maxPages = (user.inventory.size / (slots.size + 1)) + 1
@@ -80,7 +85,14 @@ class InventoryGui(
                             Component::class.java,
                             Utils.parseSkinStringList(ConfigManager.INVENTORY_GUI.skinOptions.lore, player, skinEntry)
                         )
-                        .onClick { ctx -> UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry)) }
+                        .onClick { ctx ->
+                            val user = SkiesSkinsAPI.getUserData(player)
+                            if (user.inventory.contains(skin)) {
+                                UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry))
+                            } else {
+                                refresh()
+                            }
+                        }
                         .build())
                 }
             }
@@ -111,6 +123,10 @@ class InventoryGui(
                 .build()
             )
         }
+    }
+
+    override fun onClose(action: PageAction) {
+        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
     }
 
     override fun getTemplate(): Template {

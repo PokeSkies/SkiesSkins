@@ -10,6 +10,8 @@ class MainConfig(
     @SerializedName("find_equivalent")
     val findEquivalent: Boolean = true,
     val untradable: Boolean = true,
+    @SerializedName("ticks_per_update")
+    val ticksPerUpdate: Int = 20,
 ) {
     class Storage(
         val type: StorageType = StorageType.JSON,
@@ -92,7 +94,6 @@ class MainConfig(
     }
 
     override fun toString(): String {
-        return "MainConfig(debug=$debug, timezone='$timezone', storage=$storage, findEquivalent=$findEquivalent, untradable=$untradable)"
+        return "MainConfig(debug=$debug, timezone='$timezone', storage=$storage, findEquivalent=$findEquivalent, untradable=$untradable, ticksPerUpdate=$ticksPerUpdate)"
     }
-
 }

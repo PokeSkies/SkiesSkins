@@ -4,15 +4,18 @@ import ca.landonjw.gooeylibs2.api.UIManager
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
 import ca.landonjw.gooeylibs2.api.data.UpdateEmitter
 import ca.landonjw.gooeylibs2.api.page.Page
+import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.pokemon.Pokemon
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.data.UserSkinData
+import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -22,15 +25,17 @@ import net.minecraft.sounds.SoundSource
 
 class RemoverGui(
     private val player: ServerPlayer
-) : UpdateEmitter<Page?>(), Page {
+) : RefreshableGUI() {
     private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.REMOVER_GUI.size)
         .build()
 
     init {
+        this.subscribe(this, Runnable { refresh() })
+        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
         refresh()
     }
 
-    fun refresh() {
+    override fun refresh() {
         for ((id, item) in ConfigManager.REMOVER_GUI.items) {
             val button = GooeyButton.builder()
                 .display(item.createItemStack(player))
@@ -103,6 +108,10 @@ class RemoverGui(
                 template.set(slot, button)
             }
         }
+    }
+
+    override fun onClose(action: PageAction) {
+        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
     }
 
     override fun getTemplate(): Template {

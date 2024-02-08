@@ -26,7 +26,6 @@ class BaseCommand {
         val rootCommands: List<LiteralCommandNode<CommandSourceStack>> = aliases.map {
             Commands.literal(it)
                 .requires(Permissions.require("skiesskins.command.base", 4))
-                .requires { obj: CommandSourceStack -> obj.isPlayer }
                 .executes(BaseCommand::execute)
                 .build()
         }
@@ -37,6 +36,8 @@ class BaseCommand {
             ShopCommand().build(),
             GiveSkinCommand().build(),
             RemoverCommand().build(),
+            ResetShopCommand().build(),
+            ResetInventoryCommand().build(),
         )
 
         rootCommands.forEach { root ->

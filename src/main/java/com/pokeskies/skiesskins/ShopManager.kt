@@ -1,6 +1,9 @@
 package com.pokeskies.skiesskins
 
+import ca.landonjw.gooeylibs2.api.UIManager
 import com.pokeskies.skiesskins.config.ConfigManager
+import com.pokeskies.skiesskins.gui.ShopGui
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import java.time.Instant
 import java.time.LocalTime
 import java.time.ZoneId
@@ -15,21 +18,38 @@ class ShopManager {
 
     // A map of (Shop ID to (Map of random set IDs to (pair of last and next reset times)))
     private var resetTimes: MutableMap<String, MutableMap<String, Pair<ZonedDateTime, ZonedDateTime>?>> = mutableMapOf()
+    private var ticks = 0
 
     companion object {
         val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
     }
 
     init {
-        reload()
+        reload(ConfigManager.CONFIG.ticksPerUpdate)
     }
 
-    fun reload() {
+    fun reload(ticksPerUpdate: Int = 20) {
         timezone = ZoneId.of(ConfigManager.CONFIG.timezone)
         updateResetTimes()
+
+        ServerTickEvents.END_SERVER_TICK.register(ServerTickEvents.EndTick { _ ->
+            ticks++
+            if (ticks % ticksPerUpdate == 0) {
+                val now = ZonedDateTime.now()
+                for (time in resetTimes.toMutableMap()) {
+                    for (pair in time.value) {
+                        if (now.isAfter(pair.value?.second ?: continue)) {
+                            updateResetTimes()
+                            break
+                        }
+                    }
+                }
+            }
+        })
     }
 
     fun userNeedsReset(shopId: String, setId: String, time: Long): Boolean {
+        println(time)
         var timePair = resetTimes[shopId]?.get(setId) ?: return false
         val now = ZonedDateTime.now()
         if (now.isAfter(timePair.second)) {
@@ -37,6 +57,7 @@ class ShopManager {
             timePair = resetTimes[shopId]?.get(setId) ?: return false
         }
 
+        println(ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), timezone))
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), timezone).isBefore(timePair.first)
     }
 
@@ -49,6 +70,12 @@ class ShopManager {
                 sets[setId] = getResetTimes(set.resetTimes)
             }
             resetTimes[shopId] = sets
+        }
+
+        SkiesSkins.INSTANCE.inventoryControllers.toMap().forEach { (_, controller) ->
+            if (controller is ShopGui) {
+                controller.refresh()
+            }
         }
     }
 

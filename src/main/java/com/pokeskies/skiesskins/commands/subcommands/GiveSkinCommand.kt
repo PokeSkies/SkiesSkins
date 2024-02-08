@@ -75,6 +75,7 @@ class GiveSkinCommand : SubCommand {
 
             if (players.size == 1) {
                 val player = players.first()
+                SkiesSkinsAPI.giveUserSkin(player, skinId, amount)
                 ctx.source.sendMessage(
                     Component.empty()
                         .append(
