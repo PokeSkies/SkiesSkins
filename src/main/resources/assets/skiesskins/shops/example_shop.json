@@ -17,12 +17,12 @@
           "slots": [ 0, 1, 2, 3, 4 ],
           "available": {
             "item": "cobblemon:pokemon_model",
-            "name": "<green>%skin_name% %skin_species%",
+            "name": "<green>%name% %species%",
             "lore": []
           },
           "max_uses": {
             "item": "cobblemon:pokemon_model",
-            "name": "<red>%skin_name% %skin_species%",
+            "name": "<red>%name% %species%",
             "lore": []
           }
         },
@@ -64,12 +64,12 @@
         "gui": {
           "available": {
             "item": "cobblemon:pokemon_model",
-            "name": "<green>%skin_name% %skin_species%",
+            "name": "<green>%name% %species%",
             "lore": []
           },
           "max_uses": {
             "item": "cobblemon:pokemon_model",
-            "name": "<red>%skin_name% %skin_species%",
+            "name": "<red>%name% %species%",
             "lore": []
           }
         },
@@ -102,6 +102,30 @@
     }
   },
   "packages": {
-
+    "test": {
+      "gui": {
+        "slots": [ 20, 21, 29, 30 ],
+        "available": {
+          "item": "minecraft:green_stained_glass_pane",
+          "name": "<green>Test Package",
+          "lore": []
+        },
+        "max_uses": {
+          "item": "minecraft:red_stained_glass_pane",
+          "name": "<red>Test Package",
+          "lore": []
+        }
+      },
+      "cost": {
+        "currency": "diamonds",
+        "amount": 5
+      },
+      "limit": 1,
+      "skins": [
+        "pikachu_example",
+        "pikachu_example_2",
+        "pikachu_example_3"
+      ]
+    }
   }
 }

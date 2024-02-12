@@ -40,8 +40,8 @@ object Utils {
         return deserializeText(
             parsePlaceholders(
                 player,
-                string.replace("%skin_name%", skin.name)
-                    .replace("%skin_species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
+                string.replace("%name%", skin.name)
+                    .replace("%species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
             )
         )
     }
@@ -51,12 +51,12 @@ object Utils {
         for (line in list) {
             val initialParsed = parsePlaceholders(
                 player,
-                line.replace("%skin_name%", skin.name)
-                    .replace("%skin_species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
+                line.replace("%name%", skin.name)
+                    .replace("%species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
             )
-            if (initialParsed.contains("%skin_description%", true)) {
+            if (initialParsed.contains("%description%", true)) {
                 for (dLine in skin.description) {
-                    newList.add(deserializeText(initialParsed.replace("%skin_description%", dLine)))
+                    newList.add(deserializeText(initialParsed.replace("%description%", dLine)))
                 }
             } else {
                 newList.add(deserializeText(initialParsed))

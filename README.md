@@ -16,17 +16,17 @@ Prominent Features:
 
 TODO - Alpha Testing
 - Shop
-  - Implement static entries
   - Implement packages
-  - Register shop command aliases
 
 Todo - Beta Release
 - Shop
   - Permission based discounts
+  - Timer Placeholder (random and package)
 - Confirmation UIs
   - Shop Purchase
   - Inventory Application
 - Scrapping
+- Placeholder integrations
 
 Todo - Future Releases
 - Shop

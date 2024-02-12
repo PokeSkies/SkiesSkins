@@ -19,9 +19,6 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.util.stream.Collectors
 
-
-
-
 class ConfigManager(val configDir: File) {
     companion object {
         lateinit var CONFIG: MainConfig
@@ -30,7 +27,6 @@ class ConfigManager(val configDir: File) {
         lateinit var REMOVER_GUI: RemoverConfig
         var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
         var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
-        var PACKAGES: MutableMap<String, String> = mutableMapOf()
     }
 
     init {
@@ -113,20 +109,6 @@ class ConfigManager(val configDir: File) {
             }
         }
 
-        // If the 'packages' directory does not exist, create it and copy the default example package
-        val packagesDirectory = configDir.resolve("packages")
-        if (!packagesDirectory.exists()) {
-            packagesDirectory.mkdirs()
-            val file = packagesDirectory.resolve("example_package.json")
-            try {
-                val resourceFile: Path =
-                    Path.of(classLoader.getResource("assets/skiesskins/packages/example_package.json").toURI())
-                Files.copy(resourceFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: Exception) {
-                Utils.printError("Failed to copy the default packages file: " + e.message)
-            }
-        }
-
         // If the 'shops' directory does not exist, create it and copy the default example shop
         val shopsDirectory = configDir.resolve("shops")
         if (!shopsDirectory.exists()) {
@@ -153,6 +135,7 @@ class ConfigManager(val configDir: File) {
                 .collect(Collectors.toList())
             if (files != null) {
                 SkiesSkins.LOGGER.info("Found ${files.size} Skin files: ${files.map { it.name }}")
+                val enabledFiles = mutableListOf<String>()
                 for (file in files) {
                     val fileName = file.name
                     if (file.isFile && fileName.contains(".json")) {
@@ -162,7 +145,7 @@ class ConfigManager(val configDir: File) {
                             val config = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), SkinConfig::class.java)
                             if (config.enabled) {
                                 SKINS[id] = config
-                                Utils.printInfo("Successfully read and loaded the skin $fileName!")
+                                enabledFiles.add(fileName)
                             }
                         } catch (ex: Exception) {
                             Utils.printError("Error while trying to parse the skin $fileName!")
@@ -172,6 +155,7 @@ class ConfigManager(val configDir: File) {
                         Utils.printError("File $fileName is either not a file or is not a .json file!")
                     }
                 }
+                Utils.printInfo("Successfully read and loaded the following enabled skin files: $enabledFiles")
             }
         } else {
             Utils.printError("The 'skins' directory either does not exist or is not a directory!")
@@ -189,14 +173,18 @@ class ConfigManager(val configDir: File) {
                 .collect(Collectors.toList())
             if (files != null) {
                 SkiesSkins.LOGGER.info("Found ${files.size} Shop files: ${files.map { it.name }}")
+                val enabledFiles = mutableListOf<String>()
                 for (file in files) {
                     val fileName = file.name
                     if (file.isFile && fileName.contains(".json")) {
                         val id = fileName.substring(0, fileName.lastIndexOf(".json"))
                         val jsonReader = JsonReader(InputStreamReader(FileInputStream(file), Charsets.UTF_8))
                         try {
-                            SHOPS[id] = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), ShopConfig::class.java)
-                            Utils.printInfo("Successfully read and loaded the shop $fileName!")
+                            val config = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), ShopConfig::class.java)
+                            if (config.options.enabled) {
+                                SHOPS[id] = config
+                                enabledFiles.add(fileName)
+                            }
                         } catch (ex: Exception) {
                             Utils.printError("Error while trying to parse the shop $fileName!")
                             ex.printStackTrace()
@@ -205,6 +193,7 @@ class ConfigManager(val configDir: File) {
                         Utils.printError("File $fileName is either not a file or is not a .json file!")
                     }
                 }
+                Utils.printInfo("Successfully read and loaded the following enabled shop files: $enabledFiles")
             }
         } else {
             Utils.printError("The 'skins' directory either does not exist or is not a directory!")

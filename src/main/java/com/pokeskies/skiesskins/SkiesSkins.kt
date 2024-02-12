@@ -4,6 +4,7 @@ import ca.landonjw.gooeylibs2.api.UIManager
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
+import com.pokeskies.skiesskins.commands.AliasCommands
 import com.pokeskies.skiesskins.commands.BaseCommand
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.actions.Action
@@ -90,6 +91,9 @@ class SkiesSkins : ModInitializer {
         })
         CommandRegistrationCallback.EVENT.register { dispatcher, _, _ ->
             BaseCommand().register(
+                dispatcher
+            )
+            AliasCommands().register(
                 dispatcher
             )
         }

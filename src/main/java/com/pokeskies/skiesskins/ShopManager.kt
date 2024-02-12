@@ -3,6 +3,7 @@ package com.pokeskies.skiesskins
 import ca.landonjw.gooeylibs2.api.UIManager
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.gui.ShopGui
+import com.pokeskies.skiesskins.utils.Utils
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import java.time.Instant
 import java.time.LocalTime
@@ -59,13 +60,18 @@ class ShopManager {
         return ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), timezone).isBefore(timePair.first)
     }
 
+    fun getShopSetResetTime(shopId: String, setId: String): Long? {
+        return resetTimes[shopId]?.get(setId)?.second?.toInstant()?.toEpochMilli()
+    }
+
     private fun updateResetTimes() {
         resetTimes.clear()
         for ((shopId, config) in ConfigManager.SHOPS) {
             val sets: MutableMap<String, Pair<ZonedDateTime, ZonedDateTime>?> = mutableMapOf()
             for ((setId, set) in config.skins.random) {
-                println("The result of getResetTimes is: ${getResetTimes(set.resetTimes)}")
-                sets[setId] = getResetTimes(set.resetTimes)
+                val time = getResetTimes(set.resetTimes)
+                Utils.printDebug("Shop '$shopId' has set '$setId' with reset times: LastReset=${time?.first} NextReset=${time?.second}")
+                sets[setId] = time
             }
             resetTimes[shopId] = sets
         }
@@ -158,67 +164,4 @@ class ShopManager {
 
         return Pair(lastReset, nextReset)
     }
-
-//    fun findRecentAndNextTimestamps(timestamps: List<String>, timeZone: ZoneId): Pair<ZonedDateTime, ZonedDateTime>? {
-//        val formatter = DateTimeFormatter.ofPattern("HH:mm")
-//
-//        // Get the current date and time with the specified time zone
-//        val currentDate = ZonedDateTime.now(timeZone)
-//
-//        var mostRecentTimestamp: ZonedDateTime? = null
-//        var nextTimestamp: ZonedDateTime? = null
-//
-//        for (timestamp in timestamps) {
-//            println("1 Timestamp: $timestamp")
-//            try {
-//                val time = LocalTime.parse(timestamp, formatter)
-//                println("2 Time: $time")
-//                val timestampToday = currentDate.with(time)
-//                println("3 Timestamp today: $timestampToday")
-//
-//                // Check if the timestamp is in the future or the same day
-//                println("4 isEqual=${timestampToday.isEqual(currentDate)} isAfter=${timestampToday.isAfter(currentDate)}")
-//                if (timestampToday.isEqual(currentDate) || timestampToday.isAfter(currentDate)) {
-//                    println("5 nullCheck=${nextTimestamp == null} isBefore=${nextTimestamp?.let { timestampToday.isBefore(it) }}")
-//                    if (nextTimestamp == null || timestampToday.isBefore(nextTimestamp)) {
-//                        nextTimestamp = timestampToday
-//                    }
-//                } else {
-//                    // Check if the timestamp is the most recent or the same day
-//                    println("7 nullCheck=${mostRecentTimestamp == null} isAfter=${mostRecentTimestamp?.let { timestampToday.isAfter(mostRecentTimestamp) }}")
-//                    if (mostRecentTimestamp == null || timestampToday.isAfter(mostRecentTimestamp)) {
-//                        mostRecentTimestamp = timestampToday
-//                    }
-//                }
-//            } catch (e: DateTimeParseException) {
-//                // Handle invalid timestamp format
-//                println("Invalid timestamp format: $timestamp")
-//            } catch (e: ZoneRulesException) {
-//                // Handle invalid time zone
-//                println("Invalid time zone: $timeZone")
-//                return null
-//            }
-//        }
-//
-//        // If nextTimestamp is still null, it means all timestamps are in the past
-//        println("8 nextTimestamp: $nextTimestamp")
-//        if (nextTimestamp == null) {
-//            nextTimestamp = mostRecentTimestamp!!.plus(1, ChronoUnit.DAYS)
-//            println("9 nextTimestamp: $nextTimestamp")
-//        }
-//
-//        // If mostRecentTimestamp is still null, it means all timestamps are in the future
-//        println("10 mostRecentTimestamp: $mostRecentTimestamp")
-//        if (mostRecentTimestamp == null) {
-//            mostRecentTimestamp = nextTimestamp!!.minus(1, ChronoUnit.DAYS)
-//            println("11 mostRecentTimestamp: $mostRecentTimestamp")
-//        }
-//
-//        // Return null if either the next or last timestamps are null
-//        return if (nextTimestamp != null && mostRecentTimestamp != null) {
-//            Pair(mostRecentTimestamp, nextTimestamp)
-//        } else {
-//            null
-//        }
-//    }
 }

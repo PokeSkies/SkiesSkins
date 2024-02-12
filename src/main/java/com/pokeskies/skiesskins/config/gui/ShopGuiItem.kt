@@ -1,10 +1,12 @@
-package com.pokeskies.skiesskins.config.shop
+package com.pokeskies.skiesskins.config.gui
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.config.SkinConfig
+import com.pokeskies.skiesskins.config.shop.ShopConfig
+import com.pokeskies.skiesskins.config.shop.ShopCost
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.nbt.CompoundTag
@@ -26,27 +28,40 @@ class ShopGuiItem(
     val nbt: CompoundTag? = null
 ) {
     companion object {
-        val amountRegex = "%skin_cost_amount:([0-9]+)%".toRegex()
-        val currencyRegex = "%skin_cost_currency:([0-9]+)%".toRegex()
+        val amountRegex = "%cost_amount:([0-9]+)%".toRegex()
+        val currencyRegex = "%cost_currency:([0-9]+)%".toRegex()
     }
 
-    fun createItemStack(player: ServerPlayer, shopConfig: ShopConfig, cost: List<ShopCost>, skinConfig: SkinConfig): ItemStack {
-        val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
-        if (pokemon != null) {
-            for (aspect in skinConfig.aspects.apply) {
-                PokemonProperties.parse(aspect).apply(pokemon)
+    fun createItemStack(
+        player: ServerPlayer,
+        shopConfig: ShopConfig,
+        cost: List<ShopCost>,
+        limit: Int,
+        purchases: Int,
+        skinConfig: SkinConfig?,
+        resetTime: Long?
+    ): ItemStack {
+        var stack = ItemStack(item, amount)
+
+        // If the item type is a PokemonItem and the Pokemon is valid, set it to the Pokemon Model item
+        if (item is PokemonItem && skinConfig != null) {
+            val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
+            if (pokemon != null) {
+                for (aspect in skinConfig.aspects.apply) {
+                    PokemonProperties.parse(aspect).apply(pokemon)
+                }
+                stack = PokemonItem.from(pokemon, amount)
             }
         }
-        val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
 
         if (name != null) {
             stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(parseString(name, player, shopConfig, cost, skinConfig)))
+                .append(parseString(name, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)))
         }
 
         val tag = stack.orCreateTag
         if (lore.isNotEmpty()) {
-            val parsedLore = parseStringList(lore, player, shopConfig, cost, skinConfig)
+            val parsedLore = parseStringList(lore, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
             val display = tag.getCompound(ItemStack.TAG_DISPLAY)
             val loreList = ListTag()
             for (line in parsedLore) {
@@ -100,16 +115,28 @@ class ShopGuiItem(
         player: ServerPlayer,
         shopConfig: ShopConfig,
         cost: List<ShopCost>,
-        skinConfig: SkinConfig
+        limit: Int,
+        purchases: Int,
+        skinConfig: SkinConfig?,
+        resetTime: Long?
     ): String {
-        var parsed = string.replace("%skin_name%", skinConfig.name)
-            .replace("%skin_species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")
-            .replace("%skin_cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
+        var parsed = string.replace("%cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
+            .replace("%limit%", if (limit > 0) limit.toString() else "∞")
+            .replace("%purchases%", purchases.toString())
+
+        if (skinConfig != null) {
+            parsed = parsed.replace("%name%", skinConfig.name)
+                .replace("%species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")
+        }
+
+        if (resetTime != null) {
+            parsed = parsed.replace("%reset_time%", Utils.getFormattedTime((resetTime - System.currentTimeMillis()) / 1000))
+        }
 
         amountRegex.findAll(parsed).toList().forEach { matchResult ->
             val idx = matchResult.groupValues[1].toInt()
             parsed = parsed.replace(
-                "%skin_cost_amount:$idx%",
+                "%cost_amount:$idx%",
                 if (cost.size > idx)
                     cost[idx].amount.toString()
                 else ""
@@ -119,7 +146,7 @@ class ShopGuiItem(
         currencyRegex.findAll(parsed).toList().forEach { matchResult ->
             val idx = matchResult.groupValues[1].toInt()
             parsed = parsed.replace(
-                "%skin_cost_currency:$idx%",
+                "%cost_currency:$idx%",
                 if (cost.size > idx)
                     cost[idx].let { it.getCurrencyFormatted(shopConfig, (it.amount > 1)) }
                 else ""
@@ -134,9 +161,14 @@ class ShopGuiItem(
         player: ServerPlayer,
         shopConfig: ShopConfig,
         cost: List<ShopCost>,
-        skinConfig: SkinConfig
+        limit: Int,
+        purchases: Int,
+        skinConfig: SkinConfig?,
+        resetTime: Long?
     ): Component {
-        return Utils.deserializeText(Utils.parsePlaceholders(player, parseStringSimple(string, player, shopConfig, cost, skinConfig)))
+        return Utils.deserializeText(Utils.parsePlaceholders(player, parseStringSimple(
+            string, player, shopConfig, cost, limit, purchases, skinConfig, resetTime
+        )))
     }
 
     private fun parseStringList(
@@ -144,17 +176,20 @@ class ShopGuiItem(
         player: ServerPlayer,
         shopConfig: ShopConfig,
         cost: List<ShopCost>,
-        skinConfig: SkinConfig
+        limit: Int,
+        purchases: Int,
+        skinConfig: SkinConfig?,
+        resetTime: Long?
     ): List<Component> {
         val newList: MutableList<Component> = mutableListOf()
         for (line in list) {
             val initialParsed = Utils.parsePlaceholders(
                 player,
-                parseStringSimple(line, player, shopConfig, cost, skinConfig)
+                parseStringSimple(line, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
             )
-            if (initialParsed.contains("%skin_description%", true)) {
+            if (skinConfig != null && initialParsed.contains("%description%", true)) {
                 for (dLine in skinConfig.description) {
-                    newList.add(Utils.deserializeText(initialParsed.replace("%skin_description%", dLine)))
+                    newList.add(Utils.deserializeText(initialParsed.replace("%description%", dLine)))
                 }
             } else {
                 newList.add(Utils.deserializeText(initialParsed))
