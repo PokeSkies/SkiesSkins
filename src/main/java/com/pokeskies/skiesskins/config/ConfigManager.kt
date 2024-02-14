@@ -16,6 +16,7 @@ import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.file.Files
 import java.nio.file.Path
+import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.stream.Collectors
 
@@ -99,13 +100,19 @@ class ConfigManager(val configDir: File) {
         val skinsDirectory = configDir.resolve("skins")
         if (!skinsDirectory.exists()) {
             skinsDirectory.mkdirs()
-            val file = skinsDirectory.resolve("pikachu_example.json")
             try {
-                val resourceFile: Path =
-                    Path.of(classLoader.getResource("assets/skiesskins/skins/pikachu_example.json").toURI())
-                Files.copy(resourceFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                val sourceUrl = classLoader.getResource("assets/skiesskins/skins")
+                val sourcePath = Paths.get(sourceUrl.toURI())
+
+                Files.walk(sourcePath).use { stream ->
+                    stream.filter { Files.isRegularFile(it) }
+                        .forEach { sourceFile ->
+                            val destinationFile = skinsDirectory.resolve(sourcePath.relativize(sourceFile).toString())
+                            Files.copy(sourceFile, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                        }
+                }
             } catch (e: Exception) {
-                Utils.printError("Failed to copy the default skins file: " + e.message)
+                Utils.printError("Failed to copy the default skins files: " + e.message)
             }
         }
 

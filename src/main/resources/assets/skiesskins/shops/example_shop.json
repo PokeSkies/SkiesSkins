@@ -2,10 +2,10 @@
   "options": {
     "economy": {
       "provider": "IMPACTOR",
-      "currency": "gems"
+      "currency": "impactor:dollars"
     },
     "aliases": [
-      "shop_example"
+      "exampleshop"
     ],
     "size": 6,
     "title": "<gold>Example Shop"
@@ -14,48 +14,83 @@
     "random": {
       "daily": {
         "gui": {
-          "slots": [ 0, 1, 2, 3, 4 ],
+          "slots": [ 38, 39, 40, 41, 42 ],
           "available": {
             "item": "cobblemon:pokemon_model",
-            "name": "<green>%name% %species%",
-            "lore": []
+            "name": "<green><b>%name% %species%",
+            "lore": [
+              "",
+              "<gray>%description%",
+              "",
+              "<green>Cost: <white>%cost%",
+              "<green>Limit: <white>%purchases%/%limit%",
+              "",
+              "<green>Resets In: <white>%reset_time%",
+              "",
+              "<aqua>Click to purchase skin"
+            ]
           },
           "max_uses": {
             "item": "cobblemon:pokemon_model",
-            "name": "<red>%name% %species%",
-            "lore": []
+            "name": "<red><b>%name% %species%",
+            "lore": [
+              "",
+              "<gray>%description%",
+              "",
+              "<green>Cost: <white>%cost%",
+              "<green>Limit: <white>%purchases%/%limit%",
+              "",
+              "<green>Resets In: <white>%reset_time%",
+              "",
+              "<red>Purchase limit reached"
+            ]
           }
         },
         "skins": {
-          "pikachu_example_1": {
-            "cost": {
-              "amount": 5
-            },
-            "weight": 1
-          },
-          "pikachu_example_2": {
-            "cost": {
-              "currency": "diamonds",
-              "amount": 5
-            },
-            "weight": 1
-          },
-          "pikachu_example_3": {
+          "pikachu_example": {
             "cost": [
               {
-                "currency": "diamonds",
+                "currency": "impactor:dollars",
                 "amount": 5
               },
               {
-                "currency": "gems",
+                "currency": "impactor:coins",
                 "amount": 5
               }
             ],
             "weight": 1
+          },
+          "charmander_example": {
+            "cost": {
+              "amount": 5
+            },
+            "weight": 1,
+            "limit": 100
+          },
+          "bulbasaur_example": {
+            "cost": {
+              "amount": 5
+            },
+            "weight": 1,
+            "limit": 1
+          },
+          "ivysaur_example": {
+            "cost": {
+              "amount": 5
+            },
+            "weight": 1
+          },
+          "venusaur_example": {
+            "cost": [],
+            "weight": 1,
+            "limit": 1
           }
         },
         "reset_times": [
-          "0:00"
+          "00:00",
+          "06:00",
+          "12:00",
+          "12:37"
         ]
       }
     },
@@ -64,68 +99,104 @@
         "gui": {
           "available": {
             "item": "cobblemon:pokemon_model",
-            "name": "<green>%name% %species%",
-            "lore": []
+            "name": "<green><b>%name% %species%",
+            "lore": [
+              "",
+              "<gray>%description%",
+              "",
+              "<green>Cost: <white>%cost%",
+              "<green>Limit: <white>%purchases%/%limit%",
+              "",
+              "<aqua>Click to purchase skin"
+            ]
           },
           "max_uses": {
             "item": "cobblemon:pokemon_model",
-            "name": "<red>%name% %species%",
-            "lore": []
+            "name": "<red><b>%name% %species%",
+            "lore": [
+              "",
+              "<gray>%description%",
+              "",
+              "<green>Cost: <white>%cost%",
+              "<green>Limit: <white>%purchases%/%limit%",
+              "",
+              "<red>Purchase limit reached"
+            ]
           }
         },
         "skins": {
-          "pikachu_example_1": {
+          "charmander_example": {
+            "slots": 19,
             "cost": {
               "amount": 5
-            }
+            },
+            "limit": 3
           },
-          "pikachu_example_2": {
+          "bulbasaur_example": {
+            "slots": 25,
             "cost": {
-              "currency": "diamonds",
               "amount": 5
-            }
-          },
-          "pikachu_example_3": {
-            "cost": [
-              {
-                "currency": "diamonds",
-                "amount": 5
-              },
-              {
-                "currency": "gems",
-                "amount": 5
-              }
-            ]
+            },
+            "limit": 3
           }
         }
       }
     }
   },
   "packages": {
-    "test": {
+    "example": {
       "gui": {
-        "slots": [ 20, 21, 29, 30 ],
+        "slots": [ 12, 13, 14, 21, 22, 23 ],
         "available": {
-          "item": "minecraft:green_stained_glass_pane",
-          "name": "<green>Test Package",
-          "lore": []
+          "item": "minecraft:lime_stained_glass_pane",
+          "name": "<green><b>Epic Example Bundle",
+          "lore": [
+            "",
+            "<gray>Example Ivysaur and Venusaur Skins",
+            "",
+            "<green>Cost: <white>%cost%",
+            "<green>Limit: <white>%purchases%/%limit%",
+            "",
+            "<aqua>Click to purchase package"
+          ]
         },
         "max_uses": {
           "item": "minecraft:red_stained_glass_pane",
-          "name": "<red>Test Package",
-          "lore": []
+          "name": "<red><b>Epic Example Bundle",
+          "lore": [
+            "",
+            "<gray>Example Ivysaur and Venusaur Skins",
+            "",
+            "<green>Cost: <white>%cost%",
+            "<green>Limit: <white>%purchases%/%limit%",
+            "",
+            "<red>Purchase limit reached"
+          ]
         }
       },
       "cost": {
-        "currency": "diamonds",
+        "currency": "impactor:dollars",
         "amount": 5
       },
       "limit": 1,
       "skins": [
-        "pikachu_example",
-        "pikachu_example_2",
-        "pikachu_example_3"
+        "ivysaur_example",
+        "venusaur_example"
       ]
+    }
+  },
+  "items": {
+    "background": {
+      "slots": [
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 11, 15, 16, 17,
+        18, 20, 24, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35,
+        36, 37, 43, 44,
+        45, 46, 47, 48, 49, 50, 51, 52, 53
+      ],
+      "item": "minecraft:gray_stained_glass_pane",
+      "name": ""
     }
   }
 }

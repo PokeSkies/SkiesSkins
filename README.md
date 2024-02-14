@@ -14,27 +14,24 @@ Prominent Features:
 - Direct give skin commands
 - Scraping System
 
-TODO - Alpha Testing
-- Shop
-  - Implement packages
-
 Todo - Beta Release
 - Shop
   - Permission based discounts
-  - Timer Placeholder (random and package)
 - Confirmation UIs
   - Shop Purchase
   - Inventory Application
 - Scrapping
 - Placeholder integrations
+- Message Configuration
 
 Todo - Future Releases
 - Shop
-  - Purchase History
-  - Price variation??
+  - Purchase History?
+  - Price variation?
+  - Package Availability timer
 - Inventory Filtering
-  - Oldest-newest (add date added to data)
-  - Newest-oldest (add date added to data)
+  - Oldest-newest
+  - Newest-oldest
   - Species A-Z
   - Species Z-A
   - Dex Highest-Lowest

@@ -132,7 +132,8 @@ class SkiesSkins : ModInitializer {
                     fileWriter.flush()
                 }
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
+            println("An error has occured while attempting to load file '$filename', with stacktrace:}")
             e.printStackTrace()
         }
         return value

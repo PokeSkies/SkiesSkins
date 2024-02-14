@@ -1,7 +1,7 @@
 {
   "enabled": true,
   "name": "<red>Example",
-  "species": "cobblemon:pikachu",
+  "species": "cobblemon:bulbasaur",
   "description": [
     "<gray>Example Description",
     "<gray>With two lines!"

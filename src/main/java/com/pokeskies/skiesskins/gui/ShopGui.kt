@@ -94,6 +94,7 @@ class ShopGui(
             // Iterate through every skin in this set and attempt to add it to the GUI
             for (skinData in randomShopData.skins) {
                 val slot = slots.removeFirstOrNull() ?: break
+                if (skinData == null) continue
                 // Check to ensure that this skin even exists in this shop
                 val shopSkinData = set.skins[skinData.id]
                 if (shopSkinData == null) {

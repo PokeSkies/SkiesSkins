@@ -2,10 +2,14 @@
   "debug": false,
   "timezone": "America/Chicago",
   "storage": {
-    "mode": "FLATFILE",
+    "type": "JSON",
     "host": "",
-    "port": "",
-    "username": "",
+    "port": 27017,
+    "database":  "skiesskins",
+    "username": "admin",
     "password": ""
-  }
+  },
+  "find_equivalent": true,
+  "untradable": true,
+  "ticks_per_update": 20
 }
