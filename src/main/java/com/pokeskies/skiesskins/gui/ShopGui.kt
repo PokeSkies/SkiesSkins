@@ -58,6 +58,24 @@ class ShopGui(
             return
         }
 
+        // Default items
+        for ((id, item) in shopConfig.items) {
+            val button = GooeyButton.builder()
+                .display(item.createItemStack(player))
+                .onClick { ctx ->
+                    for (actionEntry in item.clickActions) {
+                        val action = actionEntry.value
+                        if (action.matchesClick(ctx.clickType)) {
+                            action.executeAction(player)
+                        }
+                    }
+                }
+                .build();
+            for (slot in item.slots) {
+                this.template.set(slot, button)
+            }
+        }
+
         // RANDOM SKINS
         // Iterate through every set of Random skins in this shop
         for ((setId, set) in shopConfig.skins.random) {
