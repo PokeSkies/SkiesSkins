@@ -15,6 +15,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
+import java.util.stream.Stream
 
 class ResetShopCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
@@ -28,8 +29,12 @@ class ResetShopCommand : SubCommand {
                         }
                         .then(Commands.literal("random")
                             .then(Commands.argument("set", StringArgumentType.string())
-                                .suggests { _, builder ->
-                                    SharedSuggestionProvider.suggest(ConfigManager.SHOPS.keys.stream(), builder)
+                                .suggests { ctx, builder ->
+                                    val shop = ConfigManager.SHOPS[StringArgumentType.getString(ctx, "shop")]
+                                    SharedSuggestionProvider.suggest(
+                                        shop?.skins?.random?.keys?.stream() ?: Stream.empty(),
+                                        builder
+                                    )
                                 }
                                 .executes { ctx ->
                                     resetShop(
