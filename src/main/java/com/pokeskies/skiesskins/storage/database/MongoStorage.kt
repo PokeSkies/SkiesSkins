@@ -1,5 +1,6 @@
 package com.pokeskies.skiesskins.storage.database
 
+import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.MongoCredential
 import com.mongodb.ServerAddress
@@ -30,23 +31,29 @@ class MongoStorage(config: MainConfig.Storage) : IStorage {
         try {
             val credential = MongoCredential.createCredential(
                 config.username,
-                config.username,
+                config.database,
                 config.password.toCharArray()
             )
-            val settings = MongoClientSettings.builder()
-                .credential(credential)
-                .applyToClusterSettings { builder: ClusterSettings.Builder ->
-                    builder.hosts(listOf(ServerAddress(config.host, config.port)))
-                }
+            var settings = MongoClientSettings.builder()
                 .uuidRepresentation(UuidRepresentation.STANDARD)
-                .build()
-            this.mongoClient = MongoClients.create(settings)
+
+            settings = if (config.urlOverride.isNotEmpty()) {
+                settings.applyConnectionString(ConnectionString(config.urlOverride))
+            } else {
+                settings
+                    .credential(credential)
+                    .applyToClusterSettings { builder: ClusterSettings.Builder ->
+                        builder.hosts(listOf(ServerAddress(config.host, config.port)))
+                    }
+            }
+
+            this.mongoClient = MongoClients.create(settings.build())
 
             val codecRegistry = CodecRegistries.fromRegistries(
                 MongoClientSettings.getDefaultCodecRegistry(),
                 CodecRegistries.fromCodecs(UUIDCodec()),
                 CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build())
-            );
+            )
 
             this.mongoDatabase = mongoClient!!.getDatabase(config.database)
                 .withCodecRegistry(codecRegistry)

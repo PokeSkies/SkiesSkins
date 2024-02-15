@@ -22,7 +22,9 @@ class MainConfig(
         val password: String = "",
         val properties: Map<String, String> = mapOf("useUnicode" to "true", "characterEncoding" to "utf8"),
         @SerializedName("pool_settings")
-        val poolSettings: PoolSettings = PoolSettings()
+        val poolSettings: PoolSettings = PoolSettings(),
+        @SerializedName("url_override")
+        val urlOverride: String = ""
     ) {
         class PoolSettings(
             @SerializedName("maximum_pool_size")
@@ -46,9 +48,11 @@ class MainConfig(
         }
 
         override fun toString(): String {
-            return "Storage(type=$type, host='$host', port=$port, database='$database', username='$username', " +
-                    "password='$password', properties=$properties, poolSettings=$poolSettings)"
+            return "Storage(type=$type, host='$host', port=$port, database='$database', " +
+                    "username='$username', password='$password', properties=$properties, " +
+                    "poolSettings=$poolSettings, urlOverride='$urlOverride')"
         }
+
     }
 
     class ShopSettings(
