@@ -9,7 +9,7 @@
     "username": "admin",
     "password": ""
   },
-  "find_equivalent": true,
+  "find_equivalent": false,
   "untradable": true,
   "ticks_per_update": 20
 }

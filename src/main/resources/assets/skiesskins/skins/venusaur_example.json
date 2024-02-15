@@ -11,7 +11,9 @@
       "test"
     ],
     "required": [],
-    "blacklist": []
+    "blacklist": [],
+    "remove": [
+      "test=false"
+    ]
   }
 }
-/

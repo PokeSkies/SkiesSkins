@@ -8,7 +8,7 @@ class MainConfig(
     val timezone: String = "",
     val storage: Storage = Storage(),
     @SerializedName("find_equivalent")
-    val findEquivalent: Boolean = true,
+    val findEquivalent: Boolean = false,
     val untradable: Boolean = true,
     @SerializedName("ticks_per_update")
     val ticksPerUpdate: Int = 20,
