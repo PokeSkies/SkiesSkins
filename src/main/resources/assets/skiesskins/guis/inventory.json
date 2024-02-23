@@ -15,6 +15,12 @@
       "%description%",
       "",
       "<aqua>Click to apply this skin"
+    ],
+    "apply_click": [
+      "any_click"
+    ],
+    "scrap_click": [
+      "middle_click"
     ]
   },
   "next_page": {

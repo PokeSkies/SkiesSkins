@@ -2,6 +2,7 @@ package com.pokeskies.skiesskins.config.gui
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
 class InventoryConfig(
@@ -20,10 +21,17 @@ class InventoryConfig(
         val slots: List<Int> = emptyList(),
         val name: String = "",
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val lore: List<String> = emptyList()
+        val lore: List<String> = emptyList(),
+        @SerializedName("apply_click")
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
+        val applyClickType: List<ClickType> = listOf(ClickType.ANY_CLICK),
+        @SerializedName("scrap_click")
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
+        val scrapClickType: List<ClickType> = listOf(ClickType.MIDDLE_CLICK)
     ) {
         override fun toString(): String {
-            return "SkinSlotOptions(slots=$slots, name='$name', lore=$lore)"
+            return "SkinSlotOptions(slots=$slots, name='$name', lore=$lore, " +
+                    "applyClickType=$applyClickType, scrapClickType=$scrapClickType)"
         }
     }
 
