@@ -20,9 +20,9 @@ Todo - Beta Release
 - Confirmation UIs
   - Shop Purchase
   - Inventory Application
-- Scrapping
 - Placeholder integrations
 - Message Configuration
+- Sound Configuration
 
 Todo - Future Releases
 - Shop

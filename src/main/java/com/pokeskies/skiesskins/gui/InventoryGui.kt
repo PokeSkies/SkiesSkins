@@ -98,23 +98,7 @@ class InventoryGui(
                             if (user.inventory.contains(skin)) {
                                 // Scrapping
                                 if (ConfigManager.INVENTORY_GUI.skinOptions.scrapClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
-                                    if (skinEntry.scrapping != null && skinEntry.scrapping.value.isNotEmpty()) {
-                                        if (user.inventory.remove(skin) && SkiesSkinsAPI.saveUserData(player, user)) {
-                                            skinEntry.scrapping.value.all { entry -> !entry.deposit(player) }
-                                            player.sendSystemMessage(Component.literal("Scrapping successful!")
-                                                .withStyle { it.withColor(ChatFormatting.GREEN) })
-                                            player.playNotifySound(SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.MASTER, 0.5f, 1.0f)
-                                        } else {
-                                            player.sendSystemMessage(Component.literal("Something went wrong... Scrapping cancelled!")
-                                                .withStyle { it.withColor(ChatFormatting.RED) })
-                                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 0.5f, 0.5f)
-                                        }
-                                        refresh()
-                                    } else {
-                                        player.sendSystemMessage(Component.literal("This skin cannot be scrapped!")
-                                            .withStyle { it.withColor(ChatFormatting.RED) })
-                                        player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 0.5f, 0.5f)
-                                    }
+                                    UIManager.openUIForcefully(player, ScrapConfirmGui(player, skin, skinEntry))
                                 } else if (ConfigManager.INVENTORY_GUI.skinOptions.applyClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
                                     UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry))
                                 }

@@ -145,11 +145,12 @@
   },
   "packages": {
     "example": {
+      "name": "Epic Example Bundle",
       "gui": {
         "slots": [ 12, 13, 14, 21, 22, 23 ],
         "available": {
           "item": "minecraft:lime_stained_glass_pane",
-          "name": "<green><b>Epic Example Bundle",
+          "name": "<green><b>%name%",
           "lore": [
             "",
             "<gray>Example Ivysaur and Venusaur Skins",

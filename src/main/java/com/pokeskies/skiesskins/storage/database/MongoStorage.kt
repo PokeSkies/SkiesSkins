@@ -21,7 +21,6 @@ import org.bson.codecs.pojo.PojoCodecProvider
 import java.io.IOException
 import java.util.*
 
-
 class MongoStorage(config: MainConfig.Storage) : IStorage {
     private var mongoClient: MongoClient? = null
     private var mongoDatabase: MongoDatabase? = null

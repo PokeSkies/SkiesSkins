@@ -1,0 +1,31 @@
+{
+  "title": "Confirm Scrapping",
+  "size": 3,
+  "skin": {
+    "slots": 13,
+    "name": "%name% %species%",
+    "lore": [
+      "%description%"
+    ]
+  },
+  "confirm": {
+    "item": "minecraft:emerald_block",
+    "slots": 11,
+    "name": "<green><b>Confirm"
+  },
+  "cancel": {
+    "item": "minecraft:redstone_block",
+    "slots": 15,
+    "name": "<red><b>Cancel"
+  },
+  "items": {
+    "border": {
+      "item": "minecraft:gray_stained_glass_pane",
+      "slots": [
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 10, 12, 13, 14, 16, 17,
+        18, 19, 20, 21, 22, 23, 24, 25, 26
+      ]
+    }
+  }
+}

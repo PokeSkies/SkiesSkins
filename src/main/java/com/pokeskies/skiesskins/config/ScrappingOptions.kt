@@ -2,6 +2,7 @@ package com.pokeskies.skiesskins.config
 
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.economy.EconomyType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import net.minecraft.server.level.ServerPlayer

@@ -1,0 +1,62 @@
+{
+  "title": "Confirm Purchase",
+  "size": 3,
+  "purchase": {
+    "random": {
+      "item": "cobblemon:pokemon_model",
+      "slots": 13,
+      "name": "<green><b>%name% %species%",
+      "lore": [
+        "",
+        "<gray>%description%",
+        "",
+        "<green>Cost: <white>%cost%",
+        "<green>Limit: <white>%purchases%/%limit%"
+      ]
+    },
+    "static": {
+      "item": "cobblemon:pokemon_model",
+      "slots": 13,
+      "name": "<green><b>%name% %species%",
+      "lore": [
+        "",
+        "<gray>%description%",
+        "",
+        "<green>Cost: <white>%cost%",
+        "<green>Limit: <white>%purchases%/%limit%"
+      ]
+    },
+    "package": {
+      "item": "minecraft:chest",
+      "slots": 13,
+      "name": "<green><b>%name%",
+      "lore": [
+        "",
+        "<gray>%description%",
+        "",
+        "<green>Cost: <white>%cost%",
+        "<green>Limit: <white>%purchases%/%limit%"
+      ]
+    }
+  },
+  "confirm": {
+    "item": "minecraft:emerald_block",
+    "slots": 11,
+    "name": "<aqua><b>Confirm"
+  },
+  "cancel": {
+    "item": "minecraft:redstone_block",
+    "slots": 15,
+    "name": "<red><b>Cancel"
+  },
+  "items": {
+    "border": {
+      "item": "minecraft:gray_stained_glass_pane",
+      "slots": [
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+        9, 13, 17,
+        18, 19, 20, 21, 22, 23, 24, 25, 26
+      ]
+    }
+  }
+}
