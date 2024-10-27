@@ -11,6 +11,7 @@ class SkinConfig(
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val description: List<String> = emptyList(),
     val aspects: Aspects = Aspects(),
+    val scrapping: ScrappingOptions? = null,
 ) {
     class Aspects(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
@@ -28,6 +29,6 @@ class SkinConfig(
     }
 
     override fun toString(): String {
-        return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, aspects=$aspects)"
+        return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, aspects=$aspects, scrapping=$scrapping)"
     }
 }

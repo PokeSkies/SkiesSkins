@@ -15,5 +15,11 @@
     "remove": [
       "test=false"
     ]
+  },
+  "scrapping": {
+    "value": {
+      "currency": "impactor:dollars",
+      "amount": 100
+    }
   }
 }
