@@ -95,6 +95,7 @@ class ApplyGui(
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Component.literal("This skin requires aspects that are not applied to this Pokemon!")
                                 .withStyle { it.withColor(ChatFormatting.RED) })
+                            return@onClick
                         }
 
                         // Check if the Pokemon contains ANY blacklisted aspects
@@ -103,6 +104,7 @@ class ApplyGui(
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Component.literal("This Pokemon contains aspects that are blacklisted!")
                                 .withStyle { it.withColor(ChatFormatting.RED) })
+                            return@onClick
                         }
 
                         val user = SkiesSkinsAPI.getUserData(player)
