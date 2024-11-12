@@ -4,11 +4,14 @@ import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.google.gson.annotations.JsonAdapter
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.config.shop.ShopCost
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
@@ -18,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.ItemLore
 
 class ShopGuiItem(
     val item: Item = Items.BARRIER,
@@ -54,26 +58,6 @@ class ShopGuiItem(
             }
         }
 
-        if (name != null) {
-            stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(parseString(name, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)))
-        }
-
-        val tag = stack.orCreateTag
-        if (lore.isNotEmpty()) {
-            val parsedLore = parseStringList(lore, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
-            val display = tag.getCompound(ItemStack.TAG_DISPLAY)
-            val loreList = ListTag()
-            for (line in parsedLore) {
-                loreList.add(StringTag.valueOf(Component.Serializer.toJson(
-                    Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                        .append(line)
-                )))
-            }
-            display.put(ItemStack.TAG_LORE, loreList)
-            tag.put(ItemStack.TAG_DISPLAY, display)
-        }
-
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
             val nbtCopy = nbt.copy()
@@ -96,12 +80,27 @@ class ShopGuiItem(
                 }
             }
 
-            nbtCopy.allKeys.forEach { key ->
-                nbtCopy[key]?.let { tag.put(key, it) }
+            DataComponentPatch.CODEC.decode(SkiesSkins.INSTANCE.nbtOpts, nbtCopy).result().ifPresent { result ->
+                stack.applyComponents(result.first)
             }
         }
 
-        stack.tag = tag
+        val dataComponents = DataComponentPatch.builder()
+
+        if (name != null) {
+            dataComponents.set(
+                DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                .append(parseString(name, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)))
+        }
+
+        if (lore.isNotEmpty()) {
+            val parsedLore = parseStringList(lore, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
+            dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(it) as Component
+            }.toList()))
+        }
+
+        stack.applyComponents(dataComponents.build())
 
         return stack
     }

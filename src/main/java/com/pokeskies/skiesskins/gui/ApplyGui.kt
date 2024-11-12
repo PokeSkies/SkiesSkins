@@ -59,7 +59,7 @@ class ApplyGui(
             }
         }
 
-        val party: PlayerPartyStore = Cobblemon.storage.getParty(player.uuid)
+        val party: PlayerPartyStore = Cobblemon.storage.getParty(player)
         for (i in 0..5) {
             val slotItem = ConfigManager.APPLY_GUI.partySlots[i + 1] ?: continue
             val pokemon: Pokemon? = party.get(i)

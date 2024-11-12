@@ -2,9 +2,12 @@ package com.pokeskies.skiesskins.config.gui
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
@@ -14,6 +17,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.ItemLore
 
 class   GenericGuiItem(
     val item: Item = Items.BARRIER,
@@ -29,25 +33,6 @@ class   GenericGuiItem(
 ) {
     fun createItemStack(player: ServerPlayer): ItemStack {
         val stack = ItemStack(item, amount)
-
-        if (name != null) {
-            stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(Utils.deserializeText(Utils.parsePlaceholders(player, name))))
-        }
-
-        val tag = stack.orCreateTag
-        if (lore.isNotEmpty()) {
-            val display = tag.getCompound(ItemStack.TAG_DISPLAY)
-            val loreList = ListTag()
-            for (line in lore) {
-                loreList.add(StringTag.valueOf(Component.Serializer.toJson(
-                    Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                        .append(Utils.deserializeText((Utils.parsePlaceholders(player, line))))
-                )))
-            }
-            display.put(ItemStack.TAG_LORE, loreList)
-            tag.put(ItemStack.TAG_DISPLAY, display)
-        }
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
@@ -71,12 +56,33 @@ class   GenericGuiItem(
                 }
             }
 
-            nbtCopy.allKeys.forEach { key ->
-                nbtCopy[key]?.let { tag.put(key, it) }
+            DataComponentPatch.CODEC.decode(SkiesSkins.INSTANCE.nbtOpts, nbtCopy).result().ifPresent { result ->
+                stack.applyComponents(result.first)
             }
         }
 
-        stack.tag = tag
+        val dataComponents = DataComponentPatch.builder()
+
+        if (name != null) {
+            dataComponents.set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                .append(Utils.deserializeText(Utils.parsePlaceholders(player, name))))
+        }
+
+        if (lore.isNotEmpty()) {
+            val parsedLore: MutableList<String> = mutableListOf()
+            for (line in lore.stream().map { Utils.parsePlaceholders(player, it) }.toList()) {
+                if (line.contains("\n")) {
+                    line.split("\n").forEach { parsedLore.add(it) }
+                } else {
+                    parsedLore.add(line)
+                }
+            }
+            dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(Utils.deserializeText(it)) as Component
+            }.toList()))
+        }
+
+        stack.applyComponents(dataComponents.build())
 
         return stack
     }

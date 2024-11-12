@@ -1,12 +1,13 @@
 package com.pokeskies.skiesskins.config
 
+import com.cobblemon.mod.common.Cobblemon
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import net.minecraft.resources.ResourceLocation
 
 class SkinConfig(
     val enabled: Boolean = true,
-    val species: ResourceLocation = ResourceLocation(""),
+    val species: ResourceLocation = ResourceLocation.withDefaultNamespace(""),
     val name: String = "",
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val description: List<String> = emptyList(),
