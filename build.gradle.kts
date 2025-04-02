@@ -1,8 +1,10 @@
 @file:Suppress("UnstableApiUsage")
 
 plugins {
-    id("org.jetbrains.kotlin.jvm").version("1.8.10")
-    id("quiet-fabric-loom") version "1.4-SNAPSHOT"
+    java
+    idea
+    id("quiet-fabric-loom") version ("1.7-SNAPSHOT")
+    id("org.jetbrains.kotlin.jvm").version("2.0.0")
 }
 
 val modId = project.properties["mod_id"].toString()
@@ -51,30 +53,32 @@ dependencies {
     minecraft("com.mojang:minecraft:$minecraftVersion")
     mappings(loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-$minecraftVersion:2023.09.03@zip")
+        // TODO: Fix hardcoded minecraft version once Parchment updates
+        parchment("org.parchmentmc.data:parchment-1.21:${project.properties["parchment_version"]}")
     })
     modImplementation("net.fabricmc:fabric-loader:${project.properties["loader_version"].toString()}")
     modImplementation("net.fabricmc:fabric-language-kotlin:${project.properties["fabric_kotlin_version"].toString()}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${project.properties["fabric_version"].toString()}")
 
     // Impactor
-    modImplementation("net.impactdev.impactor:common:5.1.1-SNAPSHOT")
-    modImplementation("net.impactdev.impactor.api:economy:5.1.1-SNAPSHOT")
-    modImplementation("net.impactdev.impactor.api:text:5.1.1-SNAPSHOT")
+    modImplementation("net.impactdev.impactor:common:5.3.0+1.21.1-SNAPSHOT")
+    modImplementation("net.impactdev.impactor.api:economy:5.3.0-SNAPSHOT")
+    modImplementation("net.impactdev.impactor.api:text:5.3.0-SNAPSHOT")
 
-    modImplementation("ca.landonjw.gooeylibs:fabric:3.0.0-1.20.1-SNAPSHOT@jar")
-    modImplementation("com.cobblemon:fabric:1.4.1+1.20.1")
+    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")
+
+    modImplementation("com.cobblemon:fabric:1.6.0+1.21.1-SNAPSHOT")
 
     // Placeholders
-    modImplementation("eu.pb4:placeholder-api:2.1.2+$minecraftVersion")
-    modImplementation("io.github.miniplaceholders:miniplaceholders-api:2.2.2")
-    modImplementation("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.2")
+    modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")
+    modImplementation("io.github.miniplaceholders:miniplaceholders-api:2.2.3")
+    modImplementation("io.github.miniplaceholders:miniplaceholders-kotlin-ext:2.2.3")
 
     // Adventure Text!
-    modImplementation(include("net.kyori:adventure-platform-fabric:5.9.0")!!)
+    modImplementation(include("net.kyori:adventure-platform-fabric:5.14.2")!!)
 
     // PermissionsAPI
-    modImplementation("me.lucko:fabric-permissions-api:0.2-SNAPSHOT")
+    modImplementation("me.lucko:fabric-permissions-api:0.3.1")
 
     // Database
     implementation(include("org.mongodb:mongodb-driver-sync:4.11.0")!!)
@@ -102,12 +106,12 @@ tasks.remapJar {
 
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
-    options.release.set(17)
+    options.release.set(21)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
     withSourcesJar()
 }
 

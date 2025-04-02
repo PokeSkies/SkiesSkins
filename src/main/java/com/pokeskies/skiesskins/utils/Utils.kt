@@ -14,6 +14,8 @@ import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.Registry
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
@@ -97,27 +99,6 @@ object Utils {
         SkiesSkins.LOGGER.info("[SkiesSkins] $message")
     }
 
-    fun processItemStack(itemStack: ItemStack): ItemStack {
-        itemStack.setHoverName(SkiesSkins.INSTANCE.adventure!!
-            .toNative(MiniMessage.miniMessage().deserialize(itemStack.displayName.string)))
-
-        val displayNBT = itemStack.getTagElement(ItemStack.TAG_DISPLAY)
-        if (displayNBT != null && displayNBT.contains(ItemStack.TAG_LORE)) {
-            val nbtList = displayNBT.getList(ItemStack.TAG_LORE, 8)
-            for (i in 0 until nbtList.size) {
-                val text: Component? = Component.Serializer.fromJson(nbtList.getString(i))
-                if (text != null) {
-                    nbtList[i] = StringTag.valueOf(Component.Serializer.toJson(SkiesSkins.INSTANCE.adventure!!
-                        .toNative(MiniMessage.miniMessage().deserialize(text.string))))
-                }
-            }
-            displayNBT.put(ItemStack.TAG_LORE, nbtList)
-            itemStack.addTagElement(ItemStack.TAG_DISPLAY, displayNBT)
-        }
-
-        return itemStack
-    }
-
     fun nullPokemonToItem(pokemon: Pokemon?): ItemStack {
         return PokemonItem.from(pokemon!!, 1)
     }
@@ -138,18 +119,16 @@ object Utils {
 
     fun getErrorButton(text: String): GooeyButton {
         return GooeyButton.builder()
-            .display(ItemStack(Items.BARRIER))
-            .title(Utils.deserializeText(text))
+            .display(ItemStack(Items.BARRIER).also {
+                it.applyComponents(DataComponentPatch.builder()
+                    .set(DataComponents.ITEM_NAME, Utils.deserializeText(text))
+                    .build())
+            })
             .build()
     }
 
     fun getRandomRanged(min: Int, max: Int): Int {
         return if (min > max || min == max) min else Random().nextInt(max - min + 1) + min
-    }
-
-    fun hideFlags(itemStack: ItemStack, vararg parts: ItemStack.TooltipPart): ItemStack {
-        for (part in parts) itemStack.hideTooltipPart(part)
-        return itemStack
     }
 
     fun titleCase(input: String): String {
@@ -161,7 +140,6 @@ object Utils {
             }
             .collect(Collectors.joining(" "))
     }
-
 
     fun getFormattedTime(time: Long): String {
         if (time <= 0) return "0"
@@ -203,7 +181,7 @@ object Utils {
         @Throws(JsonParseException::class)
         override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): T? {
             return try {
-                codec.decode(JsonOps.INSTANCE, json).getOrThrow(false) { }.first
+                codec.decode(JsonOps.INSTANCE, json).orThrow.first
             } catch (e: Throwable) {
                 printError("There was an error while deserializing a Codec: $codec")
                 null
@@ -213,7 +191,7 @@ object Utils {
         override fun serialize(src: T?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
             return try {
                 if (src != null)
-                    codec.encodeStart(JsonOps.INSTANCE, src).getOrThrow(false) { }
+                    codec.encodeStart(JsonOps.INSTANCE, src).orThrow
                 else
                     JsonNull.INSTANCE
             } catch (e: Throwable) {

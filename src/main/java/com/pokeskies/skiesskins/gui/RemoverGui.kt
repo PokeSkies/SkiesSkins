@@ -53,7 +53,7 @@ class RemoverGui(
             }
         }
 
-        val party: PlayerPartyStore = Cobblemon.storage.getParty(player.uuid)
+        val party: PlayerPartyStore = Cobblemon.storage.getParty(player)
         for (i in 0..5) {
             val slotItem = ConfigManager.REMOVER_GUI.partySlots[i + 1] ?: continue
             val partyPokemon: Pokemon? = party.get(i)

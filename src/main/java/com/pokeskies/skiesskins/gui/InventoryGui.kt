@@ -20,10 +20,14 @@ import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
+import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.item.component.ItemLore
 
 class InventoryGui(
     val player: ServerPlayer
@@ -87,12 +91,14 @@ class InventoryGui(
                     }
 
                     this.template.set(slot, GooeyButton.builder()
-                        .display(PokemonItem.from(pokemon, 1))
-                        .title(Utils.parseSkinString(ConfigManager.INVENTORY_GUI.skinOptions.name, player, skinEntry))
-                        .lore(
-                            Component::class.java,
-                            Utils.parseSkinStringList(ConfigManager.INVENTORY_GUI.skinOptions.lore, player, skinEntry)
-                        )
+                        .display(PokemonItem.from(pokemon, 1).also { stack ->
+                            stack.applyComponents(DataComponentPatch.builder()
+                                .set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                                    .append(Utils.parseSkinString(ConfigManager.INVENTORY_GUI.skinOptions.name, player, skinEntry)))
+                                .set(DataComponents.LORE, ItemLore(
+                                    Utils.parseSkinStringList(ConfigManager.INVENTORY_GUI.skinOptions.lore, player, skinEntry)))
+                                .build())
+                        })
                         .onClick { ctx ->
                             val user = SkiesSkinsAPI.getUserData(player)
                             if (user.inventory.contains(skin)) {
