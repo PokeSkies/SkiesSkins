@@ -4,8 +4,11 @@ import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
+import net.minecraft.core.component.DataComponentPatch
+import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
@@ -16,6 +19,7 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
+import net.minecraft.world.item.component.ItemLore
 
 class PokemonGuiItem(
     val item: Item = Items.BARRIER,
@@ -29,25 +33,6 @@ class PokemonGuiItem(
 ) {
     fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
         val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
-
-        if (name != null) {
-            stack.setHoverName(Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(Utils.parsePokemonString(name, player, pokemon)))
-        }
-
-        val tag = stack.orCreateTag
-        if (lore.isNotEmpty()) {
-            val display = tag.getCompound(ItemStack.TAG_DISPLAY)
-            val loreList = ListTag()
-            for (line in lore) {
-                loreList.add(StringTag.valueOf(Component.Serializer.toJson(
-                    Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                        .append(Utils.parsePokemonString(line, player, pokemon))
-                )))
-            }
-            display.put(ItemStack.TAG_LORE, loreList)
-            tag.put(ItemStack.TAG_DISPLAY, display)
-        }
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
@@ -71,12 +56,26 @@ class PokemonGuiItem(
                 }
             }
 
-            nbtCopy.allKeys.forEach { key ->
-                nbtCopy[key]?.let { tag.put(key, it) }
+            DataComponentPatch.CODEC.decode(SkiesSkins.INSTANCE.nbtOpts, nbtCopy).result().ifPresent { result ->
+                stack.applyComponents(result.first)
             }
         }
 
-        stack.tag = tag
+        val dataComponents = DataComponentPatch.builder()
+
+        if (name != null) {
+            dataComponents.set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
+                .append(Utils.parsePokemonString(name, player, pokemon)))
+        }
+
+        if (lore.isNotEmpty()) {
+            val parsedLore = lore.stream().map { Utils.parsePokemonString(it, player, pokemon) }.toList()
+            dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(it) as Component
+            }.toList()))
+        }
+
+        stack.applyComponents(dataComponents.build())
 
         return stack
     }
