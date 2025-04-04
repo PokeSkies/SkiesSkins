@@ -1,5 +1,6 @@
 package com.pokeskies.skiesskins.gui
 
+import ca.landonjw.gooeylibs2.api.UIManager
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
 import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
@@ -8,7 +9,7 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.shop.ShopConfig
-import com.pokeskies.skiesskins.config.shop.ShopRandomSet
+import com.pokeskies.skiesskins.config.shop.ShopRandomSetConfig
 import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.data.shop.PackageShopData
 import com.pokeskies.skiesskins.data.shop.RandomShopData
@@ -52,8 +53,8 @@ class ShopGui(
             SkiesSkinsAPI.saveUserData(player, userData)
         }
 
-        val shopData = userData.shopData[shopId]
-        if (shopData == null) {
+        val userShopData = userData.shopData[shopId]
+        if (userShopData == null) {
             Utils.printDebug("There was an error getting your data from the storage system. Please try again later.")
             return
         }
@@ -79,12 +80,12 @@ class ShopGui(
         // RANDOM SKINS
         // Iterate through every set of Random skins in this shop
         for ((setId, set) in shopConfig.skins.random) {
-            var randomShopData = shopData.randomData[setId]
+            var randomShopData = userShopData.randomData[setId]
             // If the random data does not contain the set, then we have an error
             if (randomShopData == null ||
                 SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
                 randomShopData = generateRandomShopData(set)
-                shopData.randomData[setId] = randomShopData
+                userShopData.randomData[setId] = randomShopData
                 SkiesSkinsAPI.saveUserData(player, userData)
             }
 
@@ -96,8 +97,8 @@ class ShopGui(
                 val slot = slots.removeFirstOrNull() ?: break
                 if (skinData == null) continue
                 // Check to ensure that this skin even exists in this shop
-                val shopSkinData = set.skins[skinData.id]
-                if (shopSkinData == null) {
+                val shopSkinConfig = set.skins[skinData.id]
+                if (shopSkinConfig == null) {
                     this.template.set(
                         slot,
                         Utils.getErrorButton("<red>Error while fetching shop skin data. It's missing?")
@@ -111,11 +112,11 @@ class ShopGui(
                             Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
                         )
                     } else {
-                        if (shopSkinData.limit <= 0 || skinData.purchases < shopSkinData.limit) {
+                        if (shopSkinConfig.limit <= 0 || skinData.purchases < shopSkinConfig.limit) {
                             template.set(slot, GooeyButton.builder()
                                 .display(
                                     set.gui.available.createItemStack(
-                                        player, shopConfig, shopSkinData.cost, shopSkinData.limit, skinData.purchases, skinConfig, resetTime
+                                        player, shopConfig, shopSkinConfig.cost, shopSkinConfig.limit, skinData.purchases, skinConfig, resetTime
                                     )
                                 )
                                 .onClick { ctx ->
@@ -123,33 +124,10 @@ class ShopGui(
                                         refresh()
                                         return@onClick
                                     }
-                                    if (shopSkinData.cost.all { it.withdraw(player, shopConfig) }) {
-                                        skinData.purchases += 1
-                                        userData.inventory.add(UserSkinData(skinData.id))
-                                        SkiesSkinsAPI.saveUserData(player, userData)
-                                        refresh()
-                                        player.sendMessage(
-                                            Component.literal("You purchased a skin!")
-                                                .withStyle { it.withColor(ChatFormatting.GREEN) }
-                                        )
-                                        player.playNotifySound(
-                                            SoundEvents.PLAYER_LEVELUP,
-                                            SoundSource.MASTER,
-                                            0.5f,
-                                            0.5f
-                                        )
-                                    } else {
-                                        player.sendMessage(
-                                            Component.literal("You do not have enough to purchase this skin!")
-                                                .withStyle { it.withColor(ChatFormatting.RED) }
-                                        )
-                                        player.playNotifySound(
-                                            SoundEvents.LAVA_EXTINGUISH,
-                                            SoundSource.MASTER,
-                                            0.5f,
-                                            0.5f
-                                        )
-                                    }
+                                    UIManager.openUIForcefully(
+                                        player,
+                                        PurchaseRandomSkinGui(player, shopId, setId, set, randomShopData, shopConfig, skinConfig, shopSkinConfig, skinData, resetTime)
+                                    )
                                 }
                                 .build()
                             )
@@ -157,7 +135,7 @@ class ShopGui(
                             template.set(slot, GooeyButton.builder()
                                 .display(
                                     set.gui.maxUses.createItemStack(
-                                        player, shopConfig, shopSkinData.cost, shopSkinData.limit, skinData.purchases, skinConfig, resetTime
+                                        player, shopConfig, shopSkinConfig.cost, shopSkinConfig.limit, skinData.purchases, skinConfig, resetTime
                                     )
                                 )
                                 .build()
@@ -178,7 +156,7 @@ class ShopGui(
                 if (skinConfig == null) {
                     button = Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
                 } else {
-                    val staticSetData = shopData.staticData[setId] ?: mutableMapOf()
+                    val staticSetData = userShopData.staticData[setId] ?: mutableMapOf()
                     val staticSkinData = staticSetData[skinId] ?: StaticShopData()
                     if (skin.limit <= 0 || staticSkinData.purchases < skin.limit) {
                         button = GooeyButton.builder()
@@ -191,7 +169,7 @@ class ShopGui(
                                 if (skin.cost.all { it.withdraw(player, shopConfig) }) {
                                     staticSkinData.purchases += 1
                                     staticSetData[skinId] = staticSkinData
-                                    shopData.staticData[setId] = HashMap(staticSetData)
+                                    userShopData.staticData[setId] = HashMap(staticSetData)
                                     userData.inventory.add(UserSkinData(skinId))
                                     SkiesSkinsAPI.saveUserData(player, userData)
                                     refresh()
@@ -240,49 +218,19 @@ class ShopGui(
         for ((packageId, shopPackage) in shopConfig.packages) {
             var button: GooeyButton
 
-            val packageData = shopData.packagesData[packageId] ?: PackageShopData()
+            val packageData = userShopData.packagesData[packageId] ?: PackageShopData()
             if (shopPackage.limit <= 0 || packageData.purchases < shopPackage.limit) {
                 button = GooeyButton.builder()
                     .display(
                         shopPackage.gui.available.createItemStack(
-                            player, shopConfig, shopPackage.cost, shopPackage.limit, packageData.purchases, null, null
+                            player, shopConfig, shopPackage.cost, shopPackage.limit, packageData.purchases, null, null, shopPackage.name
                         )
                     )
                     .onClick { ctx ->
-                        if (shopPackage.cost.all { it.withdraw(player, shopConfig) }) {
-                            packageData.purchases += 1
-                            shopData.packagesData[packageId] = packageData
-                            for (skin in shopPackage.skins) {
-                                if (!ConfigManager.SKINS.containsKey(skin)) {
-                                    Utils.printError("Skin $skin from the Shop Package $packageId does not exist and was not able to be given to ${player.name.string}!")
-                                    continue
-                                }
-                                userData.inventory.add(UserSkinData(skin))
-                            }
-                            SkiesSkinsAPI.saveUserData(player, userData)
-                            refresh()
-                            player.sendMessage(
-                                Component.literal("You purchased a package!")
-                                    .withStyle { it.withColor(ChatFormatting.GREEN) }
-                            )
-                            player.playNotifySound(
-                                SoundEvents.PLAYER_LEVELUP,
-                                SoundSource.MASTER,
-                                0.5f,
-                                0.5f
-                            )
-                        } else {
-                            player.sendMessage(
-                                Component.literal("You do not have enough to purchase this package!")
-                                    .withStyle { it.withColor(ChatFormatting.RED) }
-                            )
-                            player.playNotifySound(
-                                SoundEvents.LAVA_EXTINGUISH,
-                                SoundSource.MASTER,
-                                0.5f,
-                                0.5f
-                            )
-                        }
+                        UIManager.openUIForcefully(
+                            player,
+                            PurchasePackageGui(player, shopId, shopConfig, userShopData, packageId, shopPackage, packageData)
+                        )
                     }
                     .build()
             } else {
@@ -315,8 +263,8 @@ class ShopGui(
         return data
     }
 
-    fun generateRandomShopData(set: ShopRandomSet): RandomShopData {
-        val rc: RandomCollection<Pair<String, ShopRandomSet.RandomSkin>> = RandomCollection()
+    fun generateRandomShopData(set: ShopRandomSetConfig): RandomShopData {
+        val rc: RandomCollection<Pair<String, ShopRandomSetConfig.RandomSkin>> = RandomCollection()
         for ((skinId, skin) in set.skins) {
             rc.add(skin.weight.toDouble(), Pair(skinId, skin))
         }

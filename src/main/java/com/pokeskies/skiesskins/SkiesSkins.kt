@@ -79,7 +79,6 @@ class SkiesSkins : ModInitializer {
         this.configManager = ConfigManager(configDir)
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
 
-        this.placeholderManager = PlaceholderManager()
         this.economyManager = EconomyManager()
 
         this.shopManager = ShopManager()
@@ -90,6 +89,7 @@ class SkiesSkins : ModInitializer {
             )
             this.server = server
             this.nbtOpts = server.registryAccess().createSerializationContext(NbtOps.INSTANCE)
+            this.placeholderManager = PlaceholderManager()
         })
         ServerLifecycleEvents.SERVER_STOPPED.register(ServerStopped { _ ->
             this.adventure = null

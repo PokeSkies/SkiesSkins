@@ -19,11 +19,14 @@ import java.util.stream.Collectors
 class ConfigManager(val configDir: File) {
     companion object {
         lateinit var CONFIG: MainConfig
+
+        // GUIs!
         lateinit var INVENTORY_GUI: InventoryConfig
         lateinit var APPLY_GUI: ApplyConfig
         lateinit var REMOVER_GUI: RemoverConfig
         lateinit var SCRAP_CONFIRM_GUI: ScrapConfirmConfig
         lateinit var PURCHASE_CONFIRM_GUI: PurchaseConfirmConfig
+
         var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
         var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
     }
@@ -36,6 +39,7 @@ class ConfigManager(val configDir: File) {
         copyDefaults()
 
         CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", MainConfig())
+
         INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
         APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
         REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverConfig())
@@ -51,6 +55,7 @@ class ConfigManager(val configDir: File) {
         configDir.mkdirs()
 
         copyDefaultFile(classLoader, "config.json")
+
         copyDefaultFile(classLoader, "guis/inventory.json")
         copyDefaultFile(classLoader, "guis/apply.json")
         copyDefaultFile(classLoader, "guis/remover.json")

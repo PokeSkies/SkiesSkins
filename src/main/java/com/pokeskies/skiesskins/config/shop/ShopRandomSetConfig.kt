@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.config.gui.ShopGuiItem
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
-class ShopRandomSet(
+class ShopRandomSetConfig(
     val gui: RandomGUIOptions,
     val skins: Map<String, RandomSkin>,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
@@ -26,7 +26,7 @@ class ShopRandomSet(
 
     class RandomSkin(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val cost: List<ShopCost> = emptyList(),
+        val cost: List<ShopCostConfig> = emptyList(),
         val weight: Int = 1,
         val limit: Int = 0,
     ) {

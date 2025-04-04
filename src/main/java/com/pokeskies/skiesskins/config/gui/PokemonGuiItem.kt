@@ -26,7 +26,7 @@ class PokemonGuiItem(
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
     val amount: Int = 1,
-    val name: String? = null,
+    val name: String = "",
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
     val nbt: CompoundTag? = null

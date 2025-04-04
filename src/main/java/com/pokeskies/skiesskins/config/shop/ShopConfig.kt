@@ -7,8 +7,8 @@ import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
 class ShopConfig(
     val options: ShopOptions = ShopOptions(),
-    val skins: SkinOptions = SkinOptions(),
-    val packages: Map<String, ShopPackage> = emptyMap(),
+    val skins: SkinOptionsConfig = SkinOptionsConfig(),
+    val packages: Map<String, ShopPackageConfig> = emptyMap(),
     val items: Map<String, GenericGuiItem> = emptyMap(),
 ) {
     class ShopOptions(

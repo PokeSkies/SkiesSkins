@@ -25,7 +25,7 @@
         "slots": 10,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     },
@@ -52,7 +52,7 @@
         "slots": 11,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     },
@@ -79,7 +79,7 @@
         "slots": 12,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     },
@@ -106,7 +106,7 @@
         "slots": 14,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     },
@@ -133,7 +133,7 @@
         "slots": 15,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     },
@@ -160,7 +160,7 @@
         "slots": 16,
         "name": "<aqua><b>Empty Slot",
         "nbt": {
-          "HideTooltip": 1
+          "minecraft:hide_additional_tooltip": {}
         }
       }
     }

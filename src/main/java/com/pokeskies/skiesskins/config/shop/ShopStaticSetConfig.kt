@@ -5,7 +5,7 @@ import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.config.gui.ShopGuiItem
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
-class ShopStaticSet(
+class ShopStaticSetConfig(
     val gui: StaticGUIOptions,
     val skins: Map<String, StaticSkin>
 ) {
@@ -23,7 +23,7 @@ class ShopStaticSet(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val slots: List<Int>,
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val cost: List<ShopCost> = emptyList(),
+        val cost: List<ShopCostConfig> = emptyList(),
         val limit: Int = 0,
     ) {
         override fun toString(): String {

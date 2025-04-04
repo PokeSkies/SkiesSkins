@@ -16,10 +16,12 @@ import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
+import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.item.component.ItemLore
 
 class ScrapConfirmGui(
     private val player: ServerPlayer,
@@ -75,11 +77,8 @@ class ScrapConfirmGui(
 
                 val button = GooeyButton.builder()
                     .display(PokemonItem.from(pokemon, 1))
-                    .title(Utils.parseSkinString(guiConfig.skin.name, player, skinConfig))
-                    .lore(
-                        Component::class.java,
-                        Utils.parseSkinStringList(guiConfig.skin.lore, player, skinConfig)
-                    )
+                    .with(DataComponents.ITEM_NAME, Utils.parseSkinString(guiConfig.skin.name, player, skinConfig))
+                    .with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.skin.lore, player, skinConfig)))
                     .build()
 
                 guiConfig.skin.slots.forEach { slot ->
@@ -107,13 +106,10 @@ class ScrapConfirmGui(
                 }
 
             guiConfig.confirm.name?.let {
-                confirmButton.title(Utils.parseSkinString(it, player, skinConfig))
+                confirmButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
             }
             if (guiConfig.confirm.lore.isNotEmpty()) {
-                confirmButton.lore(
-                    Component::class.java,
-                    Utils.parseSkinStringList(guiConfig.confirm.lore, player, skinConfig)
-                )
+                confirmButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.confirm.lore, player, skinConfig)))
             }
             guiConfig.confirm.slots.forEach { slot ->
                 this.template.set(slot, confirmButton.build())
@@ -125,13 +121,10 @@ class ScrapConfirmGui(
                     UIManager.openUIForcefully(player, InventoryGui(player))
                 }
             guiConfig.cancel.name?.let {
-                cancelButton.title(Utils.parseSkinString(it, player, skinConfig))
+                cancelButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
             }
             if (guiConfig.cancel.lore.isNotEmpty()) {
-                cancelButton.lore(
-                    Component::class.java,
-                    Utils.parseSkinStringList(guiConfig.cancel.lore, player, skinConfig)
-                )
+                cancelButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.cancel.lore, player, skinConfig)))
             }
             guiConfig.cancel.slots.forEach { slot ->
                 this.template.set(slot, cancelButton.build())

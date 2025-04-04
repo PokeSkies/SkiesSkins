@@ -7,7 +7,7 @@ import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.config.shop.ShopConfig
-import com.pokeskies.skiesskins.config.shop.ShopCost
+import com.pokeskies.skiesskins.config.shop.ShopCostConfig
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
@@ -39,11 +39,12 @@ class ShopGuiItem(
     fun createItemStack(
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        cost: List<ShopCost>,
+        cost: List<ShopCostConfig>,
         limit: Int,
         purchases: Int,
         skinConfig: SkinConfig?,
-        resetTime: Long?
+        resetTime: Long?,
+        nameOverride: String? = null
     ): ItemStack {
         var stack = ItemStack(item, amount)
 
@@ -90,11 +91,11 @@ class ShopGuiItem(
         if (name != null) {
             dataComponents.set(
                 DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(parseString(name, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)))
+                .append(parseString(name, player, shopConfig, nameOverride ?: skinConfig?.name, cost, limit, purchases, skinConfig, resetTime)))
         }
 
         if (lore.isNotEmpty()) {
-            val parsedLore = parseStringList(lore, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
+            val parsedLore = parseStringList(lore, player, shopConfig, skinConfig?.name, cost, limit, purchases, skinConfig, resetTime)
             dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
                 Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(it) as Component
             }.toList()))
@@ -113,7 +114,8 @@ class ShopGuiItem(
         string: String,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        cost: List<ShopCost>,
+        name: String? = null,
+        cost: List<ShopCostConfig>,
         limit: Int,
         purchases: Int,
         skinConfig: SkinConfig?,
@@ -122,10 +124,10 @@ class ShopGuiItem(
         var parsed = string.replace("%cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
             .replace("%limit%", if (limit > 0) limit.toString() else "∞")
             .replace("%purchases%", purchases.toString())
+            .replace("%name%", name ?: "null")
 
         if (skinConfig != null) {
-            parsed = parsed.replace("%name%", skinConfig.name)
-                .replace("%species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")
+            parsed = parsed.replace("%species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")
         }
 
         if (resetTime != null) {
@@ -159,14 +161,15 @@ class ShopGuiItem(
         string: String,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        cost: List<ShopCost>,
+        name: String? = null,
+        cost: List<ShopCostConfig>,
         limit: Int,
         purchases: Int,
         skinConfig: SkinConfig?,
         resetTime: Long?
     ): Component {
         return Utils.deserializeText(Utils.parsePlaceholders(player, parseStringSimple(
-            string, player, shopConfig, cost, limit, purchases, skinConfig, resetTime
+            string, player, shopConfig, name, cost, limit, purchases, skinConfig, resetTime
         )))
     }
 
@@ -174,7 +177,8 @@ class ShopGuiItem(
         list: List<String>,
         player: ServerPlayer,
         shopConfig: ShopConfig,
-        cost: List<ShopCost>,
+        name: String? = null,
+        cost: List<ShopCostConfig>,
         limit: Int,
         purchases: Int,
         skinConfig: SkinConfig?,
@@ -184,7 +188,7 @@ class ShopGuiItem(
         for (line in list) {
             val initialParsed = Utils.parsePlaceholders(
                 player,
-                parseStringSimple(line, player, shopConfig, cost, limit, purchases, skinConfig, resetTime)
+                parseStringSimple(line, player, shopConfig, name, cost, limit, purchases, skinConfig, resetTime)
             )
             if (skinConfig != null && initialParsed.contains("%description%", true)) {
                 for (dLine in skinConfig.description) {

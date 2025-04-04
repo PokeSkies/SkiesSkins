@@ -5,12 +5,13 @@ import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.config.gui.ShopGuiItem
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
-class ShopPackage(
+class ShopPackageConfig(
+    val name: String,
     val gui: PackageGUIOptions,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val skins: List<String>,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
-    val cost: List<ShopCost> = emptyList(),
+    val cost: List<ShopCostConfig> = emptyList(),
     val limit: Int = 0,
 ) {
     class PackageGUIOptions(
@@ -26,6 +27,6 @@ class ShopPackage(
     }
 
     override fun toString(): String {
-        return "ShopPackage(gui=$gui, skins=$skins, cost=$cost, limit=$limit)"
+        return "ShopPackageConfig(name='$name', gui=$gui, skins=$skins, cost=$cost, limit=$limit)"
     }
 }

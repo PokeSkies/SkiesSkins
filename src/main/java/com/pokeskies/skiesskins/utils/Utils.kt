@@ -12,6 +12,7 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
+import com.pokeskies.skiesskins.config.shop.ShopPackageConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.Registry
 import net.minecraft.core.component.DataComponentPatch
@@ -38,7 +39,11 @@ object Utils {
         return SkiesSkins.INSTANCE.placeholderManager.parse(player, text)
     }
 
-    fun parseSkinString(string: String, player: ServerPlayer, skin: SkinConfig): Component {
+    fun parseSkinString(
+        string: String,
+        player: ServerPlayer,
+        skin: SkinConfig,
+    ): Component {
         var parsed = string.replace("%name%", skin.name)
             .replace("%species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
 
@@ -72,6 +77,22 @@ object Utils {
             } else {
                 newList.add(deserializeText(parsed))
             }
+        }
+        return newList
+    }
+
+    fun parsePackageString(
+        string: String,
+        player: ServerPlayer,
+        packageConfig: ShopPackageConfig,
+    ): Component {
+        return deserializeText(parsePlaceholders(player, string.replace("%name%", packageConfig.name)))
+    }
+
+    fun parsePackageStringList(list: List<String>, player: ServerPlayer, packageConfig: ShopPackageConfig): List<Component> {
+        val newList: MutableList<Component> = mutableListOf()
+        for (line in list) {
+            newList.add(deserializeText(parsePlaceholders(player, line.replace("%name%", packageConfig.name))))
         }
         return newList
     }

@@ -14,9 +14,12 @@ import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.config.gui.PurchaseConfirmConfig
 import com.pokeskies.skiesskins.config.shop.ShopConfig
+import com.pokeskies.skiesskins.config.shop.ShopPackageConfig
 import com.pokeskies.skiesskins.config.shop.ShopRandomSetConfig
 import com.pokeskies.skiesskins.data.UserSkinData
+import com.pokeskies.skiesskins.data.shop.PackageShopData
 import com.pokeskies.skiesskins.data.shop.RandomShopData
+import com.pokeskies.skiesskins.data.shop.UserShopData
 import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.ChatFormatting
@@ -25,19 +28,17 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
+import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.ItemLore
 
-class PurchaseRandomSkinGui(
+class PurchasePackageGui(
     private val player: ServerPlayer,
     val shopId: String,
-    val setId: String,
-    val setConfig: ShopRandomSetConfig,
-    val randomShopData: RandomShopData,
     val shopConfig: ShopConfig,
-    val skinConfig: SkinConfig,
-    val randomSkinConfig: ShopRandomSetConfig.RandomSkin,
-    val skinData: RandomShopData.SkinData,
-    val resetTime: Long?
+    val userShopData: UserShopData,
+    val packageId: String,
+    val shopPackage: ShopPackageConfig,
+    val packageData: PackageShopData
 ) : RefreshableGUI() {
     private val guiConfig = ConfigManager.PURCHASE_CONFIRM_GUI
     private val template: ChestTemplate = ChestTemplate.Builder(guiConfig.size)
@@ -74,28 +75,14 @@ class PurchaseRandomSkinGui(
             }
 
             // Create the center info item
-            val species = PokemonSpecies.getByIdentifier(skinConfig.species)
-            if (species == null) {
-                // Invalid Species Error
-                val button = Utils.getErrorButton("<red>Error while fetching Skin! Invalid Species?")
-                guiConfig.purchase.randomSlot.slots.forEach { slot ->
-                    this.template.set(slot, button)
-                }
-            } else {
-                val pokemon = species.create()
-                for (aspect in skinConfig.aspects.apply) {
-                    PokemonProperties.parse(aspect).apply(pokemon)
-                }
+            val button = GooeyButton.builder()
+                .display(ItemStack(guiConfig.purchase.packageSlot.item))
+                .with(DataComponents.ITEM_NAME, PurchaseConfirmConfig.SlotOption.parseString(guiConfig.purchase.randomSlot.name, player, shopConfig, shopPackage.cost, shopPackage.limit, packageData.purchases, null, null))
+                .with(DataComponents.LORE, ItemLore(PurchaseConfirmConfig.SlotOption.parseStringList(guiConfig.purchase.randomSlot.lore, player, shopConfig, shopPackage.cost, shopPackage.limit, packageData.purchases, null, null)))
+                .build()
 
-                val button = GooeyButton.builder()
-                    .display(PokemonItem.from(pokemon, 1))
-                    .with(DataComponents.ITEM_NAME, PurchaseConfirmConfig.SlotOption.parseString(guiConfig.purchase.randomSlot.name, player, shopConfig, randomSkinConfig.cost, randomSkinConfig.limit, skinData.purchases, skinConfig, resetTime))
-                    .with(DataComponents.LORE, ItemLore(PurchaseConfirmConfig.SlotOption.parseStringList(guiConfig.purchase.randomSlot.lore, player, shopConfig, randomSkinConfig.cost, randomSkinConfig.limit, skinData.purchases, skinConfig, resetTime)))
-                    .build()
-
-                guiConfig.purchase.randomSlot.slots.forEach { slot ->
-                    this.template.set(slot, button)
-                }
+            guiConfig.purchase.randomSlot.slots.forEach { slot ->
+                this.template.set(slot, button)
             }
 
             // Confirm button
@@ -103,17 +90,20 @@ class PurchaseRandomSkinGui(
                 val confirmButton = GooeyButton.builder()
                     .display(item.createItemStack(player))
                     .onClick { ctx ->
-                        if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
-                            UIManager.closeUI(player)
-                            return@onClick
-                        }
-                        if (randomSkinConfig.cost.all { it.withdraw(player, shopConfig) }) {
-                            skinData.purchases += 1
-                            userData.inventory.add(UserSkinData(skinData.id))
+                        if (shopPackage.cost.all { it.withdraw(player, shopConfig) }) {
+                            packageData.purchases += 1
+                            userShopData.packagesData[packageId] = packageData
+                            for (skin in shopPackage.skins) {
+                                if (!ConfigManager.SKINS.containsKey(skin)) {
+                                    Utils.printError("Skin $skin from the Shop Package $packageId does not exist and was not able to be given to ${player.name.string}!")
+                                    continue
+                                }
+                                userData.inventory.add(UserSkinData(skin))
+                            }
                             SkiesSkinsAPI.saveUserData(player, userData)
                             refresh()
                             player.sendMessage(
-                                Component.literal("You purchased a skin!")
+                                Component.literal("You purchased a package!")
                                     .withStyle { it.withColor(ChatFormatting.GREEN) }
                             )
                             player.playNotifySound(
@@ -122,10 +112,9 @@ class PurchaseRandomSkinGui(
                                 0.5f,
                                 0.5f
                             )
-                            UIManager.closeUI(player)
                         } else {
                             player.sendMessage(
-                                Component.literal("You do not have enough to purchase this skin!")
+                                Component.literal("You do not have enough to purchase this package!")
                                     .withStyle { it.withColor(ChatFormatting.RED) }
                             )
                             player.playNotifySound(
@@ -138,10 +127,10 @@ class PurchaseRandomSkinGui(
                     }
 
                 item.name?.let {
-                    confirmButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
+                    confirmButton.with(DataComponents.ITEM_NAME, Utils.parsePackageString(it, player, shopPackage))
                 }
                 if (item.lore.isNotEmpty()) {
-                    confirmButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.confirm.lore, player, skinConfig)))
+                    confirmButton.with(DataComponents.LORE, ItemLore(Utils.parsePackageStringList(guiConfig.confirm.lore, player, shopPackage)))
                 }
                 item.slots.forEach { slot ->
                     this.template.set(slot, confirmButton.build())
@@ -157,10 +146,10 @@ class PurchaseRandomSkinGui(
                     }
 
                 item.name?.let {
-                    cancelButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
+                    cancelButton.with(DataComponents.ITEM_NAME, Utils.parsePackageString(it, player, shopPackage))
                 }
                 if (item.lore.isNotEmpty()) {
-                    cancelButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.cancel.lore, player, skinConfig)))
+                    cancelButton.with(DataComponents.LORE, ItemLore(Utils.parsePackageStringList(guiConfig.cancel.lore, player, shopPackage)))
                 }
                 item.slots.forEach { slot ->
                     this.template.set(slot, cancelButton.build())
