@@ -9,42 +9,37 @@ import com.pokeskies.skiesskins.utils.Utils
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStreamReader
-import java.lang.NullPointerException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.stream.Collectors
 
-class ConfigManager(val configDir: File) {
-    companion object {
-        lateinit var CONFIG: MainConfig
+object ConfigManager {
+    private var assetPackage = "assets/${SkiesSkins.MOD_ID}"
 
-        // GUIs!
-        lateinit var INVENTORY_GUI: InventoryConfig
-        lateinit var APPLY_GUI: ApplyConfig
-        lateinit var REMOVER_GUI: RemoverConfig
-        lateinit var SCRAP_CONFIRM_GUI: ScrapConfirmConfig
-        lateinit var PURCHASE_CONFIRM_GUI: PurchaseConfirmConfig
+    lateinit var CONFIG: SkiesSkinsConfig
 
-        var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
-        var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
-    }
+    // GUIs!
+    lateinit var INVENTORY_GUI: InventoryGuiConfig
+    lateinit var APPLY_GUI: ApplyGuiConfig
+    lateinit var REMOVER_GUI: RemoverGuiConfig
+    lateinit var SCRAP_CONFIRM_GUI: ScrapConfirmGuiConfig
+    lateinit var PURCHASE_CONFIRM_GUI: PurchaseConfirmGuiConfig
 
-    init {
-        reload()
-    }
+    var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
+    var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
 
-    fun reload() {
+    fun load() {
         copyDefaults()
 
-        CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", MainConfig())
+        CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", SkiesSkinsConfig())
 
-        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
-        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
-        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverConfig())
-        SCRAP_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/scrap_confirm.json", ScrapConfirmConfig())
-        PURCHASE_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/purchase_confirm.json", PurchaseConfirmConfig())
+        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryGuiConfig())
+        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyGuiConfig())
+        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverGuiConfig())
+        SCRAP_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/scrap_confirm.json", ScrapConfirmGuiConfig())
+        PURCHASE_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/purchase_confirm.json", PurchaseConfirmGuiConfig())
 
         loadSkins()
         loadShops()
@@ -52,40 +47,42 @@ class ConfigManager(val configDir: File) {
 
     private fun copyDefaults() {
         val classLoader = SkiesSkins::class.java.classLoader
-        configDir.mkdirs()
 
-        copyDefaultFile(classLoader, "config.json")
+        SkiesSkins.INSTANCE.configDir.mkdirs()
 
-        copyDefaultFile(classLoader, "guis/inventory.json")
-        copyDefaultFile(classLoader, "guis/apply.json")
-        copyDefaultFile(classLoader, "guis/remover.json")
-        copyDefaultFile(classLoader, "guis/scrap_confirm.json")
-        copyDefaultFile(classLoader, "guis/purchase_confirm.json")
+        attemptDefaultFileCopy(classLoader, "config.json")
 
-        copyDefaultDirectory(classLoader, "skins")
-        copyDefaultDirectory(classLoader, "shops")
+        attemptDefaultFileCopy(classLoader, "guis/inventory.json")
+        attemptDefaultFileCopy(classLoader, "guis/apply.json")
+        attemptDefaultFileCopy(classLoader, "guis/remover.json")
+        attemptDefaultFileCopy(classLoader, "guis/scrap_confirm.json")
+        attemptDefaultFileCopy(classLoader, "guis/purchase_confirm.json")
+
+        attemptDefaultDirectoryCopy(classLoader, "skins")
+        attemptDefaultDirectoryCopy(classLoader, "shops")
     }
 
-    private fun copyDefaultFile(classLoader: ClassLoader, fileName: String) {
-        val file = configDir.resolve(fileName)
+    private fun attemptDefaultFileCopy(classLoader: ClassLoader, fileName: String) {
+        val file = SkiesSkins.INSTANCE.configDir.resolve(fileName)
         if (!file.exists()) {
+            file.mkdirs()
             try {
-                val stream = classLoader.getResourceAsStream("assets/skiesskins/$fileName")
+                val stream = classLoader.getResourceAsStream("${assetPackage}/$fileName")
                     ?: throw NullPointerException("File not found $fileName")
 
                 Files.copy(stream, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
             } catch (e: Exception) {
-                SkiesSkins.LOGGER.error("Failed to copy the default file '$fileName': $e")
+                Utils.printError("Failed to copy the default file '$fileName': $e")
             }
         }
     }
 
-    private fun copyDefaultDirectory(classLoader: ClassLoader, directoryName: String) {
-        val directory = configDir.resolve(directoryName)
+    private fun attemptDefaultDirectoryCopy(classLoader: ClassLoader, directoryName: String) {
+        val directory = SkiesSkins.INSTANCE.configDir.resolve(directoryName)
         if (!directory.exists()) {
             directory.mkdirs()
             try {
-                val sourceUrl = classLoader.getResource("assets/skiesskins/$directoryName")
+                val sourceUrl = classLoader.getResource("${assetPackage}/$directoryName")
                     ?: throw NullPointerException("Directory not found $directoryName")
                 val sourcePath = Paths.get(sourceUrl.toURI())
 
@@ -105,7 +102,7 @@ class ConfigManager(val configDir: File) {
     private fun loadSkins() {
         SKINS = mutableMapOf()
 
-        val dir = configDir.resolve("skins")
+        val dir = SkiesSkins.INSTANCE.configDir.resolve("skins")
         if (dir.exists() && dir.isDirectory) {
             val files = Files.walk(dir.toPath())
                 .filter { path: Path -> Files.isRegularFile(path) }
@@ -143,7 +140,7 @@ class ConfigManager(val configDir: File) {
     private fun loadShops() {
         SHOPS = mutableMapOf()
 
-        val dir = configDir.resolve("shops")
+        val dir = SkiesSkins.INSTANCE.configDir.resolve("shops")
         if (dir.exists() && dir.isDirectory) {
             val files = Files.walk(dir.toPath())
                 .filter { path: Path -> Files.isRegularFile(path) }

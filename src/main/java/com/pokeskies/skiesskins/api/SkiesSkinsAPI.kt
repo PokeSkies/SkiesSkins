@@ -7,8 +7,8 @@ import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
-import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.data.UserData
+import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.gui.InventoryGui
 import net.minecraft.server.level.ServerPlayer
 

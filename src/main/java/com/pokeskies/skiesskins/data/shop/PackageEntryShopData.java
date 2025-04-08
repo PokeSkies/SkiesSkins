@@ -2,21 +2,25 @@ package com.pokeskies.skiesskins.data.shop;
 
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-public class StaticShopData {
+/*
+ * This is the user saved data for a single PACKAGE in a shop.
+ * This purely tracks the number of purchases of this package.
+ */
+public class PackageEntryShopData {
     @BsonProperty
     public int purchases;
 
-    public StaticShopData() {
+    public PackageEntryShopData() {
         this.purchases = 0;
     }
 
-    public StaticShopData(int purchases) {
+    public PackageEntryShopData(int purchases) {
         this.purchases = purchases;
     }
 
     @Override
     public String toString() {
-        return "StaticShopData{" +
+        return "PackageShopData{" +
                 "purchases=" + purchases +
                 '}';
     }

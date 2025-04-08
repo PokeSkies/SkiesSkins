@@ -4,6 +4,9 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.economy.EconomyType
 import net.minecraft.server.level.ServerPlayer
 
+/*
+ * Specifying a cost for a skin/package.
+ */
 class ShopCostConfig(
     val provider: EconomyType?,
     val currency: String?,

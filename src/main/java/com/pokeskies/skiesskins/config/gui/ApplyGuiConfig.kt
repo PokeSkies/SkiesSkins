@@ -1,17 +1,25 @@
 package com.pokeskies.skiesskins.config.gui
 
 import com.google.gson.annotations.SerializedName
+import com.pokeskies.skiesskins.config.gui.items.GenericItem
+import com.pokeskies.skiesskins.config.gui.items.PokemonItem
 
-class ApplyConfig(
+/*
+ * Config options for the GUI that appears when applying a skin to your Pokemon.
+ */
+class ApplyGuiConfig(
     val title: String = "Apply Skin %skin_name%",
     val size: Int = 6,
     @SerializedName("party_slots")
     val partySlots: Map<Int, PartySlotOptions> = emptyMap(),
-    val items: Map<String, GenericGuiItem> = emptyMap()
+    val items: Map<String, GenericItem> = emptyMap()
 ) {
+    /*
+     * GUI options that represents a slot in your party.
+     */
     class PartySlotOptions(
-        val filled: PokemonGuiItem = PokemonGuiItem(),
-        val empty: PokemonGuiItem = PokemonGuiItem(),
+        val filled: PokemonItem = PokemonItem(),
+        val empty: PokemonItem = PokemonItem(),
     ) {
         override fun toString(): String {
             return "PartySlotOptions(filled=$filled, empty=$empty)"

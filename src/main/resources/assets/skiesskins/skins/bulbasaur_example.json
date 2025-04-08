@@ -3,8 +3,8 @@
   "name": "<red>Example",
   "species": "cobblemon:bulbasaur",
   "description": [
-    "<gray>Example Description",
-    "<gray>With two lines!"
+    "<gray><!i>Example Description",
+    "<gray><!i>With two lines!"
   ],
   "aspects": {
     "apply": [
@@ -17,9 +17,12 @@
     ]
   },
   "scrapping": {
-    "value": {
-      "currency": "impactor:dollars",
-      "amount": 100
-    }
+    "value": [
+      {
+        "provider": "IMPACTOR",
+        "currency": "impactor:dollars",
+        "amount": 100
+      }
+    ]
   }
 }

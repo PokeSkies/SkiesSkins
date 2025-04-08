@@ -3,7 +3,10 @@ package com.pokeskies.skiesskins.config
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.storage.StorageType
 
-class MainConfig(
+/*
+ * The primary mod config that is irrespective to any specific Shop or Skin. /config.json
+ */
+class SkiesSkinsConfig(
     var debug: Boolean = false,
     val timezone: String = "",
     val storage: Storage = Storage(),

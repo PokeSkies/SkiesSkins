@@ -2,8 +2,6 @@ package com.pokeskies.skiesskins.gui
 
 import ca.landonjw.gooeylibs2.api.UIManager
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import ca.landonjw.gooeylibs2.api.data.UpdateEmitter
-import ca.landonjw.gooeylibs2.api.page.Page
 import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate

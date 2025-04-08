@@ -1,11 +1,11 @@
 package com.pokeskies.skiesskins.config.gui.actions.types
 
 import com.google.gson.annotations.JsonAdapter
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.config.gui.actions.ActionType
 import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
-import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 

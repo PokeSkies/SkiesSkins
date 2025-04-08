@@ -11,7 +11,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.connection.ClusterSettings
-import com.pokeskies.skiesskins.config.MainConfig
+import com.pokeskies.skiesskins.config.SkiesSkinsConfig
 import com.pokeskies.skiesskins.data.UserData
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.utils.Utils
@@ -21,7 +21,7 @@ import org.bson.codecs.pojo.PojoCodecProvider
 import java.io.IOException
 import java.util.*
 
-class MongoStorage(config: MainConfig.Storage) : IStorage {
+class MongoStorage(config: SkiesSkinsConfig.Storage) : IStorage {
     private var mongoClient: MongoClient? = null
     private var mongoDatabase: MongoDatabase? = null
     private var userdataCollection: MongoCollection<UserData>? = null

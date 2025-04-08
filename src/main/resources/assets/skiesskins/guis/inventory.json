@@ -14,29 +14,30 @@
       "",
       "%description%",
       "",
-      "<aqua>Click to apply this skin"
+      "<dark_green><!i>→ <green>ʟᴇғᴛ ᴄʟɪᴄᴋ ᴛᴏ ᴀᴘᴘʟʏ",
+      "<dark_red><!i>❌ <red>ʀɪɢʜᴛ ᴄʟɪᴄᴋ ᴛᴏ sᴄʀᴀᴘ"
     ],
     "apply_click": [
-      "any_click"
+      "ANY_LEFT_CLICK"
     ],
     "scrap_click": [
-      "middle_click"
+      "ANY_RIGHT_CLICK"
     ]
   },
   "next_page": {
     "item": "minecraft:paper",
     "slots": [ 53 ],
-    "name": "<aqua><b>Next Page",
+    "name": "<aqua>Next Page",
     "lore": [
-      "<gray>Example Description!"
+      "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
     ]
   },
   "previous_page": {
     "item": "minecraft:paper",
     "slots": [ 45 ],
-    "name": "<aqua><b>Previous Page",
+    "name": "<aqua>Previous Page",
     "lore": [
-      "<gray>Example Description!"
+      "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
     ]
   },
   "items": {
@@ -48,7 +49,11 @@
     "remover": {
       "item": "minecraft:shears",
       "slots": 49,
-      "name": "<red><b>Remove Pokemon Skin",
+      "name": "<red>Remove Skin",
+      "lore": [
+        "<gray><!i>ʀᴇᴍᴏᴠᴇ ᴀ sᴋɪɴ ғʀᴏᴍ ᴀ ᴘᴏᴋᴇᴍᴏɴ",
+        "<gray><!i>ᴡɪᴛʜɪɴ ʏᴏᴜʀ ᴘᴀʀᴛʏ"
+      ],
       "click_actions": {
         "open": {
           "type": "COMMAND_PLAYER",

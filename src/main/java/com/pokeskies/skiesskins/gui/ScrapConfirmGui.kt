@@ -77,8 +77,8 @@ class ScrapConfirmGui(
 
                 val button = GooeyButton.builder()
                     .display(PokemonItem.from(pokemon, 1))
-                    .with(DataComponents.ITEM_NAME, Utils.parseSkinString(guiConfig.skin.name, player, skinConfig))
-                    .with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.skin.lore, player, skinConfig)))
+                    .with(DataComponents.ITEM_NAME, skinConfig.parse(guiConfig.skin.name, player))
+                    .with(DataComponents.LORE, ItemLore(skinConfig.parse(guiConfig.skin.lore, player)))
                     .build()
 
                 guiConfig.skin.slots.forEach { slot ->
@@ -106,10 +106,10 @@ class ScrapConfirmGui(
                 }
 
             guiConfig.confirm.name?.let {
-                confirmButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
+                confirmButton.with(DataComponents.ITEM_NAME, skinConfig.parse(it, player))
             }
             if (guiConfig.confirm.lore.isNotEmpty()) {
-                confirmButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.confirm.lore, player, skinConfig)))
+                confirmButton.with(DataComponents.LORE, ItemLore(skinConfig.parse(guiConfig.confirm.lore, player)))
             }
             guiConfig.confirm.slots.forEach { slot ->
                 this.template.set(slot, confirmButton.build())
@@ -121,10 +121,10 @@ class ScrapConfirmGui(
                     UIManager.openUIForcefully(player, InventoryGui(player))
                 }
             guiConfig.cancel.name?.let {
-                cancelButton.with(DataComponents.ITEM_NAME, Utils.parseSkinString(it, player, skinConfig))
+                cancelButton.with(DataComponents.ITEM_NAME, skinConfig.parse(it, player))
             }
             if (guiConfig.cancel.lore.isNotEmpty()) {
-                cancelButton.with(DataComponents.LORE, ItemLore(Utils.parseSkinStringList(guiConfig.cancel.lore, player, skinConfig)))
+                cancelButton.with(DataComponents.LORE, ItemLore(skinConfig.parse(guiConfig.cancel.lore, player)))
             }
             guiConfig.cancel.slots.forEach { slot ->
                 this.template.set(slot, cancelButton.build())

@@ -18,6 +18,7 @@
   },
   "scrapping": {
     "value": {
+      "provider": "IMPACTOR",
       "currency": "impactor:dollars",
       "amount": 100
     }

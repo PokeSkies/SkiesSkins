@@ -65,9 +65,9 @@ dependencies {
     modImplementation("net.impactdev.impactor.api:economy:5.3.0-SNAPSHOT")
     modImplementation("net.impactdev.impactor.api:text:5.3.0-SNAPSHOT")
 
-//    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")?.let {
-//        include(it)
-//    }
+    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")?.let {
+        include(it)
+    }
 
     modImplementation("com.cobblemon:fabric:1.6.0+1.21.1-SNAPSHOT")
 

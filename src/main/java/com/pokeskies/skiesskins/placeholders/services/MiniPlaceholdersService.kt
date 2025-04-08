@@ -1,7 +1,7 @@
 package com.pokeskies.skiesskins.placeholders.services
 
-import com.pokeskies.skiesskins.placeholders.IPlaceholderService
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.placeholders.IPlaceholderService
 import com.pokeskies.skiesskins.utils.Utils
 import io.github.miniplaceholders.api.MiniPlaceholders
 import net.kyori.adventure.text.minimessage.MiniMessage

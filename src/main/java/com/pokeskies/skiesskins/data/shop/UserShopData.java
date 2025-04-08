@@ -5,18 +5,24 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.HashMap;
 
+/*
+ * A players data on a specific Shop, identified by the shop ID.
+ *
+ * $randomData contains the data for the random Pokemon Skin entries, which has a reset time that needs to be
+ * checked against often.
+ */
 public class UserShopData {
     @BsonProperty(value = "random")
     @SerializedName("random")
-    public HashMap<String, RandomShopData> randomData;
+    public HashMap<String, RandomEntryShopData> randomData;
 
     @BsonProperty(value = "static")
     @SerializedName("static")
-    public HashMap<String, HashMap<String, StaticShopData>> staticData;
+    public HashMap<String, HashMap<String, StaticEntryShopData>> staticData;
 
     @BsonProperty(value = "packages")
     @SerializedName("packages")
-    public HashMap<String, PackageShopData> packagesData;
+    public HashMap<String, PackageEntryShopData> packagesData;
 
     public UserShopData() {
         this.randomData = new HashMap<>();
@@ -25,9 +31,9 @@ public class UserShopData {
     }
 
     public UserShopData(
-            HashMap<String, RandomShopData> randomData,
-            HashMap<String, HashMap<String, StaticShopData>> staticData,
-            HashMap<String, PackageShopData> packagesData
+            HashMap<String, RandomEntryShopData> randomData,
+            HashMap<String, HashMap<String, StaticEntryShopData>> staticData,
+            HashMap<String, PackageEntryShopData> packagesData
     ) {
         this.randomData = randomData;
         this.staticData = staticData;
