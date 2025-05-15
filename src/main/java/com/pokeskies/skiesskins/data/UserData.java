@@ -9,6 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * The player's user data stored to the implemented storage method.
+ */
 public class UserData {
     @BsonProperty
     public UUID uuid;

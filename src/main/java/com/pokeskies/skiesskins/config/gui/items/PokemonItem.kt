@@ -1,9 +1,9 @@
-package com.pokeskies.skiesskins.config.gui
+package com.pokeskies.skiesskins.config.gui.items
 
+import com.cobblemon.mod.common.item.PokemonItem
+import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.annotations.JsonAdapter
-import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.SkiesSkins
-import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
@@ -19,20 +19,18 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 
-class   GenericGuiItem(
+class PokemonItem(
     val item: Item = Items.BARRIER,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
     val amount: Int = 1,
-    val name: String? = null,
+    val name: String = "",
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
-    val nbt: CompoundTag? = null,
-    @SerializedName("click_actions")
-    val clickActions: Map<String, Action> = emptyMap(),
+    val nbt: CompoundTag? = null
 ) {
-    fun createItemStack(player: ServerPlayer): ItemStack {
-        val stack = ItemStack(item, amount)
+    fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
+        val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
@@ -65,20 +63,13 @@ class   GenericGuiItem(
 
         if (name != null) {
             dataComponents.set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(Utils.deserializeText(Utils.parsePlaceholders(player, name))))
+                .append(Utils.parsePokemonString(name, player, pokemon)))
         }
 
         if (lore.isNotEmpty()) {
-            val parsedLore: MutableList<String> = mutableListOf()
-            for (line in lore.stream().map { Utils.parsePlaceholders(player, it) }.toList()) {
-                if (line.contains("\n")) {
-                    line.split("\n").forEach { parsedLore.add(it) }
-                } else {
-                    parsedLore.add(line)
-                }
-            }
+            val parsedLore = lore.stream().map { Utils.parsePokemonString(it, player, pokemon) }.toList()
             dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
-                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(Utils.deserializeText(it)) as Component
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(it) as Component
             }.toList()))
         }
 
@@ -88,6 +79,6 @@ class   GenericGuiItem(
     }
 
     override fun toString(): String {
-        return "GuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt, click_actions=$clickActions)"
+        return "PokemonGuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt)"
     }
 }

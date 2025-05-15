@@ -9,7 +9,6 @@ import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.gui.ShopGui
 import com.pokeskies.skiesskins.utils.SubCommand
 import me.lucko.fabric.api.permissions.v0.Permissions
-import net.kyori.adventure.text.format.NamedTextColor
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.commands.Commands

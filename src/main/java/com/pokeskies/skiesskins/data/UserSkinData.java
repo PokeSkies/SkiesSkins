@@ -4,6 +4,9 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.Objects;
 
+/*
+ * This represents a single skin in the user's skin inventory.
+ */
 public class UserSkinData {
     @BsonProperty
     public String id = "";

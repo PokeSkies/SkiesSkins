@@ -3,19 +3,26 @@ package com.pokeskies.skiesskins.config.gui
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.config.gui.actions.ClickType
+import com.pokeskies.skiesskins.config.gui.items.GenericItem
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
-class InventoryConfig(
+/*
+ * Config options for the skin inventory GUI.
+ */
+class InventoryGuiConfig(
     val title: String = "Skin Inventory",
     val size: Int = 6,
     @SerializedName("skin_options")
     val skinOptions: SkinSlotOptions = SkinSlotOptions(),
     @SerializedName("next_page")
-    val nextPage: GenericGuiItem = GenericGuiItem(),
+    val nextPage: GenericItem = GenericItem(),
     @SerializedName("previous_page")
-    val previousPage: GenericGuiItem = GenericGuiItem(),
-    val items: Map<String, GenericGuiItem> = emptyMap()
+    val previousPage: GenericItem = GenericItem(),
+    val items: Map<String, GenericItem> = emptyMap()
 ) {
+    /*
+     * Config options for the skin slots in the inventory GUI.
+     */
     class SkinSlotOptions(
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val slots: List<Int> = emptyList(),

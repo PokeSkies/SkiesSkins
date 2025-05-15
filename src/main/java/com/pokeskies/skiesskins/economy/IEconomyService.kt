@@ -1,9 +1,5 @@
 package com.pokeskies.skiesskins.economy
 
-import com.pokeskies.skiesskins.economy.EconomyType
-import com.pokeskies.skiesskins.economy.services.ImpactorEconomyService
-import com.pokeskies.skiesskins.economy.services.PebblesEconomyService
-import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.server.level.ServerPlayer
 
 interface IEconomyService {

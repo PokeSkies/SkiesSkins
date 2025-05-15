@@ -1,10 +1,9 @@
-package com.pokeskies.skiesskins.config.gui
+package com.pokeskies.skiesskins.config.gui.items
 
-import com.cobblemon.mod.common.item.PokemonItem
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
@@ -13,7 +12,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
-import net.minecraft.network.chat.MutableComponent
 import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
@@ -21,7 +19,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 
-class PokemonGuiItem(
+class   GenericItem(
     val item: Item = Items.BARRIER,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
@@ -29,10 +27,12 @@ class PokemonGuiItem(
     val name: String? = null,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
-    val nbt: CompoundTag? = null
+    val nbt: CompoundTag? = null,
+    @SerializedName("click_actions")
+    val clickActions: Map<String, Action> = emptyMap(),
 ) {
-    fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
-        val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
+    fun createItemStack(player: ServerPlayer): ItemStack {
+        val stack = ItemStack(item, amount)
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
@@ -65,13 +65,20 @@ class PokemonGuiItem(
 
         if (name != null) {
             dataComponents.set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                .append(Utils.parsePokemonString(name, player, pokemon)))
+                .append(Utils.deserializeText(Utils.parsePlaceholders(player, name))))
         }
 
         if (lore.isNotEmpty()) {
-            val parsedLore = lore.stream().map { Utils.parsePokemonString(it, player, pokemon) }.toList()
+            val parsedLore: MutableList<String> = mutableListOf()
+            for (line in lore.stream().map { Utils.parsePlaceholders(player, it) }.toList()) {
+                if (line.contains("\n")) {
+                    line.split("\n").forEach { parsedLore.add(it) }
+                } else {
+                    parsedLore.add(line)
+                }
+            }
             dataComponents.set(DataComponents.LORE, ItemLore(parsedLore.stream().map {
-                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(it) as Component
+                Component.empty().setStyle(Style.EMPTY.withItalic(false)).append(Utils.deserializeText(it)) as Component
             }.toList()))
         }
 
@@ -81,6 +88,6 @@ class PokemonGuiItem(
     }
 
     override fun toString(): String {
-        return "PokemonGuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt)"
+        return "GuiItem(item=$item, slots=$slots, amount=$amount, name=$name, lore=$lore, nbt=$nbt, click_actions=$clickActions)"
     }
 }

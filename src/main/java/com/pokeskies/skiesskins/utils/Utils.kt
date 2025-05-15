@@ -1,7 +1,6 @@
 package com.pokeskies.skiesskins.utils
 
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.*
@@ -11,12 +10,10 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
-import com.pokeskies.skiesskins.config.SkinConfig
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.Registry
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
-import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
@@ -36,35 +33,6 @@ object Utils {
 
     fun parsePlaceholders(player: ServerPlayer, text: String): String {
         return SkiesSkins.INSTANCE.placeholderManager.parse(player, text)
-    }
-
-    fun parseSkinString(string: String, player: ServerPlayer, skin: SkinConfig): Component {
-        return deserializeText(
-            parsePlaceholders(
-                player,
-                string.replace("%name%", skin.name)
-                    .replace("%species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
-            )
-        )
-    }
-
-    fun parseSkinStringList(list: List<String>, player: ServerPlayer, skin: SkinConfig): List<Component> {
-        val newList: MutableList<Component> = mutableListOf()
-        for (line in list) {
-            val initialParsed = parsePlaceholders(
-                player,
-                line.replace("%name%", skin.name)
-                    .replace("%species%", PokemonSpecies.getByIdentifier(skin.species)?.name ?: "Invalid Species")
-            )
-            if (initialParsed.contains("%description%", true)) {
-                for (dLine in skin.description) {
-                    newList.add(deserializeText(initialParsed.replace("%description%", dLine)))
-                }
-            } else {
-                newList.add(deserializeText(initialParsed))
-            }
-        }
-        return newList
     }
 
     fun parsePokemonString(string: String, player: ServerPlayer, pokemon: Pokemon?): Component {

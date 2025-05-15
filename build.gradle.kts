@@ -65,7 +65,9 @@ dependencies {
     modImplementation("net.impactdev.impactor.api:economy:5.3.0-SNAPSHOT")
     modImplementation("net.impactdev.impactor.api:text:5.3.0-SNAPSHOT")
 
-    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")
+    modImplementation("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")?.let {
+        include(it)
+    }
 
     modImplementation("com.cobblemon:fabric:1.6.0+1.21.1-SNAPSHOT")
 
@@ -85,7 +87,7 @@ dependencies {
     implementation(include("org.mongodb:mongodb-driver-core:4.11.0")!!)
     implementation(include("org.mongodb:bson:4.11.0")!!)
 
-    modImplementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+    modCompileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }
 
 tasks.processResources {

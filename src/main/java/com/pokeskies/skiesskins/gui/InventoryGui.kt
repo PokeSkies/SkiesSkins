@@ -1,32 +1,24 @@
 package com.pokeskies.skiesskins.gui
 
 import ca.landonjw.gooeylibs2.api.UIManager
-import ca.landonjw.gooeylibs2.api.button.ButtonClick
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import ca.landonjw.gooeylibs2.api.data.UpdateEmitter
-import ca.landonjw.gooeylibs2.api.page.Page
 import ca.landonjw.gooeylibs2.api.page.PageAction
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
-import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.SkinConfig
-import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
-import net.minecraft.ChatFormatting
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.sounds.SoundEvents
-import net.minecraft.sounds.SoundSource
 import net.minecraft.world.item.component.ItemLore
 
 class InventoryGui(
@@ -94,9 +86,8 @@ class InventoryGui(
                         .display(PokemonItem.from(pokemon, 1).also { stack ->
                             stack.applyComponents(DataComponentPatch.builder()
                                 .set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
-                                    .append(Utils.parseSkinString(ConfigManager.INVENTORY_GUI.skinOptions.name, player, skinEntry)))
-                                .set(DataComponents.LORE, ItemLore(
-                                    Utils.parseSkinStringList(ConfigManager.INVENTORY_GUI.skinOptions.lore, player, skinEntry)))
+                                    .append(skinEntry.parse(ConfigManager.INVENTORY_GUI.skinOptions.name, player)))
+                                .set(DataComponents.LORE, ItemLore(skinEntry.parse(ConfigManager.INVENTORY_GUI.skinOptions.lore, player)))
                                 .build())
                         })
                         .onClick { ctx ->
@@ -104,23 +95,7 @@ class InventoryGui(
                             if (user.inventory.contains(skin)) {
                                 // Scrapping
                                 if (ConfigManager.INVENTORY_GUI.skinOptions.scrapClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
-                                    if (skinEntry.scrapping != null && skinEntry.scrapping.value.isNotEmpty()) {
-                                        if (user.inventory.remove(skin) && SkiesSkinsAPI.saveUserData(player, user)) {
-                                            skinEntry.scrapping.value.all { entry -> !entry.deposit(player) }
-                                            player.sendSystemMessage(Component.literal("Scrapping successful!")
-                                                .withStyle { it.withColor(ChatFormatting.GREEN) })
-                                            player.playNotifySound(SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.MASTER, 0.5f, 1.0f)
-                                        } else {
-                                            player.sendSystemMessage(Component.literal("Something went wrong... Scrapping cancelled!")
-                                                .withStyle { it.withColor(ChatFormatting.RED) })
-                                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 0.5f, 0.5f)
-                                        }
-                                        refresh()
-                                    } else {
-                                        player.sendSystemMessage(Component.literal("This skin cannot be scrapped!")
-                                            .withStyle { it.withColor(ChatFormatting.RED) })
-                                        player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 0.5f, 0.5f)
-                                    }
+                                    UIManager.openUIForcefully(player, ScrapConfirmGui(player, skin, skinEntry))
                                 } else if (ConfigManager.INVENTORY_GUI.skinOptions.applyClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
                                     UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry))
                                 }

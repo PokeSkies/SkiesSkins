@@ -7,12 +7,10 @@ import net.impactdev.impactor.api.economy.EconomyService
 import net.impactdev.impactor.api.economy.accounts.Account
 import net.impactdev.impactor.api.economy.currency.Currency
 import net.kyori.adventure.key.Key
-import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.CompletableFuture
-import kotlin.math.sin
 
 class ImpactorEconomyService : IEconomyService {
     init {

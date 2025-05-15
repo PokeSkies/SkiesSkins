@@ -1,18 +1,13 @@
 package com.pokeskies.skiesskins.config
 
-import com.google.common.collect.BiMap
-import com.google.common.collect.HashBiMap
 import com.google.gson.JsonParser
 import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.SkiesSkins
-import com.pokeskies.skiesskins.config.gui.ApplyConfig
-import com.pokeskies.skiesskins.config.gui.InventoryConfig
-import com.pokeskies.skiesskins.config.gui.RemoverConfig
+import com.pokeskies.skiesskins.config.gui.*
 import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.utils.Utils
 import java.io.File
 import java.io.FileInputStream
-import java.io.InputStream
 import java.io.InputStreamReader
 import java.nio.file.Files
 import java.nio.file.Path
@@ -20,113 +15,86 @@ import java.nio.file.Paths
 import java.nio.file.StandardCopyOption
 import java.util.stream.Collectors
 
-class ConfigManager(val configDir: File) {
-    companion object {
-        lateinit var CONFIG: MainConfig
-        lateinit var INVENTORY_GUI: InventoryConfig
-        lateinit var APPLY_GUI: ApplyConfig
-        lateinit var REMOVER_GUI: RemoverConfig
-        var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
-        var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
-    }
+object ConfigManager {
+    private var assetPackage = "assets/${SkiesSkins.MOD_ID}"
 
-    init {
-        reload()
-    }
+    lateinit var CONFIG: SkiesSkinsConfig
 
-    fun reload() {
+    // GUIs!
+    lateinit var INVENTORY_GUI: InventoryGuiConfig
+    lateinit var APPLY_GUI: ApplyGuiConfig
+    lateinit var REMOVER_GUI: RemoverGuiConfig
+    lateinit var SCRAP_CONFIRM_GUI: ScrapConfirmGuiConfig
+    lateinit var PURCHASE_CONFIRM_GUI: PurchaseConfirmGuiConfig
+
+    var SKINS: MutableMap<String, SkinConfig> = mutableMapOf()
+    var SHOPS: MutableMap<String, ShopConfig> = mutableMapOf()
+
+    fun load() {
         copyDefaults()
-        CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", MainConfig())
-        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryConfig())
-        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyConfig())
-        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverConfig())
+
+        CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", SkiesSkinsConfig())
+
+        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryGuiConfig())
+        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyGuiConfig())
+        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverGuiConfig())
+        SCRAP_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/scrap_confirm.json", ScrapConfirmGuiConfig())
+        PURCHASE_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/purchase_confirm.json", PurchaseConfirmGuiConfig())
+
         loadSkins()
         loadShops()
     }
 
-    fun copyDefaults() {
+    private fun copyDefaults() {
         val classLoader = SkiesSkins::class.java.classLoader
 
-        configDir.mkdirs()
+        SkiesSkins.INSTANCE.configDir.mkdirs()
 
-        // Main Config
-        val configFile = configDir.resolve("config.json")
-        if (!configFile.exists()) {
+        attemptDefaultFileCopy(classLoader, "config.json")
+
+        attemptDefaultFileCopy(classLoader, "guis/inventory.json")
+        attemptDefaultFileCopy(classLoader, "guis/apply.json")
+        attemptDefaultFileCopy(classLoader, "guis/remover.json")
+        attemptDefaultFileCopy(classLoader, "guis/scrap_confirm.json")
+        attemptDefaultFileCopy(classLoader, "guis/purchase_confirm.json")
+
+        attemptDefaultDirectoryCopy(classLoader, "skins")
+        attemptDefaultDirectoryCopy(classLoader, "shops")
+    }
+
+    private fun attemptDefaultFileCopy(classLoader: ClassLoader, fileName: String) {
+        val file = SkiesSkins.INSTANCE.configDir.resolve(fileName)
+        if (!file.exists()) {
+            file.mkdirs()
             try {
-                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/config.json")
-                Files.copy(inputStream, configFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
+                val stream = classLoader.getResourceAsStream("${assetPackage}/$fileName")
+                    ?: throw NullPointerException("File not found $fileName")
+
+                Files.copy(stream, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
             } catch (e: Exception) {
-                SkiesSkins.LOGGER.error("Failed to copy the default config file: $e")
+                Utils.printError("Failed to copy the default file '$fileName': $e")
             }
         }
+    }
 
-        // Inventory GUI Config
-        val inventoryFile = configDir.resolve("guis/inventory.json")
-        if (!inventoryFile.exists()) {
-            inventoryFile.mkdirs()
+    private fun attemptDefaultDirectoryCopy(classLoader: ClassLoader, directoryName: String) {
+        val directory = SkiesSkins.INSTANCE.configDir.resolve(directoryName)
+        if (!directory.exists()) {
+            directory.mkdirs()
             try {
-                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/guis/inventory.json")
-                Files.copy(inputStream, inventoryFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: Exception) {
-                SkiesSkins.LOGGER.error("Failed to copy the default inventory GUI file: $e")
-            }
-        }
-
-        // Apply GUI Config
-        val applyFile = configDir.resolve("guis/apply.json")
-        if (!applyFile.exists()) {
-            applyFile.mkdirs()
-            try {
-                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/guis/apply.json")
-                Files.copy(inputStream, applyFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: Exception) {
-                SkiesSkins.LOGGER.error("Failed to copy the default apply GUI file: $e")
-            }
-        }
-
-        // Remover GUI Config
-        val removerFile = configDir.resolve("guis/remover.json")
-        if (!removerFile.exists()) {
-            removerFile.mkdirs()
-            try {
-                val inputStream: InputStream = classLoader.getResourceAsStream("assets/skiesskins/guis/remover.json")
-                Files.copy(inputStream, removerFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: Exception) {
-                SkiesSkins.LOGGER.error("Failed to copy the default remover GUI file: $e")
-            }
-        }
-
-        // If the 'skins' directory does not exist, create it and copy the default example skin
-        val skinsDirectory = configDir.resolve("skins")
-        if (!skinsDirectory.exists()) {
-            skinsDirectory.mkdirs()
-            try {
-                val sourceUrl = classLoader.getResource("assets/skiesskins/skins")
+                val sourceUrl = classLoader.getResource("${assetPackage}/$directoryName")
+                    ?: throw NullPointerException("Directory not found $directoryName")
                 val sourcePath = Paths.get(sourceUrl.toURI())
 
                 Files.walk(sourcePath).use { stream ->
                     stream.filter { Files.isRegularFile(it) }
                         .forEach { sourceFile ->
-                            val destinationFile = skinsDirectory.resolve(sourcePath.relativize(sourceFile).toString())
+                            val destinationFile = directory.resolve(sourcePath.relativize(sourceFile).toString())
                             Files.copy(sourceFile, destinationFile.toPath(), StandardCopyOption.REPLACE_EXISTING)
                         }
                 }
             } catch (e: Exception) {
-                Utils.printError("Failed to copy the default skins files: " + e.message)
-            }
-        }
-
-        // If the 'shops' directory does not exist, create it and copy the default example shop
-        val shopsDirectory = configDir.resolve("shops")
-        if (!shopsDirectory.exists()) {
-            shopsDirectory.mkdirs()
-            val file = shopsDirectory.resolve("example_shop.json")
-            try {
-                val resourceFile: Path =
-                    Path.of(classLoader.getResource("assets/skiesskins/shops/example_shop.json").toURI())
-                Files.copy(resourceFile, file.toPath(), StandardCopyOption.REPLACE_EXISTING)
-            } catch (e: Exception) {
-                Utils.printError("Failed to copy the default shops file: " + e.message)
+                Utils.printError("Failed to copy the default directory '$directoryName': " + e.message)
             }
         }
     }
@@ -134,7 +102,7 @@ class ConfigManager(val configDir: File) {
     private fun loadSkins() {
         SKINS = mutableMapOf()
 
-        val dir = configDir.resolve("skins")
+        val dir = SkiesSkins.INSTANCE.configDir.resolve("skins")
         if (dir.exists() && dir.isDirectory) {
             val files = Files.walk(dir.toPath())
                 .filter { path: Path -> Files.isRegularFile(path) }
@@ -172,7 +140,7 @@ class ConfigManager(val configDir: File) {
     private fun loadShops() {
         SHOPS = mutableMapOf()
 
-        val dir = configDir.resolve("shops")
+        val dir = SkiesSkins.INSTANCE.configDir.resolve("shops")
         if (dir.exists() && dir.isDirectory) {
             val files = Files.walk(dir.toPath())
                 .filter { path: Path -> Files.isRegularFile(path) }

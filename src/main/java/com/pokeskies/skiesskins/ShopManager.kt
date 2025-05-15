@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.gui.ShopGui
 import com.pokeskies.skiesskins.utils.Utils
@@ -10,9 +9,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
-import java.time.temporal.ChronoUnit
-import java.time.zone.ZoneRulesException
 
 class ShopManager {
     private lateinit var timezone: ZoneId
@@ -36,7 +32,7 @@ class ShopManager {
         ServerTickEvents.END_SERVER_TICK.register(ServerTickEvents.EndTick { _ ->
             ticks++
             if (ticks % ticksPerUpdate == 0) {
-                val now = ZonedDateTime.now()
+                val now = ZonedDateTime.now(timezone)
                 for (time in resetTimes.toMutableMap()) {
                     for (pair in time.value) {
                         if (now.isAfter(pair.value?.second ?: continue)) {
@@ -51,7 +47,7 @@ class ShopManager {
 
     fun userNeedsReset(shopId: String, setId: String, time: Long): Boolean {
         var timePair = resetTimes[shopId]?.get(setId) ?: return false
-        val now = ZonedDateTime.now()
+        val now = ZonedDateTime.now(timezone)
         if (now.isAfter(timePair.second)) {
             updateResetTimes()
             timePair = resetTimes[shopId]?.get(setId) ?: return false
@@ -86,7 +82,7 @@ class ShopManager {
     // This will attempt to find the last time that there should have been a reset and
     // the next time that there should be a reset. This could probably be improved 10x
     private fun getResetTimes(resetTimes: List<String>): Pair<ZonedDateTime, ZonedDateTime>? {
-        val now = ZonedDateTime.now()
+        val now = ZonedDateTime.now(timezone)
         var lastReset: ZonedDateTime? = null
 
         // This loop will first try to find the last time TODAY that it was one of the resetTimes. There may not be a

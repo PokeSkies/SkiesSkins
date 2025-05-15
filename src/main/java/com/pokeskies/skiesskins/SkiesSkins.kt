@@ -36,18 +36,20 @@ import org.apache.logging.log4j.LogManager
 import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
-import java.io.IOException
 import java.nio.file.Files
-import java.util.UUID
+import java.util.*
 
 class SkiesSkins : ModInitializer {
     companion object {
         lateinit var INSTANCE: SkiesSkins
-        val LOGGER = LogManager.getLogger("skiesskins")
+
+        var MOD_ID = "skiesskins"
+        var MOD_NAME = "SkiesSkins"
+
+        val LOGGER = LogManager.getLogger(MOD_ID)
     }
 
     lateinit var configDir: File
-    lateinit var configManager: ConfigManager
     var storage: IStorage? = null
 
     var adventure: FabricServerAudiences? = null
@@ -76,10 +78,9 @@ class SkiesSkins : ModInitializer {
         INSTANCE = this
 
         this.configDir = File(FabricLoader.getInstance().configDirectory, "skiesskins")
-        this.configManager = ConfigManager(configDir)
+        ConfigManager.load()
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
 
-        this.placeholderManager = PlaceholderManager()
         this.economyManager = EconomyManager()
 
         this.shopManager = ShopManager()
@@ -90,6 +91,7 @@ class SkiesSkins : ModInitializer {
             )
             this.server = server
             this.nbtOpts = server.registryAccess().createSerializationContext(NbtOps.INSTANCE)
+            this.placeholderManager = PlaceholderManager()
         })
         ServerLifecycleEvents.SERVER_STOPPED.register(ServerStopped { _ ->
             this.adventure = null
@@ -105,7 +107,7 @@ class SkiesSkins : ModInitializer {
     }
 
     fun reload() {
-        this.configManager.reload()
+        ConfigManager.load()
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
         this.shopManager.reload(ConfigManager.CONFIG.ticksPerUpdate)
         this.placeholderManager = PlaceholderManager()
@@ -113,7 +115,7 @@ class SkiesSkins : ModInitializer {
 
         // Reset all players with active GUIs
         this.inventoryControllers.forEach { (uuid, _) ->
-            this.server?.playerList?.getPlayer(uuid)?.let { player ->
+            this.server.playerList?.getPlayer(uuid)?.let { player ->
                 UIManager.closeUI(player)
             }
         }
