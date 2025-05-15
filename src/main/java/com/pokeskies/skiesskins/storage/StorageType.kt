@@ -6,7 +6,9 @@ import java.lang.reflect.Type
 
 enum class StorageType(val identifier: String) {
     JSON("json"),
-    MONGO("mongo");
+    MONGO("mongo"),
+    MYSQL("mysql"),
+    SQLITE("sqlite");
 
     companion object {
         fun valueOfAnyCase(identifier: String): StorageType? {

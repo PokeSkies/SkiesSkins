@@ -7,7 +7,7 @@ class EconomyManager {
     private val services: MutableMap<EconomyType, IEconomyService> = mutableMapOf()
 
     init {
-        for (service in EconomyType.values()) {
+        for (service in EconomyType.entries) {
             if (service.isModPresent()) {
                 services[service] = getServiceForType(service)
             }

@@ -11,6 +11,7 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.ReplaceOptions
 import com.mongodb.connection.ClusterSettings
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.SkiesSkinsConfig
 import com.pokeskies.skiesskins.data.UserData
 import com.pokeskies.skiesskins.storage.IStorage
@@ -20,6 +21,7 @@ import org.bson.codecs.configuration.CodecRegistries
 import org.bson.codecs.pojo.PojoCodecProvider
 import java.io.IOException
 import java.util.*
+import java.util.concurrent.CompletableFuture
 
 class MongoStorage(config: SkiesSkinsConfig.Storage) : IStorage {
     private var mongoClient: MongoClient? = null
@@ -80,6 +82,18 @@ class MongoStorage(config: SkiesSkinsConfig.Storage) : IStorage {
         val result = this.userdataCollection?.replaceOne(query, userData, ReplaceOptions().upsert(true))
 
         return result?.wasAcknowledged() ?: false
+    }
+
+    override fun getUserAsync(uuid: UUID): CompletableFuture<UserData?> {
+        return CompletableFuture.supplyAsync({
+            getUser(uuid)
+        }, SkiesSkins.INSTANCE.asyncExecutor)
+    }
+
+    override fun saveUserAsync(uuid: UUID, userData: UserData): CompletableFuture<Boolean> {
+        return CompletableFuture.supplyAsync({
+            saveUser(uuid, userData)
+        }, SkiesSkins.INSTANCE.asyncExecutor)
     }
 
     override fun close() {

@@ -82,10 +82,17 @@ dependencies {
     // PermissionsAPI
     modImplementation("me.lucko:fabric-permissions-api:0.3.1")
 
-    // Database
+    // Mongo Database
     implementation(include("org.mongodb:mongodb-driver-sync:4.11.0")!!)
     implementation(include("org.mongodb:mongodb-driver-core:4.11.0")!!)
     implementation(include("org.mongodb:bson:4.11.0")!!)
+
+    // SQL Storage
+    implementation(include("org.mariadb.jdbc:mariadb-java-client:3.1.0")!!)
+    implementation(include("com.zaxxer:HikariCP:5.1.0")!!)
+    implementation(include("org.xerial:sqlite-jdbc:3.43.2.2")!!)
+    implementation(include("com.h2database:h2:2.2.224")!!)
+    implementation(include("com.mysql:mysql-connector-j:8.2.0")!!)
 
     modCompileOnly(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
 }

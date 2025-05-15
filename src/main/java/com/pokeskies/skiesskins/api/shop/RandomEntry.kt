@@ -26,10 +26,16 @@ class RandomEntry(
     val resetTime: Long?
 ) : ShopEntry {
     override fun parse(entry: String, player: ServerPlayer): String {
-        var parsed = entry.replace("%cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
+        var parsed = entry
             .replace("%limit%", if (limit > 0) limit.toString() else "∞")
             .replace("%purchases%", purchases.toString())
             .replace("%name%", skinConfig.name)
+
+        parsed = if (cost.isEmpty()) {
+            parsed.replace("%cost%", "Free")
+        } else {
+            parsed.replace("%cost%", cost.joinToString(" ") { "${it.amount} ${it.getCurrencyFormatted(shopConfig, (it.amount > 1))}" })
+        }
 
         if (skinConfig != null) {
             parsed = parsed.replace("%species%", PokemonSpecies.getByIdentifier(skinConfig.species)?.name ?: "Invalid Species")

@@ -23,6 +23,8 @@ class SkiesSkinsConfig(
         val database: String = "skiesskins",
         val username: String = "root",
         val password: String = "",
+        @SerializedName("table_prefix")
+        val tablePrefix: String = "skiesskins_",
         val properties: Map<String, String> = mapOf("useUnicode" to "true", "characterEncoding" to "utf8"),
         @SerializedName("pool_settings")
         val poolSettings: PoolSettings = PoolSettings(),

@@ -6,9 +6,7 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.*
 import com.pokeskies.skiesskins.config.shop.ShopConfig
 import com.pokeskies.skiesskins.utils.Utils
-import java.io.File
-import java.io.FileInputStream
-import java.io.InputStreamReader
+import java.io.*
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
@@ -33,13 +31,13 @@ object ConfigManager {
     fun load() {
         copyDefaults()
 
-        CONFIG = SkiesSkins.INSTANCE.loadFile("config.json", SkiesSkinsConfig())
+        CONFIG = loadFile("config.json", SkiesSkinsConfig())
 
-        INVENTORY_GUI = SkiesSkins.INSTANCE.loadFile("guis/inventory.json", InventoryGuiConfig())
-        APPLY_GUI = SkiesSkins.INSTANCE.loadFile("guis/apply.json", ApplyGuiConfig())
-        REMOVER_GUI = SkiesSkins.INSTANCE.loadFile("guis/remover.json", RemoverGuiConfig())
-        SCRAP_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/scrap_confirm.json", ScrapConfirmGuiConfig())
-        PURCHASE_CONFIRM_GUI = SkiesSkins.INSTANCE.loadFile("guis/purchase_confirm.json", PurchaseConfirmGuiConfig())
+        INVENTORY_GUI = loadFile("guis/inventory.json", InventoryGuiConfig())
+        APPLY_GUI = loadFile("guis/apply.json", ApplyGuiConfig())
+        REMOVER_GUI = loadFile("guis/remover.json", RemoverGuiConfig())
+        SCRAP_CONFIRM_GUI = loadFile("guis/scrap_confirm.json", ScrapConfirmGuiConfig())
+        PURCHASE_CONFIRM_GUI = loadFile("guis/purchase_confirm.json", PurchaseConfirmGuiConfig())
 
         loadSkins()
         loadShops()
@@ -173,5 +171,47 @@ object ConfigManager {
         } else {
             Utils.printError("The 'skins' directory either does not exist or is not a directory!")
         }
+    }
+
+    fun <T : Any> loadFile(filename: String, default: T, path: String = "", create: Boolean = false): T {
+        var dir = SkiesSkins.INSTANCE.configDir
+        if (path.isNotEmpty()) {
+            dir = dir.resolve(path)
+        }
+        val file = File(dir, filename)
+        var value: T = default
+        try {
+            Files.createDirectories(SkiesSkins.INSTANCE.configDir.toPath())
+            if (file.exists()) {
+                FileReader(file).use { reader ->
+                    val jsonReader = JsonReader(reader)
+                    value = SkiesSkins.INSTANCE.gsonPretty.fromJson(jsonReader, default::class.java)
+                }
+            } else if (create) {
+                Files.createFile(file.toPath())
+                FileWriter(file).use { fileWriter ->
+                    fileWriter.write(SkiesSkins.INSTANCE.gsonPretty.toJson(default))
+                    fileWriter.flush()
+                }
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        return value
+    }
+
+    fun <T> saveFile(filename: String, `object`: T): Boolean {
+        val dir = SkiesSkins.INSTANCE.configDir
+        val file = File(dir, filename)
+        try {
+            FileWriter(file).use { fileWriter ->
+                fileWriter.write(SkiesSkins.INSTANCE.gsonPretty.toJson(`object`))
+                fileWriter.flush()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false
+        }
+        return true
     }
 }

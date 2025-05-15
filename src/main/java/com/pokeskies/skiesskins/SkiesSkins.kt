@@ -1,6 +1,7 @@
 package com.pokeskies.skiesskins
 
 import ca.landonjw.gooeylibs2.api.UIManager
+import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.stream.JsonReader
@@ -16,6 +17,8 @@ import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
 import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -38,6 +41,8 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.nio.file.Files
 import java.util.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class SkiesSkins : ModInitializer {
     companion object {
@@ -47,6 +52,8 @@ class SkiesSkins : ModInitializer {
         var MOD_NAME = "SkiesSkins"
 
         val LOGGER = LogManager.getLogger(MOD_ID)
+
+        val asyncScope = CoroutineScope(Dispatchers.IO)
     }
 
     lateinit var configDir: File
@@ -59,6 +66,11 @@ class SkiesSkins : ModInitializer {
     lateinit var economyManager: EconomyManager
     lateinit var placeholderManager: PlaceholderManager
     lateinit var shopManager: ShopManager
+
+    val asyncExecutor: ExecutorService = Executors.newFixedThreadPool(8, ThreadFactoryBuilder()
+        .setNameFormat("SkiesSkins-Async-%d")
+        .setDaemon(true)
+        .build())
 
     var inventoryControllers: MutableMap<UUID, RefreshableGUI> = mutableMapOf()
 
@@ -120,43 +132,5 @@ class SkiesSkins : ModInitializer {
             }
         }
         this.inventoryControllers.clear()
-    }
-
-    fun <T : Any> loadFile(filename: String, default: T, create: Boolean = false): T {
-        val file = File(configDir, filename)
-        var value: T = default
-        try {
-            Files.createDirectories(configDir.toPath())
-            if (file.exists()) {
-                FileReader(file).use { reader ->
-                    val jsonReader = JsonReader(reader)
-                    value = gsonPretty.fromJson(jsonReader, default::class.java)
-                }
-            } else if (create) {
-                Files.createFile(file.toPath())
-                FileWriter(file).use { fileWriter ->
-                    fileWriter.write(gsonPretty.toJson(default))
-                    fileWriter.flush()
-                }
-            }
-        } catch (e: Exception) {
-            println("An error has occured while attempting to load file '$filename', with stacktrace:}")
-            e.printStackTrace()
-        }
-        return value
-    }
-
-    fun <T> saveFile(filename: String, `object`: T): Boolean {
-        val file = File(configDir, filename)
-        try {
-            FileWriter(file).use { fileWriter ->
-                fileWriter.write(gsonPretty.toJson(`object`))
-                fileWriter.flush()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return false
-        }
-        return true
     }
 }

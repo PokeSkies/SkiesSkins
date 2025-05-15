@@ -23,7 +23,7 @@ class DebugCommand : SubCommand {
         fun debug(ctx: CommandContext<CommandSourceStack>): Int {
             val newMode = !ConfigManager.CONFIG.debug
             ConfigManager.CONFIG.debug = newMode
-            SkiesSkins.INSTANCE.saveFile("config.json", ConfigManager.CONFIG)
+            ConfigManager.saveFile("config.json", ConfigManager.CONFIG)
 
             if (newMode) {
                 ctx.source.sendMessage(Component.text("Debug mode has been enabled!").color(NamedTextColor.GREEN))
