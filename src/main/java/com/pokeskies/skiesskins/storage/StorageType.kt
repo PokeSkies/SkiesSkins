@@ -28,8 +28,8 @@ enum class StorageType(val identifier: String) {
             val storageType = valueOfAnyCase(json.asString)
 
             if (storageType == null) {
-                Utils.printError("Could not deserialize Storage Type '${json.asString}' using JSON as backup!")
-                return JSON
+                Utils.printError("Could not deserialize Storage Type '${json.asString}' using SQLITE as backup!")
+                return SQLITE
             }
 
             return storageType

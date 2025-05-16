@@ -2,7 +2,7 @@
   "debug": false,
   "timezone": "America/Chicago",
   "storage": {
-    "type": "JSON",
+    "type": "SQLITE",
     "host": "",
     "port": 27017,
     "database":  "skiesskins",
