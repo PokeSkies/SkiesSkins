@@ -21,7 +21,7 @@ class ScrapConfirmGuiConfig(
      * Options for the skin information button.
      */
     class SkinSlotOptions(
-        val item: Item = Items.BARRIER,
+        val item: String = "minecraft:barrier",
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val slots: List<Int> = emptyList(),
         val name: String = "",

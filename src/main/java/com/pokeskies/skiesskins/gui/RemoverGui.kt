@@ -2,7 +2,10 @@ package com.pokeskies.skiesskins.gui
 
 import ca.landonjw.gooeylibs2.api.UIManager
 import ca.landonjw.gooeylibs2.api.button.GooeyButton
+import ca.landonjw.gooeylibs2.api.page.Page
 import ca.landonjw.gooeylibs2.api.page.PageAction
+import ca.landonjw.gooeylibs2.api.tasks.Task
+import ca.landonjw.gooeylibs2.api.tasks.TaskManager
 import ca.landonjw.gooeylibs2.api.template.Template
 import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.Cobblemon
@@ -22,7 +25,8 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 
 class RemoverGui(
-    private val player: ServerPlayer
+    private val player: ServerPlayer,
+    private val returnGUI: Page? = null
 ) : RefreshableGUI() {
     private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.REMOVER_GUI.size)
         .build()
@@ -110,6 +114,14 @@ class RemoverGui(
 
     override fun onClose(action: PageAction) {
         SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
+        returnGUI?.let {
+            Task.builder()
+                .delay(5)
+                .execute { _ ->
+                    UIManager.openUIForcefully(player, it)
+                }
+                .build()
+        }
     }
 
     override fun getTemplate(): Template {

@@ -8,11 +8,13 @@ import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -20,7 +22,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 
 class PokemonItem(
-    val item: Item = Items.BARRIER,
+    val item: String = "minecraft:barrier",
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
     val amount: Int = 1,
@@ -30,7 +32,8 @@ class PokemonItem(
     val nbt: CompoundTag? = null
 ) {
     fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
-        val stack = if (item is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(item, amount)
+        val parsedItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))
+        val stack = if (parsedItem is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(parsedItem, amount)
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders

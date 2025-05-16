@@ -51,8 +51,8 @@ class SQLStorage(private val config: SkiesSkinsConfig.Storage) : IStorage {
                 val statement = it.createStatement()
                 statement.execute(String.format("REPLACE INTO ${config.tablePrefix}userdata (uuid, `inventory`, `shopData`) VALUES ('%s', '%s', '%s')",
                     uuid.toString(),
-                    SkiesSkins.INSTANCE.gson.toJsonTree(userData.inventory).asJsonObject,
-                    SkiesSkins.INSTANCE.gson.toJsonTree(userData.shopData).asJsonObject
+                    SkiesSkins.INSTANCE.gson.toJsonTree(userData.inventory).toString(),
+                    SkiesSkins.INSTANCE.gson.toJsonTree(userData.shopData).toString(),
                 ))
             }
             true

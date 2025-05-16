@@ -7,11 +7,13 @@ import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
+import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.ListTag
 import net.minecraft.nbt.StringTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
+import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -19,7 +21,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 
 class ShopItem(
-    val item: Item = Items.BARRIER,
+    val item: String = "minecraft:barrier",
     val amount: Int = 1,
     val name: String? = null,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
@@ -35,7 +37,8 @@ class ShopItem(
         player: ServerPlayer,
         entry: ShopEntry
     ): ItemStack {
-        var stack = ItemStack(item, amount)
+        val parsedItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))
+        var stack = ItemStack(parsedItem, amount)
 
         if (nbt != null) {
             // Parses the nbt and attempts to replace any placeholders
