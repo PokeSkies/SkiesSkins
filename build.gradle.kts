@@ -80,7 +80,9 @@ dependencies {
     modImplementation(include("net.kyori:adventure-platform-fabric:5.14.2")!!)
 
     // PermissionsAPI
-    modImplementation("me.lucko:fabric-permissions-api:0.3.1")
+    modImplementation("me.lucko:fabric-permissions-api:0.3.1")?.let {
+        include(it)
+    }
 
     // Mongo Database
     implementation(include("org.mongodb:mongodb-driver-sync:4.11.0")!!)

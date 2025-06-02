@@ -8,6 +8,7 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.utils.SubCommand
+import com.pokeskies.skiesskins.utils.Utils
 import me.lucko.fabric.api.permissions.v0.Permissions
 import net.minecraft.ChatFormatting
 import net.minecraft.commands.CommandSourceStack
@@ -81,7 +82,7 @@ class GiveSkinCommand : SubCommand {
                         .append(
                             Component.literal("You gave $amount [").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
-                        .append(skinEntry.name)
+                        .append(Utils.deserializeText(skinEntry.name))
                         .append(
                             Component.literal("] skin(s) to ${player.name.string}").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
@@ -97,7 +98,7 @@ class GiveSkinCommand : SubCommand {
                         .append(
                             Component.literal("You gave $amount [").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
-                        .append(skinEntry.name)
+                        .append(Utils.deserializeText(skinEntry.name))
                         .append(
                             Component.literal("] skin(s) to $given players").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
