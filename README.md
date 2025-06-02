@@ -1,7 +1,7 @@
 # SkiesSkins
 <img height="50" src="https://camo.githubusercontent.com/a94064bebbf15dfed1fddf70437ea2ac3521ce55ac85650e35137db9de12979d/68747470733a2f2f692e696d6775722e636f6d2f6331444839564c2e706e67" alt="Requires Fabric Kotlin"/>
 
-A Fabric server-sided Skins management mod for Cobblemon, allowing players to purchase, apply, and remove Skins through a managed system. Designed to be highly customizable, with extensive options when possible!
+A Fabric server-sided Skins mod for Cobblemon, allowing players to purchase, apply, and remove Skins through a managed system. Designed to be highly customizable, with extensive options when possible!
 
 More information on configuration can be found on the [Wiki](https://github.com/PokeSkies/SkiesSkins/wiki)!
 
@@ -30,7 +30,7 @@ More information on configuration can be found on the [Wiki](https://github.com/
 3. Download any optional dependencies:
   - [Impactor](https://modrinth.com/mod/impactor) **_(Economy, Placeholders)_**
   - [MiniPlaceholders](https://modrinth.com/plugin/miniplaceholders) **_(Placeholders)_**
-  - [PlaceholderAPI]() **_(Placeholders)_**
+  - [PlaceholderAPI](https://modrinth.com/mod/placeholder-api) **_(Placeholders)_**
 4. Install the mod and dependencies into your server's `mods` folder.
 5. Configure the mod in the `./config/skiesskins/` folder.
 
@@ -75,7 +75,11 @@ More information on configuration can be found on the [Wiki](https://github.com/
   - Skin Type A-Z
   - Skin Type Z-A
 - Skin Collections/Previewing UI
-- 
+
+## Donations
+This mod was developed as part of the Skies Development goal of **providing free, high quality, and open sourced mods** for the Cobblemon and Fabric communities! If you are able to support this mission, **please consider making a one-time donation or becoming a Member** on [Ko-fi](https://ko-fi.com/stampede2011). Being a member gives you early access to all new mods as well as helping decide on the development direction.
+<br><br>
+During this mods development, the following people supported Skies Development through an active Membership: **Jephon, Vince, Zephyr, iMystxc, Mango, GriffinFluff, Guga, AllieDragon, Frost, and Ezequiel.**  Thank you for your generosity! ❤️
 
 ## Support
 A community support Discord has been opened up for all Skies Development related projects! Feel free to join and ask questions or leave suggestions :)
