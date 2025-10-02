@@ -114,11 +114,11 @@ class ShopGui(
                             Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
                         )
                     } else {
-                        val packageEntry = RandomEntry(shopId, shopConfig, set, skinData.id, skinConfig, shopSkinConfig.cost, shopSkinConfig.limit, skinData.purchases, resetTime)
+                        val entry = RandomEntry(shopId, shopConfig, set, skinData.id, skinConfig, shopSkinConfig.cost, shopSkinConfig.limit, skinData.purchases, resetTime)
                         if (shopSkinConfig.limit <= 0 || skinData.purchases < shopSkinConfig.limit) {
                             template.set(slot, GooeyButton.builder()
                                 .display(
-                                    set.gui.available.createItemStack(player, packageEntry)
+                                    set.gui.available.createItemStack(player, entry)
                                 )
                                 .onClick { ctx ->
                                     if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
@@ -127,7 +127,7 @@ class ShopGui(
                                     }
                                     UIManager.openUIForcefully(player, PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo,
                                         {
-                                            ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo.createItemStack(player, packageEntry)
+                                            ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo.createItemStack(player, entry)
                                         }
                                     ) { gui ->
                                         if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
@@ -169,7 +169,7 @@ class ShopGui(
                         } else {
                             template.set(slot, GooeyButton.builder()
                                 .display(
-                                    set.gui.maxUses.createItemStack(player, packageEntry)
+                                    set.gui.maxUses.createItemStack(player, entry)
                                 )
                                 .build()
                             )

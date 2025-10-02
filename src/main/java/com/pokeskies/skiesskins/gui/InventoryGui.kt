@@ -95,7 +95,11 @@ class InventoryGui(
                             if (user.inventory.contains(skin)) {
                                 // Scrapping
                                 if (ConfigManager.INVENTORY_GUI.skinOptions.scrapClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
-                                    UIManager.openUIForcefully(player, ScrapConfirmGui(player, skin, skinEntry))
+                                    if (skinEntry.scrapping != null) {
+                                        UIManager.openUIForcefully(player, ScrapConfirmGui(player, skin, skinEntry))
+                                    } else {
+                                        player.sendSystemMessage(Utils.deserializeText("<red>This skin cannot be scrapped!"))
+                                    }
                                 } else if (ConfigManager.INVENTORY_GUI.skinOptions.applyClickType.any { it.buttonClicks.contains(ctx.clickType) }) {
                                     UIManager.openUIForcefully(player, ApplyGui(player, skin, skinEntry))
                                 }

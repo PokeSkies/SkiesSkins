@@ -89,8 +89,14 @@ class ScrapConfirmGui(
             val confirmButton = GooeyButton.builder()
                 .display(guiConfig.confirm.createItemStack(player))
                 .onClick { ctx ->
+                    if (skinConfig.scrapping == null) {
+                        player.sendSystemMessage(Component.literal("This skin cannot be scrapped!")
+                            .withStyle { it.withColor(ChatFormatting.RED) })
+                        player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.MASTER, 0.5f, 0.5f)
+                        return@onClick
+                    }
                     if (user.inventory.remove(skinData) && SkiesSkinsAPI.saveUserData(player, user)) {
-                        if (skinConfig.scrapping != null && skinConfig.scrapping.value.isNotEmpty()) {
+                        if (skinConfig.scrapping.value.isNotEmpty()) {
                             skinConfig.scrapping.value.all { entry -> !entry.deposit(player) }
                         }
                         player.sendSystemMessage(Component.literal("Successfully scrapped skin!")

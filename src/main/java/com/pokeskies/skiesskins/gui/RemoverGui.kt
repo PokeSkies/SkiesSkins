@@ -77,19 +77,21 @@ class RemoverGui(
                             return@onClick
                         }
 
-                        val user = SkiesSkinsAPI.getUserData(player)
-                        val result = user.inventory.add(
-                            UserSkinData(
-                                skinEntry.first
+                        if (!skinEntry.second.infinite) {
+                            val user = SkiesSkinsAPI.getUserData(player)
+                            val result = user.inventory.add(
+                                UserSkinData(
+                                    skinEntry.first
+                                )
                             )
-                        )
 
-                        if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
-                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
-                            player.sendMessage(Component.literal("There was an error while removing this skin!")
-                                .withStyle { it.withColor(ChatFormatting.RED) })
-                            UIManager.closeUI(player)
-                            return@onClick
+                            if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
+                                player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
+                                player.sendMessage(Component.literal("There was an error while removing this skin!")
+                                    .withStyle { it.withColor(ChatFormatting.RED) })
+                                UIManager.closeUI(player)
+                                return@onClick
+                            }
                         }
 
                         for (aspect in skinEntry.second.aspects.remove) {

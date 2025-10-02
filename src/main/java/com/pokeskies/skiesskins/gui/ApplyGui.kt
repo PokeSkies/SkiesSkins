@@ -105,16 +105,16 @@ class ApplyGui(
                             return@onClick
                         }
 
-                        val user = SkiesSkinsAPI.getUserData(player)
-                        val removed = user.inventory.remove(skinData)
-
-                        if (!removed || !SkiesSkinsAPI.saveUserData(player, user)) {
-                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
-                            player.sendMessage(Component.literal("There was an error while applying this skin!")
-                                .withStyle { it.withColor(ChatFormatting.RED) })
-                            shouldClose = true
-                            UIManager.closeUI(player)
-                            return@onClick
+                        if (!skin.infinite) {
+                            val user = SkiesSkinsAPI.getUserData(player)
+                            if (!user.inventory.remove(skinData) || !SkiesSkinsAPI.saveUserData(player, user)) {
+                                player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
+                                player.sendMessage(Component.literal("There was an error while applying this skin!")
+                                    .withStyle { it.withColor(ChatFormatting.RED) })
+                                shouldClose = true
+                                UIManager.closeUI(player)
+                                return@onClick
+                            }
                         }
 
                         for (aspect in skin.aspects.apply) {

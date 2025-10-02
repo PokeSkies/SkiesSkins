@@ -22,6 +22,7 @@ class SkinConfig(
     val description: List<String> = emptyList(),
     val aspects: Aspects = Aspects(),
     val scrapping: ScrappingOptions? = null,
+    val infinite: Boolean = false,
 ) {
 
     /*
@@ -116,6 +117,7 @@ class SkinConfig(
     }
 
     override fun toString(): String {
-        return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, aspects=$aspects, scrapping=$scrapping)"
+        return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, " +
+                "aspects=$aspects, scrapping=$scrapping, infinite=$infinite)"
     }
 }
