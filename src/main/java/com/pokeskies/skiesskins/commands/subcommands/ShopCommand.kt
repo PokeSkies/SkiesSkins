@@ -26,6 +26,7 @@ class ShopCommand : SubCommand {
                     SharedSuggestionProvider.suggest(ConfigManager.SHOPS.keys.stream(), builder)
                 }
                 .then(Commands.argument("player", EntityArgument.players())
+                    .requires(Permissions.require("skiesskins.command.shop.others", 4))
                     .executes { ctx ->
                         val shopId = StringArgumentType.getString(ctx, "shop")
                         val players = EntityArgument.getPlayers(ctx, "player")
