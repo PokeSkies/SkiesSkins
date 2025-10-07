@@ -18,19 +18,27 @@ class ImpactorEconomyService : IEconomyService {
     }
 
     override fun balance(player: ServerPlayer, currency: String) : Double {
-        return getAccount(player.uuid, currency)?.thenCompose(Account::balanceAsync)?.join()?.toDouble() ?: 0.0
+        return getAccount(player.uuid, currency)?.thenCompose {
+            CompletableFuture.completedFuture(it.balance())
+        }?.join()?.toDouble() ?: 0.0
     }
 
     override fun withdraw(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.join()?.withdrawAsync(BigDecimal(amount))?.join()?.successful() ?: false
+        return getAccount(player.uuid, currency)?.thenCompose {
+            CompletableFuture.completedFuture(it.withdraw(BigDecimal(amount)))
+        }?.join()?.successful() ?: false
     }
 
     override fun deposit(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.join()?.depositAsync(BigDecimal(amount))?.join()?.successful() ?: false
+        return getAccount(player.uuid, currency)?.thenCompose {
+            CompletableFuture.completedFuture(it.deposit(BigDecimal(amount)))
+        }?.join()?.successful() ?: false
     }
 
     override fun set(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.join()?.setAsync(BigDecimal(amount))?.join()?.successful() ?: false
+        return getAccount(player.uuid, currency)?.thenCompose {
+            CompletableFuture.completedFuture(it.set(BigDecimal(amount)))
+        }?.join()?.successful() ?: false
     }
 
     override fun getCurrencyFormatted(currency: String, singular: Boolean): String {
