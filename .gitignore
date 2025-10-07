@@ -25,3 +25,4 @@ run
 # Generated files
 */generated/resources/*
 /fabric/src/generated/resources/cobblemon-common.accesswidener
+.kotlin
