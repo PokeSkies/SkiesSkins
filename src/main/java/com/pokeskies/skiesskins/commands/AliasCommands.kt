@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.commands
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.mojang.brigadier.CommandDispatcher
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.gui.ShopGui
@@ -49,7 +48,7 @@ class AliasCommands {
                                     return@executes 1
                                 }
 
-                                UIManager.openUIForcefully(player, ShopGui(player, shopId, shopConfig))
+                                ShopGui(player, shopId, shopConfig).open()
                                 return@executes 1
                             }
                     )

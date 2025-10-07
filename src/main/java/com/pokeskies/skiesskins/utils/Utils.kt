@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.utils
 
-import ca.landonjw.gooeylibs2.api.button.GooeyButton
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.google.gson.*
@@ -10,6 +9,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
+import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.minecraft.core.Registry
 import net.minecraft.core.component.DataComponentPatch
@@ -76,14 +76,13 @@ object Utils {
         return other()
     }
 
-    fun getErrorButton(text: String): GooeyButton {
-        return GooeyButton.builder()
-            .display(ItemStack(Items.BARRIER).also {
+    fun getErrorButton(text: String): GuiElementBuilder {
+        return GuiElementBuilder
+            .from(ItemStack(Items.BARRIER).also {
                 it.applyComponents(DataComponentPatch.builder()
                     .set(DataComponents.ITEM_NAME, Utils.deserializeText(text))
                     .build())
             })
-            .build()
     }
 
     fun getRandomRanged(min: Int, max: Int): Int {

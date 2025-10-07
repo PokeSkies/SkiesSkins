@@ -1,6 +1,6 @@
 {
   "title": "Skin Inventory",
-  "size": 6,
+  "type": "GENERIC_9x6",
   "skin_options": {
     "slots": [
       0,  1,  2,  3,  4,  5,  6,  7,  8,
@@ -24,42 +24,38 @@
       "ANY_RIGHT_CLICK"
     ]
   },
-  "next_page": {
-    "item": "minecraft:paper",
-    "slots": [ 53 ],
-    "name": "<aqua>Next Page",
-    "lore": [
-      "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
-    ]
-  },
-  "previous_page": {
-    "item": "minecraft:paper",
-    "slots": [ 45 ],
-    "name": "<aqua>Previous Page",
-    "lore": [
-      "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
-    ]
+  "buttons": {
+    "next_page": {
+      "item": "minecraft:paper",
+      "slots": [ 53 ],
+      "name": "<aqua>Next Page",
+      "lore": [
+        "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
+      ]
+    },
+    "previous_page": {
+      "item": "minecraft:paper",
+      "slots": [ 45 ],
+      "name": "<aqua>Previous Page",
+      "lore": [
+        "<gray><!i>ᴄʟɪᴄᴋ ᴛᴏ ᴍᴏᴠᴇ ᴘᴀɢᴇs"
+      ]
+    },
+    "remove_skin": {
+      "item": "minecraft:shears",
+      "slots": [ 49 ],
+      "name": "<red>Remove Skin",
+      "lore": [
+        "<gray><!i>ʀᴇᴍᴏᴠᴇ ᴀ sᴋɪɴ ғʀᴏᴍ ᴀ ᴘᴏᴋᴇᴍᴏɴ",
+        "<gray><!i>ᴡɪᴛʜɪɴ ʏᴏᴜʀ ᴘᴀʀᴛʏ"
+      ]
+    }
   },
   "items": {
     "border": {
       "item": "minecraft:gray_stained_glass_pane",
       "slots": [ 46, 47, 48, 50, 51, 52 ],
       "name": ""
-    },
-    "remover": {
-      "item": "minecraft:shears",
-      "slots": 49,
-      "name": "<red>Remove Skin",
-      "lore": [
-        "<gray><!i>ʀᴇᴍᴏᴠᴇ ᴀ sᴋɪɴ ғʀᴏᴍ ᴀ ᴘᴏᴋᴇᴍᴏɴ",
-        "<gray><!i>ᴡɪᴛʜɪɴ ʏᴏᴜʀ ᴘᴀʀᴛʏ"
-      ],
-      "click_actions": {
-        "open": {
-          "type": "COMMAND_CONSOLE",
-          "commands": "skins remover %player%"
-        }
-      }
     }
   }
 }

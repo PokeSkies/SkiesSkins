@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.commands.subcommands
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -66,7 +65,7 @@ class ShopCommand : SubCommand {
             }
 
             for (player in players) {
-                UIManager.openUIForcefully(player, ShopGui(player, shopId, shopConfig))
+                ShopGui(player, shopId, shopConfig).open()
             }
             return 1
         }

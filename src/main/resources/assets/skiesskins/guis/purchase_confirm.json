@@ -1,6 +1,6 @@
 {
   "title": "Confirm Purchase",
-  "size": 3,
+  "type": "GENERIC_9x3",
   "buttons": {
     "info": {
       "random": {

@@ -1,13 +1,5 @@
 package com.pokeskies.skiesskins.gui
 
-import ca.landonjw.gooeylibs2.api.UIManager
-import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import ca.landonjw.gooeylibs2.api.page.Page
-import ca.landonjw.gooeylibs2.api.page.PageAction
-import ca.landonjw.gooeylibs2.api.tasks.Task
-import ca.landonjw.gooeylibs2.api.tasks.TaskManager
-import ca.landonjw.gooeylibs2.api.template.Template
-import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.cobblemon.mod.common.Cobblemon
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
@@ -16,8 +8,10 @@ import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.data.UserSkinData
-import com.pokeskies.skiesskins.utils.RefreshableGUI
+import com.pokeskies.skiesskins.utils.IRefreshableGui
 import com.pokeskies.skiesskins.utils.Utils
+import com.pokeskies.skiesskins.utils.setSlots
+import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -25,56 +19,51 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 
 class RemoverGui(
-    private val player: ServerPlayer,
-    private val returnGUI: Page? = null
-) : RefreshableGUI() {
-    private val template: ChestTemplate = ChestTemplate.Builder(ConfigManager.REMOVER_GUI.size)
-        .build()
-
+    player: ServerPlayer,
+    private val returnGUI: IRefreshableGui? = null
+) : IRefreshableGui(
+    ConfigManager.REMOVER_GUI.type.type, player, false
+) {
     init {
-        this.subscribe(this, Runnable { refresh() })
-        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
+        SkiesSkins.INSTANCE.inventoryInstances[player.uuid] = this
         refresh()
     }
 
     override fun refresh() {
-        for ((id, item) in ConfigManager.REMOVER_GUI.items) {
-            val button = GooeyButton.builder()
-                .display(item.createItemStack(player))
-                .onClick { ctx ->
+        for ((_, item) in ConfigManager.REMOVER_GUI.items) {
+            setSlots(item.slots, GuiElementBuilder
+                .from(item.createItemStack(player))
+                .setCallback { type ->
                     for (actionEntry in item.clickActions) {
                         val action = actionEntry.value
-                        if (action.matchesClick(ctx.clickType)) {
-                            action.executeAction(player)
+                        if (action.matchesClick(type)) {
+                            action.executeAction(player, this)
                         }
                     }
                 }
-                .build();
-            for (slot in item.slots) {
-                this.template.set(slot, button)
-            }
+            )
         }
 
         val party: PlayerPartyStore = Cobblemon.storage.getParty(player)
         for (i in 0..5) {
             val slotItem = ConfigManager.REMOVER_GUI.partySlots[i + 1] ?: continue
             val partyPokemon: Pokemon? = party.get(i)
-            val button = GooeyButton.builder()
-                .display(
+            val button = GuiElementBuilder
+                .from(
                     Utils.getOrRunOther(
                         partyPokemon,
                         { slotItem.filled.createItemStack(player, partyPokemon) },
                         { slotItem.empty.createItemStack(player, partyPokemon) }
                     )
                 )
-                .onClick { cons ->
+                .setCallback { type ->
                     val pokemon = Cobblemon.storage.getParty(player).get(i)
                     if (pokemon != null) {
                         val skinEntry = SkiesSkinsAPI.getPokemonSkin(pokemon)
                         if (skinEntry == null) {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Utils.deserializeText("<red>This Pokemon does not have any skin applied!"))
-                            return@onClick
+                            return@setCallback
                         }
 
                         val user = SkiesSkinsAPI.getUserData(player)
@@ -88,8 +77,8 @@ class RemoverGui(
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Component.literal("There was an error while removing this skin!")
                                 .withStyle { it.withColor(ChatFormatting.RED) })
-                            UIManager.closeUI(player)
-                            return@onClick
+                            close()
+                            return@setCallback
                         }
 
                         for (aspect in skinEntry.second.aspects.remove) {
@@ -101,31 +90,20 @@ class RemoverGui(
                         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                         player.sendMessage(Component.literal("Successfully removed the skin!")
                             .withStyle { it.withColor(ChatFormatting.GREEN) })
-                        UIManager.closeUI(player)
+                        close()
                     }
                 }
                 .build()
 
             for (slot in (if (partyPokemon != null) slotItem.filled else slotItem.empty).slots) {
-                template.set(slot, button)
+                setSlot(slot, button)
             }
         }
     }
 
-    override fun onClose(action: PageAction) {
-        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
-        returnGUI?.let {
-            Task.builder()
-                .delay(5)
-                .execute { _ ->
-                    UIManager.openUIForcefully(player, it)
-                }
-                .build()
-        }
-    }
-
-    override fun getTemplate(): Template {
-        return template
+    override fun onClose() {
+        SkiesSkins.INSTANCE.inventoryInstances.remove(player.uuid, this)
+        returnGUI?.open()
     }
 
     override fun getTitle(): Component {
