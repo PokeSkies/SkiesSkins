@@ -2,7 +2,6 @@ package com.pokeskies.skiesskins.commands.subcommands
 
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
-import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.utils.SubCommand
 import me.lucko.fabric.api.permissions.v0.Permissions
