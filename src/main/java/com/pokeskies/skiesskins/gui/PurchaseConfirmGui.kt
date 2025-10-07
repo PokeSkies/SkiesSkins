@@ -1,110 +1,91 @@
 package com.pokeskies.skiesskins.gui
 
-import ca.landonjw.gooeylibs2.api.UIManager
-import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import ca.landonjw.gooeylibs2.api.page.PageAction
-import ca.landonjw.gooeylibs2.api.template.Template
-import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.PurchaseConfirmGuiConfig
 import com.pokeskies.skiesskins.config.shop.ShopConfig
-import com.pokeskies.skiesskins.utils.RefreshableGUI
+import com.pokeskies.skiesskins.utils.IRefreshableGui
 import com.pokeskies.skiesskins.utils.Utils
-import net.minecraft.core.component.DataComponents
+import com.pokeskies.skiesskins.utils.clear
+import com.pokeskies.skiesskins.utils.setSlots
+import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.component.ItemLore
 
 class PurchaseConfirmGui(
-    private val player: ServerPlayer,
+    player: ServerPlayer,
     val shopId: String,
     val shopConfig: ShopConfig,
     val slotOptions: PurchaseConfirmGuiConfig.InfoButtons.Options,
     val displayStack: () -> ItemStack,
     val callback: (PurchaseConfirmGui) -> Unit
-) : RefreshableGUI() {
+) : IRefreshableGui(
+    ConfigManager.PURCHASE_CONFIRM_GUI.type.type, player, false
+) {
     private val guiConfig = ConfigManager.PURCHASE_CONFIRM_GUI
-    private val template: ChestTemplate = ChestTemplate.Builder(guiConfig.size)
-        .build()
 
     private var forceClosed = false
 
     init {
-        this.subscribe(this, Runnable { refresh() })
-        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
+        SkiesSkins.INSTANCE.inventoryInstances[player.uuid] = this
         refresh()
     }
 
     override fun refresh() {
         try {
-            val userData = SkiesSkinsAPI.getUserData(player)
-
-            this.template.clear()
+            clear()
 
             // Load background items
-            for ((id, item) in guiConfig.items) {
-                val button = GooeyButton.builder()
-                    .display(item.createItemStack(player))
-                    .onClick { ctx ->
+            for ((_, item) in guiConfig.items) {
+                setSlots(item.slots, GuiElementBuilder.from(item.createItemStack(player))
+                    .setCallback { type ->
                         for (actionEntry in item.clickActions) {
                             val action = actionEntry.value
-                            if (action.matchesClick(ctx.clickType)) {
-                                action.executeAction(player)
+                            if (action.matchesClick(type)) {
+                                action.executeAction(player, this)
                             }
                         }
                     }
-                    .build();
-                for (slot in item.slots) {
-                    this.template.set(slot, button)
-                }
+                )
             }
 
             // Create the center info item
-            slotOptions.slots.forEach { slot ->
-                this.template.set(slot, GooeyButton.builder()
-                    .display(displayStack.invoke())
-                    .build())
-            }
+            setSlots(slotOptions.slots, GuiElementBuilder.from(displayStack.invoke()))
 
             // Confirm button
             guiConfig.buttons.confirm.let { item ->
-                val confirmButton = GooeyButton.builder()
-                    .display(item.createItemStack(player))
-                    .onClick { ctx ->
+                val confirmButton = GuiElementBuilder
+                    .from(item.createItemStack(player))
+                    .setCallback { type ->
                         callback.invoke(this)
                     }
 
                 item.name?.let {
-                    confirmButton.with(DataComponents.ITEM_NAME, Utils.deserializeText(Utils.parsePlaceholders(player, it)))
+                    confirmButton.setName(Utils.deserializeText(Utils.parsePlaceholders(player, it)))
                 }
                 if (item.lore.isNotEmpty()) {
-                    confirmButton.with(DataComponents.LORE, ItemLore(guiConfig.buttons.confirm.lore.map { Utils.deserializeText(Utils.parsePlaceholders(player, it)) }))
+                    confirmButton.setLore(guiConfig.buttons.confirm.lore.map { Utils.deserializeText(Utils.parsePlaceholders(player, it)) })
                 }
-                item.slots.forEach { slot ->
-                    this.template.set(slot, confirmButton.build())
-                }
+                setSlots(item.slots, confirmButton)
             }
 
             // Cancel button
             guiConfig.buttons.cancel.let { item ->
-                val cancelButton = GooeyButton.builder()
-                    .display(item.createItemStack(player))
-                    .onClick { ctx ->
+                val cancelButton = GuiElementBuilder
+                    .from(item.createItemStack(player))
+                    .setCallback { type ->
                         forceReturn()
                     }
 
                 item.name?.let {
-                    cancelButton.with(DataComponents.ITEM_NAME, Utils.deserializeText(Utils.parsePlaceholders(player, it)))
+                    cancelButton.setName(Utils.deserializeText(Utils.parsePlaceholders(player, it)))
                 }
                 if (item.lore.isNotEmpty()) {
-                    cancelButton.with(DataComponents.LORE, ItemLore(guiConfig.buttons.cancel.lore.map { Utils.deserializeText(Utils.parsePlaceholders(player, it)) }))
+                    cancelButton.setLore(guiConfig.buttons.cancel.lore.map { Utils.deserializeText(Utils.parsePlaceholders(player, it)) })
                 }
-                item.slots.forEach { slot ->
-                    this.template.set(slot, cancelButton.build())
-                }
+                setSlots(item.slots, cancelButton)
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -113,18 +94,14 @@ class PurchaseConfirmGui(
 
     fun forceReturn() {
         forceClosed = true
-        UIManager.openUIForcefully(player, ShopGui(player, shopId, shopConfig))
+        ShopGui(player, shopId, shopConfig).open()
     }
 
-    override fun onClose(action: PageAction) {
-        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
+    override fun onClose() {
+        SkiesSkins.INSTANCE.inventoryInstances.remove(player.uuid, this)
         if (!forceClosed) {
-            UIManager.openUIForcefully(player, ShopGui(player, shopId, shopConfig))
+            forceReturn()
         }
-    }
-
-    override fun getTemplate(): Template {
-        return template
     }
 
     override fun getTitle(): Component {

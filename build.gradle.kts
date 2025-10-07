@@ -32,6 +32,7 @@ repositories {
     }
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://maven.impactdev.net/repository/development/")
+    maven("https://repo.lucko.me")
 }
 
 loom {
@@ -65,7 +66,7 @@ dependencies {
     modImplementation("net.impactdev.impactor.api:economy:5.3.0-SNAPSHOT")
     modImplementation("net.impactdev.impactor.api:text:5.3.0-SNAPSHOT")
 
-    modCompileOnly("ca.landonjw.gooeylibs:fabric-api-repack:3.1.0-1.21.1-SNAPSHOT@jar")?.let {
+    modImplementation("eu.pb4:sgui:1.6.1+1.21.1")?.let {
         include(it)
     }
 

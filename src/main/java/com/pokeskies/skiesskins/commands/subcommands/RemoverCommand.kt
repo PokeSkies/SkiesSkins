@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.commands.subcommands
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
 import com.pokeskies.skiesskins.SkiesSkins
@@ -43,7 +42,7 @@ class RemoverCommand : SubCommand {
                 return 1
             }
 
-            UIManager.openUIForcefully(player, RemoverGui(player))
+            RemoverGui(player).open()
             return 1
         }
     }

@@ -46,8 +46,8 @@ class ResetInventoryCommand : SubCommand {
                 val userData = SkiesSkinsAPI.getUserData(player)
                 userData.inventory = emptyList()
                 SkiesSkinsAPI.saveUserData(player, userData)
-                if (SkiesSkins.INSTANCE.inventoryControllers.containsKey(player.uuid)) {
-                    SkiesSkins.INSTANCE.inventoryControllers[player.uuid]!!.refresh()
+                if (SkiesSkins.INSTANCE.inventoryInstances.containsKey(player.uuid)) {
+                    SkiesSkins.INSTANCE.inventoryInstances[player.uuid]!!.refresh()
                 }
                 ctx.source.sendMessage(
                     Component.empty()
@@ -62,8 +62,8 @@ class ResetInventoryCommand : SubCommand {
                     val userData = SkiesSkinsAPI.getUserData(player)
                     userData.inventory = emptyList()
                     SkiesSkinsAPI.saveUserData(player, userData)
-                    if (SkiesSkins.INSTANCE.inventoryControllers.containsKey(player.uuid)) {
-                        SkiesSkins.INSTANCE.inventoryControllers[player.uuid]!!.refresh()
+                    if (SkiesSkins.INSTANCE.inventoryInstances.containsKey(player.uuid)) {
+                        SkiesSkins.INSTANCE.inventoryInstances[player.uuid]!!.refresh()
                     }
                     playerCount++
                 }

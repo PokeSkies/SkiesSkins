@@ -15,14 +15,14 @@ enum class ActionType(val identifier: String, val clazz: Class<*>) {
 
     companion object {
         fun valueOfAnyCase(name: String): ActionType? {
-            for (type in values()) {
+            for (type in ActionType.entries) {
                 if (name.equals(type.identifier, true)) return type
             }
             return null
         }
     }
 
-    internal class ActionTypeAdaptor : JsonSerializer<Action>, JsonDeserializer<Action> {
+    internal class Adapter : JsonSerializer<Action>, JsonDeserializer<Action> {
         override fun serialize(src: Action, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             return context.serialize(src, src::class.java)
         }

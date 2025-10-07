@@ -1,10 +1,5 @@
 package com.pokeskies.skiesskins.gui
 
-import ca.landonjw.gooeylibs2.api.UIManager
-import ca.landonjw.gooeylibs2.api.button.GooeyButton
-import ca.landonjw.gooeylibs2.api.page.PageAction
-import ca.landonjw.gooeylibs2.api.template.Template
-import ca.landonjw.gooeylibs2.api.template.types.ChestTemplate
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.api.shop.PackageEntry
@@ -19,9 +14,11 @@ import com.pokeskies.skiesskins.data.shop.RandomEntryShopData
 import com.pokeskies.skiesskins.data.shop.RandomEntryShopData.SkinData
 import com.pokeskies.skiesskins.data.shop.StaticEntryShopData
 import com.pokeskies.skiesskins.data.shop.UserShopData
+import com.pokeskies.skiesskins.utils.IRefreshableGui
 import com.pokeskies.skiesskins.utils.RandomCollection
-import com.pokeskies.skiesskins.utils.RefreshableGUI
 import com.pokeskies.skiesskins.utils.Utils
+import com.pokeskies.skiesskins.utils.setSlots
+import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
@@ -29,16 +26,14 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 
 class ShopGui(
-    private val player: ServerPlayer,
+    player: ServerPlayer,
     private val shopId: String,
     private val shopConfig: ShopConfig,
-) : RefreshableGUI() {
-    private val template: ChestTemplate = ChestTemplate.Builder(shopConfig.options.size)
-        .build()
-
+) : IRefreshableGui(
+    shopConfig.options.type.type, player, false
+) {
     init {
-        this.subscribe(this, Runnable { refresh() })
-        SkiesSkins.INSTANCE.inventoryControllers[player.uuid] = this
+        SkiesSkins.INSTANCE.inventoryInstances[player.uuid] = this
         refresh()
     }
 
@@ -62,21 +57,18 @@ class ShopGui(
         }
 
         // Default items
-        for ((id, item) in shopConfig.items) {
-            val button = GooeyButton.builder()
-                .display(item.createItemStack(player))
-                .onClick { ctx ->
+        for ((_, item) in shopConfig.items) {
+            setSlots(item.slots, GuiElementBuilder
+                .from(item.createItemStack(player))
+                .setCallback { type ->
                     for (actionEntry in item.clickActions) {
                         val action = actionEntry.value
-                        if (action.matchesClick(ctx.clickType)) {
-                            action.executeAction(player)
+                        if (action.matchesClick(type)) {
+                            action.executeAction(player, this)
                         }
                     }
                 }
-                .build();
-            for (slot in item.slots) {
-                this.template.set(slot, button)
-            }
+            )
         }
 
         // RANDOM SKINS
@@ -101,7 +93,7 @@ class ShopGui(
                 // Check to ensure that this skin even exists in this shop
                 val shopSkinConfig = set.skins[skinData.id]
                 if (shopSkinConfig == null) {
-                    this.template.set(
+                    setSlot(
                         slot,
                         Utils.getErrorButton("<red>Error while fetching shop skin data. It's missing?")
                     )
@@ -109,23 +101,23 @@ class ShopGui(
                     // Check to ensure that this skin even exists in the configs
                     val skinConfig = ConfigManager.SKINS[skinData.id]
                     if (skinConfig == null) {
-                        this.template.set(
+                        setSlot(
                             slot,
                             Utils.getErrorButton("<red>Error while fetching skin. It's missing?")
                         )
                     } else {
                         val entry = RandomEntry(shopId, shopConfig, set, skinData.id, skinConfig, shopSkinConfig.cost, shopSkinConfig.limit, skinData.purchases, resetTime)
                         if (shopSkinConfig.limit <= 0 || skinData.purchases < shopSkinConfig.limit) {
-                            template.set(slot, GooeyButton.builder()
-                                .display(
+                            setSlot(slot, GuiElementBuilder
+                                .from(
                                     set.gui.available.createItemStack(player, entry)
                                 )
-                                .onClick { ctx ->
+                                .setCallback { type ->
                                     if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
                                         refresh()
-                                        return@onClick
+                                        return@setCallback
                                     }
-                                    UIManager.openUIForcefully(player, PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo,
+                                    PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo,
                                         {
                                             ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo.createItemStack(player, entry)
                                         }
@@ -162,16 +154,15 @@ class ShopGui(
                                                 0.5f
                                             )
                                         }
-                                    })
+                                    }.open()
                                 }
                                 .build()
                             )
                         } else {
-                            template.set(slot, GooeyButton.builder()
-                                .display(
+                            setSlot(slot, GuiElementBuilder
+                                .from(
                                     set.gui.maxUses.createItemStack(player, entry)
                                 )
-                                .build()
                             )
                         }
                     }
@@ -183,7 +174,7 @@ class ShopGui(
         // Iterate through every set of Static skins in this shop
         for ((setId, set) in shopConfig.skins.static) {
             for ((skinId, skin) in set.skins) {
-                var button: GooeyButton
+                var button: GuiElementBuilder
                 // Check to ensure that this skin even exists in the configs
                 val skinConfig = ConfigManager.SKINS[skinId]
                 if (skinConfig == null) {
@@ -192,14 +183,14 @@ class ShopGui(
                     val staticSetData = userShopData.staticData[setId] ?: mutableMapOf()
                     val staticSkinData = staticSetData[skinId] ?: StaticEntryShopData()
 
-                    val packageEntry = StaticEntry(shopId, shopConfig, set, skinId, skinConfig, skin.cost, skin.limit, staticSkinData.purchases)
+                    val entry = StaticEntry(shopId, shopConfig, set, skinId, skinConfig, skin.cost, skin.limit, staticSkinData.purchases)
                     if (skin.limit <= 0 || staticSkinData.purchases < skin.limit) {
-                        button = GooeyButton.builder()
-                            .display(set.gui.available.createItemStack(player, packageEntry))
-                            .onClick { ctx ->
-                                UIManager.openUIForcefully(player, PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.staticInfo,
+                        button = GuiElementBuilder
+                            .from(set.gui.available.createItemStack(player, entry))
+                            .setCallback { type ->
+                                PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.staticInfo,
                                     {
-                                        ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.staticInfo.createItemStack(player, packageEntry)
+                                        ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.staticInfo.createItemStack(player, entry)
                                     }
                                 ) { gui ->
                                     if (skin.cost.all { it.withdraw(player, shopConfig) }) {
@@ -232,35 +223,31 @@ class ShopGui(
                                             0.5f
                                         )
                                     }
-                                })
+                                }.open()
                             }
-                            .build()
                     } else {
-                        button = GooeyButton.builder()
-                            .display(set.gui.maxUses.createItemStack(player, packageEntry))
-                            .build()
+                        button = GuiElementBuilder
+                            .from(set.gui.maxUses.createItemStack(player, entry))
                     }
                 }
 
-                for (slot in skin.slots) {
-                    template.set(slot, button)
-                }
+                setSlots(skin.slots, button)
             }
         }
 
         // PACKAGES
         for ((packageId, shopPackage) in shopConfig.packages) {
-            var button: GooeyButton
+            var button: GuiElementBuilder
 
             val packageData = userShopData.packagesData[packageId] ?: PackageEntryShopData()
-            val packageEntry = PackageEntry(shopId, shopConfig, shopPackage, shopPackage.cost, shopPackage.limit, packageData.purchases)
+            val entry = PackageEntry(shopId, shopConfig, shopPackage, shopPackage.cost, shopPackage.limit, packageData.purchases)
             if (shopPackage.limit <= 0 || packageData.purchases < shopPackage.limit) {
-                button = GooeyButton.builder()
-                    .display(shopPackage.gui.available.createItemStack(player, packageEntry))
-                    .onClick { ctx ->
-                        UIManager.openUIForcefully(player, PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.packageInfo,
+                button = GuiElementBuilder
+                    .from(shopPackage.gui.available.createItemStack(player, entry))
+                    .setCallback { type ->
+                        PurchaseConfirmGui(player, shopId, shopConfig, ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.packageInfo,
                             {
-                                ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.packageInfo.createItemStack(player, packageEntry)
+                                ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.packageInfo.createItemStack(player, entry)
                             }
                         ) { gui ->
                             if (shopPackage.cost.all { it.withdraw(player, shopConfig) }) {
@@ -298,22 +285,18 @@ class ShopGui(
                                     0.5f
                                 )
                             }
-                        })
+                        }.open()
                     }
-                    .build()
             } else {
-                button = GooeyButton.builder()
-                    .display(
+                button = GuiElementBuilder
+                    .from(
                         shopPackage.gui.maxUses.createItemStack(
-                            player, packageEntry
+                            player, entry
                         )
                     )
-                    .build()
             }
 
-            for (slot in shopPackage.gui.slots) {
-                template.set(slot, button)
-            }
+            setSlots(shopPackage.gui.slots, button)
         }
     }
 
@@ -357,15 +340,11 @@ class ShopGui(
         )
     }
 
-    override fun getTemplate(): Template {
-        return template
-    }
-
     override fun getTitle(): Component {
         return Utils.deserializeText(shopConfig.options.title)
     }
 
-    override fun onClose(action: PageAction) {
-        SkiesSkins.INSTANCE.inventoryControllers.remove(player.uuid, this)
+    override fun onClose() {
+        SkiesSkins.INSTANCE.inventoryInstances.remove(player.uuid, this)
     }
 }

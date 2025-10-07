@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.commands.subcommands
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.context.CommandContext
 import com.mojang.brigadier.tree.LiteralCommandNode
@@ -26,6 +25,7 @@ class ShopCommand : SubCommand {
                     SharedSuggestionProvider.suggest(ConfigManager.SHOPS.keys.stream(), builder)
                 }
                 .then(Commands.argument("player", EntityArgument.players())
+                    .requires(Permissions.require("skiesskins.command.shop.others", 4))
                     .executes { ctx ->
                         val shopId = StringArgumentType.getString(ctx, "shop")
                         val players = EntityArgument.getPlayers(ctx, "player")
@@ -65,7 +65,7 @@ class ShopCommand : SubCommand {
             }
 
             for (player in players) {
-                UIManager.openUIForcefully(player, ShopGui(player, shopId, shopConfig))
+                ShopGui(player, shopId, shopConfig).open()
             }
             return 1
         }

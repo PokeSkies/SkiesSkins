@@ -236,8 +236,8 @@ class ResetShopCommand : SubCommand {
             }
 
             for (player in players) {
-                if (SkiesSkins.INSTANCE.inventoryControllers.containsKey(player.uuid)) {
-                    SkiesSkins.INSTANCE.inventoryControllers[player.uuid]!!.refresh()
+                if (SkiesSkins.INSTANCE.inventoryInstances.containsKey(player.uuid)) {
+                    SkiesSkins.INSTANCE.inventoryInstances[player.uuid]!!.refresh()
                 }
             }
 

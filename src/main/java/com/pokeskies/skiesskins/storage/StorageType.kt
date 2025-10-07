@@ -12,14 +12,14 @@ enum class StorageType(val identifier: String) {
 
     companion object {
         fun valueOfAnyCase(identifier: String): StorageType? {
-            for (type in values()) {
+            for (type in StorageType.entries) {
                 if (identifier.equals(type.identifier, true)) return type
             }
             return null
         }
     }
 
-    internal class StorageTypeAdaptor : JsonSerializer<StorageType>, JsonDeserializer<StorageType> {
+    internal class Adapter : JsonSerializer<StorageType>, JsonDeserializer<StorageType> {
         override fun serialize(src: StorageType, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             return JsonPrimitive(src.identifier)
         }

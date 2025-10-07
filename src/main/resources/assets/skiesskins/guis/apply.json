@@ -1,6 +1,6 @@
 {
   "title": "Apply Skin %name%",
-  "size": 3,
+  "type": "GENERIC_9x3",
   "party_slots": {
     "1": {
       "filled": {

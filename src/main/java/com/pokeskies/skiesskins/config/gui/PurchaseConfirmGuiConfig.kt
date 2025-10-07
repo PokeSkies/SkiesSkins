@@ -4,6 +4,7 @@ import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
 import com.pokeskies.skiesskins.api.shop.ShopEntry
 import com.pokeskies.skiesskins.config.gui.items.GenericItem
+import com.pokeskies.skiesskins.gui.InventoryType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils.deserializeText
 import net.minecraft.core.component.DataComponentPatch
@@ -13,9 +14,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.Items
 import net.minecraft.world.item.component.ItemLore
 
 /*
@@ -23,7 +22,7 @@ import net.minecraft.world.item.component.ItemLore
  */
 class PurchaseConfirmGuiConfig(
     val title: String = "Confirm Purchase",
-    val size: Int = 3,
+    val type: InventoryType = InventoryType.GENERIC_9x3,
     val buttons: Buttons = Buttons(),
     val items: Map<String, GenericItem> = emptyMap()
 ) {
@@ -100,6 +99,6 @@ class PurchaseConfirmGuiConfig(
     }
 
     override fun toString(): String {
-        return "PurchaseConfirmGuiConfig(title='$title', size=$size, buttons=$buttons, items=$items)"
+        return "PurchaseConfirmGuiConfig(title='$title', type=$type, buttons=$buttons, items=$items)"
     }
 }

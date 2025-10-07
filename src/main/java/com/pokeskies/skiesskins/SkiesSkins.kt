@@ -1,21 +1,20 @@
 package com.pokeskies.skiesskins
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.stream.JsonReader
 import com.pokeskies.skiesskins.commands.AliasCommands
 import com.pokeskies.skiesskins.commands.BaseCommand
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.config.gui.actions.ActionType
-import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.economy.EconomyManager
+import com.pokeskies.skiesskins.gui.GenericClickType
+import com.pokeskies.skiesskins.gui.InventoryType
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
-import com.pokeskies.skiesskins.utils.RefreshableGUI
+import com.pokeskies.skiesskins.utils.IRefreshableGui
 import com.pokeskies.skiesskins.utils.Utils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,9 +36,6 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.item.Item
 import org.apache.logging.log4j.LogManager
 import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
-import java.nio.file.Files
 import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -72,12 +68,13 @@ class SkiesSkins : ModInitializer {
         .setDaemon(true)
         .build())
 
-    var inventoryControllers: MutableMap<UUID, RefreshableGUI> = mutableMapOf()
+    var inventoryInstances: MutableMap<UUID, IRefreshableGui> = mutableMapOf()
 
     var gson: Gson = GsonBuilder().disableHtmlEscaping()
-        .registerTypeAdapter(Action::class.java, ActionType.ActionTypeAdaptor())
-        .registerTypeAdapter(ClickType::class.java, ClickType.ClickTypeAdaptor())
-        .registerTypeAdapter(StorageType::class.java, StorageType.StorageTypeAdaptor())
+        .registerTypeAdapter(Action::class.java, ActionType.Adapter())
+        .registerTypeAdapter(GenericClickType::class.java, GenericClickType.Adapter())
+        .registerTypeAdapter(StorageType::class.java, StorageType.Adapter())
+        .registerTypeAdapter(InventoryType::class.java, InventoryType.Adapter())
         .registerTypeAdapter(ResourceLocation::class.java, Utils.ResourceLocationSerializer())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))
@@ -126,11 +123,11 @@ class SkiesSkins : ModInitializer {
         this.economyManager = EconomyManager()
 
         // Reset all players with active GUIs
-        this.inventoryControllers.forEach { (uuid, _) ->
+        this.inventoryInstances.forEach { (uuid, gui) ->
             this.server.playerList?.getPlayer(uuid)?.let { player ->
-                UIManager.closeUI(player)
+                gui.close()
             }
         }
-        this.inventoryControllers.clear()
+        this.inventoryInstances.clear()
     }
 }

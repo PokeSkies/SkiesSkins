@@ -2,8 +2,9 @@ package com.pokeskies.skiesskins.config.gui
 
 import com.google.gson.annotations.JsonAdapter
 import com.google.gson.annotations.SerializedName
-import com.pokeskies.skiesskins.config.gui.actions.ClickType
 import com.pokeskies.skiesskins.config.gui.items.GenericItem
+import com.pokeskies.skiesskins.gui.GenericClickType
+import com.pokeskies.skiesskins.gui.InventoryType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
 /*
@@ -11,13 +12,10 @@ import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
  */
 class InventoryGuiConfig(
     val title: String = "Skin Inventory",
-    val size: Int = 6,
+    val type: InventoryType = InventoryType.GENERIC_9x6,
     @SerializedName("skin_options")
     val skinOptions: SkinSlotOptions = SkinSlotOptions(),
-    @SerializedName("next_page")
-    val nextPage: GenericItem = GenericItem(),
-    @SerializedName("previous_page")
-    val previousPage: GenericItem = GenericItem(),
+    val buttons: Buttons = Buttons(),
     val items: Map<String, GenericItem> = emptyMap()
 ) {
     /*
@@ -31,10 +29,10 @@ class InventoryGuiConfig(
         val lore: List<String> = emptyList(),
         @SerializedName("apply_click")
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val applyClickType: List<ClickType> = listOf(ClickType.ANY_CLICK),
+        val applyClickType: List<GenericClickType> = listOf(GenericClickType.ANY_CLICK),
         @SerializedName("scrap_click")
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val scrapClickType: List<ClickType> = listOf(ClickType.MIDDLE_CLICK)
+        val scrapClickType: List<GenericClickType> = listOf(GenericClickType.MIDDLE_CLICK)
     ) {
         override fun toString(): String {
             return "SkinSlotOptions(slots=$slots, name='$name', lore=$lore, " +
@@ -42,7 +40,23 @@ class InventoryGuiConfig(
         }
     }
 
+    /*
+     * Button options for the inventory GUI.
+     */
+    class Buttons(
+        @SerializedName("next_page")
+        val nextPage: GenericItem = GenericItem(),
+        @SerializedName("previous_page")
+        val previousPage: GenericItem = GenericItem(),
+        @SerializedName("remove_skin")
+        val removeSkin: GenericItem = GenericItem(),
+    ) {
+        override fun toString(): String {
+            return "Buttons(nextPage=$nextPage, previousPage=$previousPage, removeSkin=$removeSkin)"
+        }
+    }
+
     override fun toString(): String {
-        return "InventoryConfig(title='$title', size=$size, skinOptions=$skinOptions, nextPage=$nextPage, previousPage=$previousPage, items=$items)"
+        return "InventoryConfig(title='$title', type=$type, skinOptions=$skinOptions, buttons=$buttons, items=$items)"
     }
 }

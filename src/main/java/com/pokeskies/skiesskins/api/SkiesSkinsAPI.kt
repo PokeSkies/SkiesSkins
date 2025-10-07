@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.api
 
-import ca.landonjw.gooeylibs2.api.UIManager
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.pokemon.Pokemon
@@ -37,7 +36,7 @@ object SkiesSkinsAPI {
     }
 
     fun openSkinInventory(player: ServerPlayer) {
-        UIManager.openUIForcefully(player, InventoryGui(player))
+        InventoryGui(player).open()
     }
 
     fun getPokemonSkin(pokemon: Pokemon?): Pair<String, SkinConfig>? {

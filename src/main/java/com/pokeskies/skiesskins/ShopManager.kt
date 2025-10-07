@@ -72,7 +72,7 @@ class ShopManager {
             resetTimes[shopId] = sets
         }
 
-        SkiesSkins.INSTANCE.inventoryControllers.toMap().forEach { (_, controller) ->
+        SkiesSkins.INSTANCE.inventoryInstances.toMap().forEach { (_, controller) ->
             if (controller is ShopGui) {
                 controller.refresh()
             }

@@ -6,6 +6,7 @@ import com.pokeskies.skiesskins.config.shop.entries.PackageEntryConfig
 import com.pokeskies.skiesskins.config.shop.entries.RandomEntryConfig
 import com.pokeskies.skiesskins.config.shop.entries.StaticEntryConfig
 import com.pokeskies.skiesskins.economy.EconomyType
+import com.pokeskies.skiesskins.gui.InventoryType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 
 /*
@@ -25,7 +26,7 @@ class ShopConfig(
         val economy: EconomyOptions = EconomyOptions(),
         @JsonAdapter(FlexibleListAdaptorFactory::class)
         val aliases: List<String> = emptyList(),
-        val size: Int = 6,
+        val type: InventoryType = InventoryType.GENERIC_9x6,
         val title: String = "Skin Shop",
     ) {
         /*
@@ -41,7 +42,7 @@ class ShopConfig(
         }
 
         override fun toString(): String {
-            return "ShopOptions(enabled=$enabled, economy=$economy, aliases=$aliases, size=$size, title='$title')"
+            return "ShopOptions(enabled=$enabled, economy=$economy, aliases=$aliases, type=$type, title='$title')"
         }
     }
 
