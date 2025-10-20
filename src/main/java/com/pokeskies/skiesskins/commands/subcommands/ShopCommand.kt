@@ -32,7 +32,6 @@ class ShopCommand : SubCommand {
                         openShop(ctx, shopId, players)
                     }
                 )
-                .requires { obj: CommandSourceStack -> obj.isPlayer }
                 .executes { ctx ->
                     val shopId = StringArgumentType.getString(ctx, "shop")
                     openShop(ctx, shopId, listOf(ctx.source.playerOrException))

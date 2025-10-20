@@ -17,17 +17,9 @@ class AliasCommands {
                 for (command in shop.options.aliases) {
                     dispatcher.register(
                         Commands.literal(command)
-                            .requires { obj: CommandSourceStack -> obj.isPlayer }
                             .requires(Permissions.require("skiesskins.open.$shopId"))
                             .executes { ctx ->
-                                val player = ctx.source.player
-                                if (player == null) {
-                                    ctx.source.sendMessage(
-                                        Component.text("Must be a player to run this command!")
-                                            .color(NamedTextColor.RED)
-                                    )
-                                    return@executes 1
-                                }
+                                val player = ctx.source.playerOrException
                                 if (!Permissions.check(player, "skiesskins.open.$shopId")) {
                                     ctx.source.sendMessage(
                                         Component.text("You don't have permission to run this command!")
