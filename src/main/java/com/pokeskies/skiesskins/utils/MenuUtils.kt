@@ -35,7 +35,8 @@ fun SimpleGui.setSlot(row: Int, column: Int, element: GuiElementBuilderInterface
     this.setSlot(row * width + column, element)
 }
 
-fun SimpleGui.setSlots(slots: List<Int>, element: GuiElementBuilderInterface<*>?) {
+fun SimpleGui.setSlots(slots: List<Int>?, element: GuiElementBuilderInterface<*>?) {
+    if (slots == null) return
     slots.forEach { this.setSlot(it, element) }
 }
 
