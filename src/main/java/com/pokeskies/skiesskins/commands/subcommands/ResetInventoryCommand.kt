@@ -16,7 +16,7 @@ import net.minecraft.server.level.ServerPlayer
 class ResetInventoryCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("resetinventory")
-            .requires(Permissions.require("skiesskins.command.resetinventory", 4))
+            .requires(Permissions.require("skiesskins.command.resetinventory", 2))
             .then(Commands.argument("targets", EntityArgument.players())
                 .executes { ctx ->
                     resetInventory(

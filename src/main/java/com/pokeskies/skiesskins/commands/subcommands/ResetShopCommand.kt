@@ -20,7 +20,7 @@ import java.util.stream.Stream
 class ResetShopCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("resetshop")
-            .requires(Permissions.require("skiesskins.command.resetshop", 4))
+            .requires(Permissions.require("skiesskins.command.resetshop", 2))
             .then(
                 Commands.argument("targets", EntityArgument.players())
                     .then(Commands.argument("shop", StringArgumentType.string())

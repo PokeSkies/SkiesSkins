@@ -70,7 +70,7 @@ dependencies {
         include(it)
     }
 
-    modImplementation("com.cobblemon:fabric:1.6.0+1.21.1-SNAPSHOT")
+    modImplementation("com.cobblemon:fabric:1.6.1+1.21.1-SNAPSHOT")
 
     // Placeholders
     modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")

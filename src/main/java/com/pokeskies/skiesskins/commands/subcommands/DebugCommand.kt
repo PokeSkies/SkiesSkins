@@ -13,7 +13,7 @@ import net.minecraft.commands.Commands
 class DebugCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("debug")
-            .requires(Permissions.require("skiesskins.command.debug", 4))
+            .requires(Permissions.require("skiesskins.command.debug", 2))
             .executes(Companion::debug)
             .build()
     }

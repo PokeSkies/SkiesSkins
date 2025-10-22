@@ -19,20 +19,19 @@ import net.minecraft.server.level.ServerPlayer
 class ShopCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("shop")
-            .requires(Permissions.require("skiesskins.command.shop", 4))
+            .requires(Permissions.require("skiesskins.command.shop", 2))
             .then(Commands.argument("shop", StringArgumentType.string())
                 .suggests { _, builder ->
                     SharedSuggestionProvider.suggest(ConfigManager.SHOPS.keys.stream(), builder)
                 }
                 .then(Commands.argument("player", EntityArgument.players())
-                    .requires(Permissions.require("skiesskins.command.shop.others", 4))
+                    .requires(Permissions.require("skiesskins.command.shop.others", 2))
                     .executes { ctx ->
                         val shopId = StringArgumentType.getString(ctx, "shop")
                         val players = EntityArgument.getPlayers(ctx, "player")
                         openShop(ctx, shopId, players)
                     }
                 )
-                .requires { obj: CommandSourceStack -> obj.isPlayer }
                 .executes { ctx ->
                     val shopId = StringArgumentType.getString(ctx, "shop")
                     openShop(ctx, shopId, listOf(ctx.source.playerOrException))

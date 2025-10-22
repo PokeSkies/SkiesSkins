@@ -16,9 +16,9 @@ import net.minecraft.server.level.ServerPlayer
 class RemoverCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("remover")
-            .requires(Permissions.require("skiesskins.command.remover", 4))
+            .requires(Permissions.require("skiesskins.command.remover", 2))
             .then(Commands.argument("player", EntityArgument.player())
-                .requires(Permissions.require("skiesskins.command.remover.other", 4))
+                .requires(Permissions.require("skiesskins.command.remover.other", 2))
                 .executes { ctx ->
                     remove(ctx, EntityArgument.getPlayer(ctx, "player"))
                 }

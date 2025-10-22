@@ -21,7 +21,7 @@ import net.minecraft.server.level.ServerPlayer
 class GiveSkinCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("giveskin")
-            .requires(Permissions.require("skiesskins.command.giveskin", 4))
+            .requires(Permissions.require("skiesskins.command.giveskin", 2))
             .then(Commands.argument("targets", EntityArgument.players())
                 .then(Commands.argument("skin", StringArgumentType.string())
                     .suggests { _, builder ->

@@ -25,7 +25,7 @@ class BaseCommand {
     fun register(dispatcher: CommandDispatcher<CommandSourceStack>) {
         val rootCommands: List<LiteralCommandNode<CommandSourceStack>> = aliases.map {
             Commands.literal(it)
-                .requires(Permissions.require("skiesskins.command.base", 4))
+                .requires(Permissions.require("skiesskins.command.base", 2))
                 .executes(BaseCommand::execute)
                 .build()
         }

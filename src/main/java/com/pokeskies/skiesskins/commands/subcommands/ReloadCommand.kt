@@ -13,7 +13,7 @@ import net.minecraft.commands.Commands
 class ReloadCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
         return Commands.literal("reload")
-            .requires(Permissions.require("skiesskins.command.reload", 4))
+            .requires(Permissions.require("skiesskins.command.reload", 2))
             .executes(Companion::reload)
             .build()
     }
