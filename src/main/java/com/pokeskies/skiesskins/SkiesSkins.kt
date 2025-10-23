@@ -11,6 +11,8 @@ import com.pokeskies.skiesskins.config.gui.actions.ActionType
 import com.pokeskies.skiesskins.economy.EconomyManager
 import com.pokeskies.skiesskins.gui.GenericClickType
 import com.pokeskies.skiesskins.gui.InventoryType
+import com.pokeskies.skiesskins.managers.ShopManager
+import com.pokeskies.skiesskins.managers.TokenManager
 import com.pokeskies.skiesskins.placeholders.PlaceholderManager
 import com.pokeskies.skiesskins.storage.IStorage
 import com.pokeskies.skiesskins.storage.StorageType
@@ -61,7 +63,6 @@ class SkiesSkins : ModInitializer {
 
     lateinit var economyManager: EconomyManager
     lateinit var placeholderManager: PlaceholderManager
-    lateinit var shopManager: ShopManager
 
     val asyncExecutor: ExecutorService = Executors.newFixedThreadPool(8, ThreadFactoryBuilder()
         .setNameFormat("SkiesSkins-Async-%d")
@@ -92,7 +93,8 @@ class SkiesSkins : ModInitializer {
 
         this.economyManager = EconomyManager()
 
-        this.shopManager = ShopManager()
+        ShopManager.init()
+        TokenManager.init()
 
         ServerLifecycleEvents.SERVER_STARTING.register(ServerStarting { server ->
             this.adventure = FabricServerAudiences.of(
@@ -118,7 +120,7 @@ class SkiesSkins : ModInitializer {
     fun reload() {
         ConfigManager.load()
         this.storage = IStorage.load(ConfigManager.CONFIG.storage)
-        this.shopManager.reload(ConfigManager.CONFIG.ticksPerUpdate)
+        ShopManager.reload(ConfigManager.CONFIG.ticksPerUpdate)
         this.placeholderManager = PlaceholderManager()
         this.economyManager = EconomyManager()
 

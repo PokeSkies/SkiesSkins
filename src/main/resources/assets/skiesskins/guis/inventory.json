@@ -15,13 +15,17 @@
       "%description%",
       "",
       "<dark_green><!i>→ <green>ʟᴇғᴛ ᴄʟɪᴄᴋ ᴛᴏ ᴀᴘᴘʟʏ",
-      "<dark_red><!i>❌ <red>ʀɪɢʜᴛ ᴄʟɪᴄᴋ ᴛᴏ sᴄʀᴀᴘ"
+      "<dark_red><!i>❌ <red>ʀɪɢʜᴛ ᴄʟɪᴄᴋ ᴛᴏ sᴄʀᴀᴘ",
+      "<dark_red><!i>💎 <red>sʜɪғᴛ-ʀɪɢʜᴛ ᴄʟɪᴄᴋ ᴛᴏ ᴛᴏᴋᴇɴɪᴢᴇ"
     ],
     "apply_click": [
       "ANY_LEFT_CLICK"
     ],
     "scrap_click": [
-      "ANY_RIGHT_CLICK"
+      "RIGHT_CLICK"
+    ],
+    "tokenize_click": [
+      "SHIFT_RIGHT_CLICK"
     ]
   },
   "buttons": {

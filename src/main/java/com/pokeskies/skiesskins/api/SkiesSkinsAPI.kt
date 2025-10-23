@@ -9,14 +9,18 @@ import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.data.UserData
 import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.gui.InventoryGui
+import net.minecraft.core.component.DataComponents
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.item.component.CustomData
 
 object SkiesSkinsAPI {
     val TAG_SKIN_DATA = "skiesskins_skin_data"
+    val TAG_TOKEN_ITEM = "skiesskins_token_item"
 
     fun getUserData(player: ServerPlayer): UserData {
-        val data = SkiesSkins.INSTANCE.storage?.getUser(player.uuid)
-        return data ?: UserData(player.uuid)
+        return getUserDataOrNull(player) ?: UserData(player.uuid)
     }
 
     fun getUserDataOrNull(player: ServerPlayer): UserData? {
@@ -27,16 +31,20 @@ object SkiesSkinsAPI {
         return SkiesSkins.INSTANCE.storage?.saveUser(player.uuid, data) ?: false
     }
 
-    fun giveUserSkin(player: ServerPlayer, skinId: String, amount: Int) {
+    fun giveUserSkin(player: ServerPlayer, skin: SkinConfig, amount: Int): Boolean {
         val user = getUserData(player)
         for (i in 1..amount) {
-            user.inventory.add(UserSkinData(skinId))
+            user.inventory.add(UserSkinData(skin.id))
         }
-        SkiesSkins.INSTANCE.storage?.saveUser(player.uuid, user)
+        return saveUserData(player, user)
     }
 
     fun openSkinInventory(player: ServerPlayer) {
         InventoryGui(player).open()
+    }
+
+    fun getSkin(id: String): SkinConfig? {
+        return ConfigManager.SKINS[id]
     }
 
     fun getPokemonSkin(pokemon: Pokemon?): SkinConfig? {
@@ -123,5 +131,35 @@ object SkiesSkinsAPI {
         }
 
         return SkinRemoveReturn.SUCCESS to skin
+    }
+
+    fun getTokenSkin(item: ItemStack): SkinConfig? {
+        item.get(DataComponents.CUSTOM_DATA)?.let { data ->
+            if (!data.contains(TAG_TOKEN_ITEM)) return null
+            val id = data.copyTag().getString(TAG_TOKEN_ITEM)
+            return getSkin(id)
+        }
+
+        return null
+    }
+
+    fun canTokenize(skin: SkinConfig): Boolean {
+        return skin.token != null
+    }
+
+    fun tokenizeSkin(skin: SkinConfig, player: ServerPlayer? = null): ItemStack? {
+        if (!canTokenize(skin)) return null
+        val pokemon = PokemonSpecies.getByIdentifier(skin.species)?.create(1)
+        if (pokemon != null) {
+            applySkin(pokemon, skin)
+        }
+        val tokenItem = skin.token!!.display.createItemStack(player, pokemon)
+        if (tokenItem.isEmpty) return null
+
+        val data = tokenItem.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.of(CompoundTag())).copyTag()
+        data.putString(TAG_TOKEN_ITEM, skin.id)
+
+        tokenItem.set(DataComponents.CUSTOM_DATA, CustomData.of(data))
+        return tokenItem
     }
 }

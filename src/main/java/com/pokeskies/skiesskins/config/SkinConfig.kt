@@ -3,6 +3,7 @@ package com.pokeskies.skiesskins.config
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.SkiesSkins
+import com.pokeskies.skiesskins.config.gui.items.PokemonItem
 import com.pokeskies.skiesskins.economy.EconomyType
 import com.pokeskies.skiesskins.utils.FlexibleListAdaptorFactory
 import com.pokeskies.skiesskins.utils.Utils.deserializeText
@@ -23,7 +24,9 @@ class SkinConfig(
     val aspects: Aspects = Aspects(),
     val scrapping: ScrappingOptions? = null,
     val infinite: Boolean = false,
-    val untradable: Boolean? = null
+    val untradable: Boolean? = null,
+    val token: TokenOptions? = null,
+
 ) {
     lateinit var id: String
 
@@ -74,6 +77,17 @@ class SkinConfig(
 
         override fun toString(): String {
             return "ScrappingOptions(value=$value)"
+        }
+    }
+
+    /*
+     * Defines the tokenization options for a skin
+     */
+    class TokenOptions(
+        val display: PokemonItem,
+    ) {
+        override fun toString(): String {
+            return "TokenOptions(display=$display)"
         }
     }
 

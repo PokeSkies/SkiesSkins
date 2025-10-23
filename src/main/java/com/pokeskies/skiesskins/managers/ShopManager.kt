@@ -1,5 +1,6 @@
-package com.pokeskies.skiesskins
+package com.pokeskies.skiesskins.managers
 
+import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.gui.ShopGui
 import com.pokeskies.skiesskins.utils.Utils
@@ -9,19 +10,18 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.collections.iterator
 
-class ShopManager {
+object ShopManager {
+    private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
+
     private lateinit var timezone: ZoneId
 
     // A map of (Shop ID to (Map of random set IDs to (pair of last and next reset times)))
     private var resetTimes: MutableMap<String, MutableMap<String, Pair<ZonedDateTime, ZonedDateTime>?>> = mutableMapOf()
     private var ticks = 0
 
-    companion object {
-        val dateFormatter: DateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
-    }
-
-    init {
+    fun init() {
         reload(ConfigManager.CONFIG.ticksPerUpdate)
     }
 
@@ -72,7 +72,7 @@ class ShopManager {
             resetTimes[shopId] = sets
         }
 
-        SkiesSkins.INSTANCE.inventoryInstances.toMap().forEach { (_, controller) ->
+        SkiesSkins.Companion.INSTANCE.inventoryInstances.toMap().forEach { (_, controller) ->
             if (controller is ShopGui) {
                 controller.refresh()
             }

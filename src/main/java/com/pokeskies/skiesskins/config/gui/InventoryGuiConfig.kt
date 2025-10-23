@@ -29,14 +29,18 @@ class InventoryGuiConfig(
         val lore: List<String> = emptyList(),
         @SerializedName("apply_click")
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val applyClickType: List<GenericClickType> = listOf(GenericClickType.ANY_CLICK),
+        val applyClickType: List<GenericClickType> = listOf(GenericClickType.LEFT_CLICK),
         @SerializedName("scrap_click")
         @JsonAdapter(FlexibleListAdaptorFactory::class)
-        val scrapClickType: List<GenericClickType> = listOf(GenericClickType.MIDDLE_CLICK)
+        val scrapClickType: List<GenericClickType> = listOf(GenericClickType.RIGHT_CLICK),
+        @SerializedName("tokenize_click")
+        @JsonAdapter(FlexibleListAdaptorFactory::class)
+        val tokenizeClickType: List<GenericClickType> = listOf()
     ) {
         override fun toString(): String {
             return "SkinSlotOptions(slots=$slots, name='$name', lore=$lore, " +
-                    "applyClickType=$applyClickType, scrapClickType=$scrapClickType)"
+                    "applyClickType=$applyClickType, scrapClickType=$scrapClickType, " +
+                    "tokenizeClickType=$tokenizeClickType)"
         }
     }
 

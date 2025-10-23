@@ -31,11 +31,12 @@ object Utils {
         return SkiesSkins.INSTANCE.adventure!!.toNative(miniMessage.deserialize(text))
     }
 
-    fun parsePlaceholders(player: ServerPlayer, text: String): String {
+    fun parsePlaceholders(player: ServerPlayer?, text: String): String {
+        if (player == null) return text
         return SkiesSkins.INSTANCE.placeholderManager.parse(player, text)
     }
 
-    fun parsePokemonString(string: String, player: ServerPlayer, pokemon: Pokemon?): Component {
+    fun parsePokemonString(string: String, player: ServerPlayer?, pokemon: Pokemon?): Component {
         var result = parsePlaceholders(player, string)
         if (pokemon != null) {
             result = result.replace("%pokemon_skin_name%",

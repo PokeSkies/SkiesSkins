@@ -24,5 +24,15 @@
         "amount": 100
       }
     ]
+  },
+  "untradable": true,
+  "token": {
+    "display": {
+      "item": "cobblemon:pokemon_model",
+      "name": "<red>Bulbasaur Skin Token",
+      "lore": [
+        "<gray><!i>Right-Click to redeem this token!"
+      ]
+    }
   }
 }

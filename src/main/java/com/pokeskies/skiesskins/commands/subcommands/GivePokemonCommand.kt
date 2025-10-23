@@ -115,11 +115,11 @@ class GivePokemonCommand : SubCommand {
                         ctx.source.sendMessage(
                             Component.empty()
                                 .append(
-                                    Component.literal("You gave a Pokemon with the skin [").withStyle { it.withColor(ChatFormatting.GREEN) }
+                                    Component.literal("You gave a Pokemon with the skin ").withStyle { it.withColor(ChatFormatting.GREEN) }
                                 )
                                 .append(Utils.deserializeText(skin.name))
                                 .append(
-                                    Component.literal("] to ${player.name.string}").withStyle { it.withColor(ChatFormatting.GREEN) }
+                                    Component.literal(" to ${player.name.string}").withStyle { it.withColor(ChatFormatting.GREEN) }
                                 )
                         )
                     } else {
@@ -131,11 +131,11 @@ class GivePokemonCommand : SubCommand {
                         ctx.source.sendMessage(
                             Component.empty()
                                 .append(
-                                    Component.literal("You gave a Pokemon with the skin [").withStyle { it.withColor(ChatFormatting.GREEN) }
+                                    Component.literal("You gave a Pokemon with the skin ").withStyle { it.withColor(ChatFormatting.GREEN) }
                                 )
                                 .append(Utils.deserializeText(skin.name))
                                 .append(
-                                    Component.literal("] to $given players").withStyle { it.withColor(ChatFormatting.GREEN) }
+                                    Component.literal(" to $given players").withStyle { it.withColor(ChatFormatting.GREEN) }
                                 )
                         )
                     }

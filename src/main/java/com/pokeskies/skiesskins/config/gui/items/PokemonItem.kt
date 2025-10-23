@@ -24,12 +24,12 @@ class PokemonItem(
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val slots: List<Int> = emptyList(),
     val amount: Int = 1,
-    val name: String = "",
+    val name: String? = null,
     @JsonAdapter(FlexibleListAdaptorFactory::class)
     val lore: List<String> = emptyList(),
     val nbt: CompoundTag? = null
 ) {
-    fun createItemStack(player: ServerPlayer, pokemon: Pokemon?): ItemStack {
+    fun createItemStack(player: ServerPlayer?, pokemon: Pokemon?): ItemStack {
         val parsedItem = BuiltInRegistries.ITEM.get(ResourceLocation.parse(item))
         val stack = if (parsedItem is PokemonItem && pokemon != null) PokemonItem.from(pokemon, amount) else ItemStack(parsedItem, amount)
 

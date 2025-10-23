@@ -14,6 +14,7 @@ import com.pokeskies.skiesskins.data.shop.RandomEntryShopData
 import com.pokeskies.skiesskins.data.shop.RandomEntryShopData.SkinData
 import com.pokeskies.skiesskins.data.shop.StaticEntryShopData
 import com.pokeskies.skiesskins.data.shop.UserShopData
+import com.pokeskies.skiesskins.managers.ShopManager
 import com.pokeskies.skiesskins.utils.IRefreshableGui
 import com.pokeskies.skiesskins.utils.RandomCollection
 import com.pokeskies.skiesskins.utils.Utils
@@ -77,13 +78,13 @@ class ShopGui(
             var randomShopData = userShopData.randomData[setId]
             // If the random data does not contain the set, then we have an error
             if (randomShopData == null ||
-                SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
+                ShopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
                 randomShopData = generateRandomShopData(set)
                 userShopData.randomData[setId] = randomShopData
                 SkiesSkinsAPI.saveUserData(player, userData)
             }
 
-            val resetTime = SkiesSkins.INSTANCE.shopManager.getShopSetResetTime(shopId, setId)
+            val resetTime = ShopManager.getShopSetResetTime(shopId, setId)
 
             val slots = set.gui.slots.toMutableList()
             // Iterate through every skin in this set and attempt to add it to the GUI
@@ -113,7 +114,7 @@ class ShopGui(
                                     set.gui.available.createItemStack(player, entry)
                                 )
                                 .setCallback { type ->
-                                    if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
+                                    if (ShopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
                                         refresh()
                                         return@setCallback
                                     }
@@ -122,7 +123,7 @@ class ShopGui(
                                             ConfigManager.PURCHASE_CONFIRM_GUI.buttons.info.randomInfo.createItemStack(player, entry)
                                         }
                                     ) { gui ->
-                                        if (SkiesSkins.INSTANCE.shopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
+                                        if (ShopManager.userNeedsReset(shopId, setId, randomShopData.resetTime)) {
                                             gui.forceReturn()
                                             return@PurchaseConfirmGui
                                         }

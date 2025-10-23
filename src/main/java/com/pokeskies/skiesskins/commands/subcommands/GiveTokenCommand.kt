@@ -18,10 +18,10 @@ import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 
-class GiveSkinCommand : SubCommand {
+class GiveTokenCommand : SubCommand {
     override fun build(): LiteralCommandNode<CommandSourceStack> {
-        return Commands.literal("giveskin")
-            .requires(Permissions.require("skiesskins.command.giveskin", 2))
+        return Commands.literal("givetoken")
+            .requires(Permissions.require("skiesskins.command.givetoken", 2))
             .then(Commands.argument("targets", EntityArgument.players())
                 .then(Commands.argument("skin", StringArgumentType.string())
                     .suggests { _, builder ->
@@ -65,7 +65,7 @@ class GiveSkinCommand : SubCommand {
                 return 1
             }
 
-            val skin = ConfigManager.SKINS[skinId]
+            val skin = SkiesSkinsAPI.getSkin(skinId)
             if (skin == null) {
                 ctx.source.sendMessage(
                     Component.literal("Cannot find a skin entry from the ID: $skinId")
@@ -74,15 +74,28 @@ class GiveSkinCommand : SubCommand {
                 return 1
             }
 
+            if (!SkiesSkinsAPI.canTokenize(skin)) {
+                ctx.source.sendMessage(
+                    Component.literal("The skin ")
+                        .append(Utils.deserializeText(skin.name))
+                        .append(Component.literal(" cannot be tokenized."))
+                        .withStyle { it.withColor(ChatFormatting.RED) }
+                )
+                return 1
+            }
+
+            val token = SkiesSkinsAPI.tokenizeSkin(skin) ?: run {
+                ctx.source.sendMessage(
+                    Component.literal("Failed to create a token for skin ")
+                        .append(Utils.deserializeText(skin.name))
+                        .append(Component.literal(". Ensure the token settings are configured correctly.").withStyle { it.withColor(ChatFormatting.RED) })
+                )
+                return 1
+            }
+
             if (players.size == 1) {
                 val player = players.first()
-                if (!SkiesSkinsAPI.giveUserSkin(player, skin, amount)) {
-                    ctx.source.sendMessage(
-                        Component.literal("Failed to give skin(s) to ${player.name.string}  Check the console for errors.")
-                            .withStyle { it.withColor(ChatFormatting.RED) }
-                    )
-                    return 1
-                }
+                player.inventory.placeItemBackInInventory(token.copyWithCount(amount))
                 ctx.source.sendMessage(
                     Component.empty()
                         .append(
@@ -90,15 +103,15 @@ class GiveSkinCommand : SubCommand {
                         )
                         .append(Utils.deserializeText(skin.name))
                         .append(
-                            Component.literal(" skin(s) to ${player.name.string}").withStyle { it.withColor(ChatFormatting.GREEN) }
+                            Component.literal(" token(s) to ${player.name.string}").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
                 )
             } else {
                 var given = 0
                 for (player in players) {
-                    if (SkiesSkinsAPI.giveUserSkin(player, skin, amount)) given++
+                    player.inventory.placeItemBackInInventory(token.copyWithCount(amount))
+                    given++
                 }
-
                 ctx.source.sendMessage(
                     Component.empty()
                         .append(
@@ -106,16 +119,9 @@ class GiveSkinCommand : SubCommand {
                         )
                         .append(Utils.deserializeText(skin.name))
                         .append(
-                            Component.literal(" skin(s) to $given players").withStyle { it.withColor(ChatFormatting.GREEN) }
+                            Component.literal(" token(s) to $given players").withStyle { it.withColor(ChatFormatting.GREEN) }
                         )
                 )
-
-                if (players.size != given) {
-                    ctx.source.sendMessage(
-                        Component.literal("Failed to give skin(s) to ${players.size - given} players. Check the console for errors.")
-                            .withStyle { it.withColor(ChatFormatting.RED) }
-                    )
-                }
             }
             return 1
         }
