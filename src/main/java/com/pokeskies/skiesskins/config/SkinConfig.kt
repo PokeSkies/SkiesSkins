@@ -23,6 +23,7 @@ class SkinConfig(
     val aspects: Aspects = Aspects(),
     val scrapping: ScrappingOptions? = null,
     val infinite: Boolean = false,
+    val untradable: Boolean? = null
 ) {
 
     /*
@@ -118,6 +119,6 @@ class SkinConfig(
 
     override fun toString(): String {
         return "SkinConfig(enabled=$enabled, species=$species, name='$name', description=$description, " +
-                "aspects=$aspects, scrapping=$scrapping, infinite=$infinite)"
+                "aspects=$aspects, scrapping=$scrapping, infinite=$infinite, untradable=$untradable)"
     }
 }

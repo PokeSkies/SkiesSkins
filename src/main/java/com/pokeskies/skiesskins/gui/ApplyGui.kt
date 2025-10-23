@@ -111,7 +111,9 @@ class ApplyGui(
                         PokemonProperties.parse(aspect).apply(pokemon)
                     }
                     pokemon.persistentData.putString(SkiesSkinsAPI.TAG_SKIN_DATA, skinData.id)
-                    if (ConfigManager.CONFIG.untradable) pokemon.tradeable = false
+                    if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
+                        pokemon.tradeable = false
+                    }
 
                     player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                     player.sendMessage(Component.literal("Successfully applied the skin!")

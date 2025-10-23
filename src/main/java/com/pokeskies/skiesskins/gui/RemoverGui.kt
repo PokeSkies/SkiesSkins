@@ -59,20 +59,15 @@ class RemoverGui(
                 .setCallback { type ->
                     val pokemon = Cobblemon.storage.getParty(player).get(i)
                     if (pokemon != null) {
-                        val skinEntry = SkiesSkinsAPI.getPokemonSkin(pokemon)
-                        if (skinEntry == null) {
+                        val (id, skin) = SkiesSkinsAPI.getPokemonSkin(pokemon) ?: run {
                             player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
                             player.sendMessage(Utils.deserializeText("<red>This Pokemon does not have any skin applied!"))
                             return@setCallback
                         }
 
-                        if (!skinEntry.second.infinite) {
+                        if (!skin.infinite) {
                             val user = SkiesSkinsAPI.getUserData(player)
-                            val result = user.inventory.add(
-                                UserSkinData(
-                                    skinEntry.first
-                                )
-                            )
+                            val result = user.inventory.add(UserSkinData(id))
 
                             if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
                                 player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
@@ -84,11 +79,15 @@ class RemoverGui(
                             }
                         }
 
-                        for (aspect in skinEntry.second.aspects.remove) {
+                        for (aspect in skin.aspects.remove) {
                             PokemonProperties.parse(aspect).apply(pokemon)
                         }
                         pokemon.persistentData.remove(SkiesSkinsAPI.TAG_SKIN_DATA)
-                        if (ConfigManager.CONFIG.untradable) pokemon.tradeable = true
+
+                        // Set the Pokemon to trade-able if the skin was originally marked as untradable
+                        if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
+                            pokemon.tradeable = true
+                        }
 
                         player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
                         player.sendMessage(Component.literal("Successfully removed the skin!")
