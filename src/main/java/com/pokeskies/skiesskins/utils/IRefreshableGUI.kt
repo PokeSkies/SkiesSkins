@@ -10,4 +10,8 @@ abstract class IRefreshableGui(
     manipulatePlayerSlots: Boolean
 ): SimpleGui(type, player, manipulatePlayerSlots) {
     abstract fun refresh()
+    fun openAndRefresh() {
+        this.open()
+        this.refresh()
+    }
 }

@@ -25,6 +25,7 @@ class SkinConfig(
     val infinite: Boolean = false,
     val untradable: Boolean? = null
 ) {
+    lateinit var id: String
 
     /*
      * Defines the aspects of a skin that are applied, required, blacklisted, or removed from a Pokemon

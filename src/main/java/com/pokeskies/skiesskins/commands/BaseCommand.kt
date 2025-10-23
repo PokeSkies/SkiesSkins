@@ -38,6 +38,7 @@ class BaseCommand {
             RemoverCommand().build(),
             ResetShopCommand().build(),
             ResetInventoryCommand().build(),
+            GivePokemonCommand().build(),
         )
 
         rootCommands.forEach { root ->

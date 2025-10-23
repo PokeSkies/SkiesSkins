@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore
 import com.cobblemon.mod.common.pokemon.Pokemon
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
+import com.pokeskies.skiesskins.api.SkinRemoveReturn
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.data.UserSkinData
 import com.pokeskies.skiesskins.utils.IRefreshableGui
@@ -59,40 +60,53 @@ class RemoverGui(
                 .setCallback { type ->
                     val pokemon = Cobblemon.storage.getParty(player).get(i)
                     if (pokemon != null) {
-                        val (id, skin) = SkiesSkinsAPI.getPokemonSkin(pokemon) ?: run {
-                            player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
-                            player.sendMessage(Utils.deserializeText("<red>This Pokemon does not have any skin applied!"))
-                            return@setCallback
-                        }
-
-                        if (!skin.infinite) {
-                            val user = SkiesSkinsAPI.getUserData(player)
-                            val result = user.inventory.add(UserSkinData(id))
-
-                            if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
+                        val returned = SkiesSkinsAPI.removeSkin(pokemon)
+                        when (returned.first) {
+                            SkinRemoveReturn.SKIN_NOT_APPLIED -> {
                                 player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
-                                player.sendMessage(
-                                    Component.literal("There was an error while removing this skin!")
-                                        .withStyle { it.withColor(ChatFormatting.RED) })
-                                close()
+                                player.sendMessage(Utils.deserializeText("<red>This Pokemon does not have any skin applied!"))
                                 return@setCallback
+                            }
+                            SkinRemoveReturn.SUCCESS -> {
+                                val skin = returned.second ?: run {
+                                    player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
+                                    player.sendMessage(
+                                        Component.literal("There was an error while removing this skin!")
+                                            .withStyle { it.withColor(ChatFormatting.RED) })
+                                    return@setCallback
+                                }
+
+                                if (!skin.infinite) {
+                                    val user = SkiesSkinsAPI.getUserData(player)
+                                    val result = user.inventory.add(UserSkinData(skin.id))
+
+                                    if (!result || !SkiesSkinsAPI.saveUserData(player, user)) {
+                                        player.playNotifySound(SoundEvents.LAVA_EXTINGUISH, SoundSource.PLAYERS, 0.15F, 1.0F)
+                                        player.sendMessage(
+                                            Component.literal("There was an error while removing this skin!")
+                                                .withStyle { it.withColor(ChatFormatting.RED) })
+                                        close()
+                                        return@setCallback
+                                    }
+                                }
+
+                                for (aspect in skin.aspects.remove) {
+                                    PokemonProperties.parse(aspect).apply(pokemon)
+                                }
+                                pokemon.persistentData.remove(SkiesSkinsAPI.TAG_SKIN_DATA)
+
+                                // Set the Pokemon to trade-able if the skin was originally marked as untradable
+                                if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
+                                    pokemon.tradeable = true
+                                }
+
+                                player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
+                                player.sendMessage(Component.literal("Successfully removed the skin!")
+                                    .withStyle { it.withColor(ChatFormatting.GREEN) })
+                                close()
                             }
                         }
 
-                        for (aspect in skin.aspects.remove) {
-                            PokemonProperties.parse(aspect).apply(pokemon)
-                        }
-                        pokemon.persistentData.remove(SkiesSkinsAPI.TAG_SKIN_DATA)
-
-                        // Set the Pokemon to trade-able if the skin was originally marked as untradable
-                        if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
-                            pokemon.tradeable = true
-                        }
-
-                        player.playNotifySound(SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 0.15F, 1.0F)
-                        player.sendMessage(Component.literal("Successfully removed the skin!")
-                            .withStyle { it.withColor(ChatFormatting.GREEN) })
-                        close()
                     }
                 }
                 .build()
@@ -105,7 +119,7 @@ class RemoverGui(
 
     override fun onClose() {
         SkiesSkins.INSTANCE.inventoryInstances.remove(player.uuid, this)
-        returnGUI?.open()
+        returnGUI?.openAndRefresh()
     }
 
     override fun getTitle(): Component {

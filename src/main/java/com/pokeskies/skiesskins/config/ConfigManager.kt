@@ -116,6 +116,7 @@ object ConfigManager {
                         val jsonReader = JsonReader(InputStreamReader(FileInputStream(file), Charsets.UTF_8))
                         try {
                             val config = SkiesSkins.INSTANCE.gsonPretty.fromJson(JsonParser.parseReader(jsonReader), SkinConfig::class.java)
+                            config.id = id
                             if (config.enabled) {
                                 SKINS[id] = config
                                 enabledFiles.add(fileName)

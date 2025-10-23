@@ -39,37 +39,89 @@ object SkiesSkinsAPI {
         InventoryGui(player).open()
     }
 
-    fun getPokemonSkin(pokemon: Pokemon?): Pair<String, SkinConfig>? {
+    fun getPokemonSkin(pokemon: Pokemon?): SkinConfig? {
         if (pokemon == null) return null
         val skinId = pokemon.persistentData.getString(TAG_SKIN_DATA)
-        ConfigManager.SKINS[skinId]?.let { return Pair(skinId, it) }
+        ConfigManager.SKINS[skinId]?.let { skin -> return skin }
 
         if (ConfigManager.CONFIG.findEquivalent) {
-            for ((id, config) in ConfigManager.SKINS) {
-                val species = PokemonSpecies.getByIdentifier(config.species) ?: continue
+            for (skin in ConfigManager.SKINS.values) {
+                val species = PokemonSpecies.getByIdentifier(skin.species) ?: continue
                 if (species != pokemon.species) continue
 
                 // gather a list of aspects that must be present
                 val requiredAspects: MutableList<String> = mutableListOf()
-                for (aspect in config.aspects.apply) {
+                for (aspect in skin.aspects.apply) {
                     requiredAspects.addAll(PokemonProperties.parse(aspect).aspects)
                 }
-                for (aspect in config.aspects.required) {
+                for (aspect in skin.aspects.required) {
                     requiredAspects.addAll(PokemonProperties.parse(aspect).aspects)
                 }
 
                 // gather a list of aspects that cannot be present
                 val blacklistedAspects: MutableList<String> = mutableListOf()
-                for (aspect in config.aspects.blacklist) {
+                for (aspect in skin.aspects.blacklist) {
                     blacklistedAspects.removeAll(PokemonProperties.parse(aspect).aspects)
                 }
 
                 if (pokemon.aspects.containsAll(requiredAspects) && pokemon.aspects.none { blacklistedAspects.contains(it) }) {
-                    return Pair(id, config)
+                    return skin
                 }
             }
         }
 
         return null
+    }
+
+    fun applySkin(pokemon: Pokemon, skin: SkinConfig): SkinApplyReturn {
+        getPokemonSkin(pokemon)?.let {
+            return SkinApplyReturn.ALREADY_HAS_SKIN
+        }
+
+        // Check if correct species
+        val species = PokemonSpecies.getByIdentifier(skin.species)!!
+        if (pokemon.species != species) {
+            return SkinApplyReturn.INVALID_SPECIES
+        }
+
+        // Check if the Pokemon contains ALL required aspects
+        if (skin.aspects.required.isNotEmpty() &&
+            skin.aspects.required.stream().noneMatch { pokemon.aspects.contains(it) }) {
+            return SkinApplyReturn.MISSING_ASPECTS
+        }
+
+        // Check if the Pokemon contains ANY blacklisted aspects
+        if (skin.aspects.blacklist.isNotEmpty() &&
+            skin.aspects.blacklist.stream().anyMatch { pokemon.aspects.contains(it) }) {
+            return SkinApplyReturn.BLACKLISTED_ASPECTS
+        }
+
+        for (aspect in skin.aspects.apply) {
+            PokemonProperties.parse(aspect).apply(pokemon)
+        }
+        pokemon.persistentData.putString(TAG_SKIN_DATA, skin.id)
+        if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
+            pokemon.tradeable = false
+        }
+
+        return SkinApplyReturn.SUCCESS
+    }
+
+    fun removeSkin(pokemon: Pokemon): Pair<SkinRemoveReturn, SkinConfig?> {
+        val skin = getPokemonSkin(pokemon) ?: run {
+            return SkinRemoveReturn.SKIN_NOT_APPLIED to null
+        }
+
+        for (aspect in skin.aspects.remove) {
+            PokemonProperties.parse(aspect).apply(pokemon)
+        }
+        pokemon.persistentData.remove(TAG_SKIN_DATA)
+
+        // Set the Pokemon to trade-able if the skin was originally marked as untradable
+        if (skin.untradable ?: ConfigManager.CONFIG.untradable) {
+            pokemon.tradeable = true
+        }
+
+        return SkinRemoveReturn.SUCCESS to skin
     }
 }

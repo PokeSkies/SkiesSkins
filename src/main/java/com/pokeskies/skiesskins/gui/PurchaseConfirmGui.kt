@@ -1,7 +1,6 @@
 package com.pokeskies.skiesskins.gui
 
 import com.pokeskies.skiesskins.SkiesSkins
-import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.PurchaseConfirmGuiConfig
 import com.pokeskies.skiesskins.config.shop.ShopConfig
