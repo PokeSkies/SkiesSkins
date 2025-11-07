@@ -10,7 +10,9 @@ enum class EconomyType(
     val modId: String
 ) {
     IMPACTOR("impactor", "impactor"),
-    PEBBLES("pebbles", "pebbles-economy");
+    PEBBLES("pebbles", "pebbles-economy"),
+    COBBLEDOLLARS("cobbledollars", "cobbledollars"),
+    BECONOMY("beconomy", "beconomy");
 
     fun isModPresent() : Boolean {
         return FabricLoader.getInstance().isModLoaded(modId)
@@ -18,14 +20,14 @@ enum class EconomyType(
 
     companion object {
         fun valueOfAnyCase(name: String): EconomyType? {
-            for (type in values()) {
+            for (type in EconomyType.entries) {
                 if (name.equals(type.identifier, true)) return type
             }
             return null
         }
     }
 
-    internal class EconomyTypeAdaptor : JsonSerializer<EconomyType>, JsonDeserializer<EconomyType> {
+    internal class Adapter : JsonSerializer<EconomyType>, JsonDeserializer<EconomyType> {
         override fun serialize(src: EconomyType, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
             return JsonPrimitive(src.identifier)
         }

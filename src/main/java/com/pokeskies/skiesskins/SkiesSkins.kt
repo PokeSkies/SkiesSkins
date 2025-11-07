@@ -9,6 +9,7 @@ import com.pokeskies.skiesskins.config.ConfigManager
 import com.pokeskies.skiesskins.config.gui.actions.Action
 import com.pokeskies.skiesskins.config.gui.actions.ActionType
 import com.pokeskies.skiesskins.economy.EconomyManager
+import com.pokeskies.skiesskins.economy.EconomyType
 import com.pokeskies.skiesskins.gui.GenericClickType
 import com.pokeskies.skiesskins.gui.InventoryType
 import com.pokeskies.skiesskins.managers.ShopManager
@@ -76,6 +77,7 @@ class SkiesSkins : ModInitializer {
         .registerTypeAdapter(GenericClickType::class.java, GenericClickType.Adapter())
         .registerTypeAdapter(StorageType::class.java, StorageType.Adapter())
         .registerTypeAdapter(InventoryType::class.java, InventoryType.Adapter())
+        .registerTypeHierarchyAdapter(EconomyType::class.java, EconomyType.Adapter())
         .registerTypeAdapter(ResourceLocation::class.java, Utils.ResourceLocationSerializer())
         .registerTypeHierarchyAdapter(Item::class.java, Utils.RegistrySerializer(BuiltInRegistries.ITEM))
         .registerTypeHierarchyAdapter(SoundEvent::class.java, Utils.RegistrySerializer(BuiltInRegistries.SOUND_EVENT))

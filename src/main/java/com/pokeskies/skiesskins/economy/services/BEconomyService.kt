@@ -3,28 +3,29 @@ package com.pokeskies.skiesskins.economy.services
 import com.pokeskies.skiesskins.economy.IEconomyService
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.server.level.ServerPlayer
-import tech.sethi.pebbleseconomy.PebblesEconomyInitializer
+import org.beconomy.api.BEconomy
+import java.math.BigDecimal
 
-class PebblesEconomyService : IEconomyService {
+class BEconomyService : IEconomyService {
     init {
-        Utils.printInfo("PebblesEconomy has been found and loaded for any Currency actions/requirements!")
+        Utils.printInfo("BlanketEconomy has been found and loaded for any Currency actions/requirements!")
     }
 
     override fun balance(player: ServerPlayer, currency: String) : Double {
-        return PebblesEconomyInitializer.economy.getBalance(player.uuid)
+        return BEconomy.getAPI().getBalance(player.uuid, currency).toDouble()
     }
 
     override fun withdraw(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return PebblesEconomyInitializer.economy.withdraw(player.uuid, amount)
+        return BEconomy.getAPI().subtractBalance(player.uuid, BigDecimal.valueOf(amount), currency)
     }
 
     override fun deposit(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        PebblesEconomyInitializer.economy.deposit(player.uuid, amount)
+        BEconomy.getAPI().addBalance(player.uuid, BigDecimal.valueOf(amount), currency)
         return true
     }
 
     override fun set(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        PebblesEconomyInitializer.economy.setBalance(player.uuid, amount)
+        BEconomy.getAPI().setBalance(player.uuid, BigDecimal.valueOf(amount), currency)
         return true
     }
 }

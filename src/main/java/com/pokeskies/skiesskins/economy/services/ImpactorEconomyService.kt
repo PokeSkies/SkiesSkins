@@ -1,6 +1,5 @@
 package com.pokeskies.skiesskins.economy.services
 
-import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.economy.IEconomyService
 import com.pokeskies.skiesskins.utils.Utils
 import net.impactdev.impactor.api.economy.EconomyService
@@ -14,42 +13,35 @@ import java.util.concurrent.CompletableFuture
 
 class ImpactorEconomyService : IEconomyService {
     init {
-        Utils.printInfo("Impactor Economy Service has been found and loaded for any Currency actions!")
+        Utils.printInfo("Impactor has been found and loaded for any Currency actions/requirements!")
     }
 
     override fun balance(player: ServerPlayer, currency: String) : Double {
-        return getAccount(player.uuid, currency)?.thenCompose {
+        return getAccount(player.uuid, getCurrency(currency) ?: return 0.0).thenCompose {
             CompletableFuture.completedFuture(it.balance())
-        }?.join()?.toDouble() ?: 0.0
+        }.join().toDouble()
     }
 
     override fun withdraw(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.thenCompose {
+        return getAccount(player.uuid, getCurrency(currency) ?: return false).thenCompose {
             CompletableFuture.completedFuture(it.withdraw(BigDecimal(amount)))
-        }?.join()?.successful() ?: false
+        }.join().successful()
     }
 
     override fun deposit(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.thenCompose {
+        return getAccount(player.uuid, getCurrency(currency) ?: return false).thenCompose {
             CompletableFuture.completedFuture(it.deposit(BigDecimal(amount)))
-        }?.join()?.successful() ?: false
+        }.join().successful()
     }
 
     override fun set(player: ServerPlayer, amount: Double, currency: String) : Boolean {
-        return getAccount(player.uuid, currency)?.thenCompose {
+        return getAccount(player.uuid, getCurrency(currency) ?: return false).thenCompose {
             CompletableFuture.completedFuture(it.set(BigDecimal(amount)))
-        }?.join()?.successful() ?: false
+        }.join().successful()
     }
 
-    override fun getCurrencyFormatted(currency: String, singular: Boolean): String {
-        val c = getCurrency(currency) ?: return currency
-        return SkiesSkins.INSTANCE.adventure!!.toNative(if (singular) c.singular() else c.plural()).string
-    }
-
-    private fun getAccount(uuid: UUID, currency: String): CompletableFuture<Account>? {
-        return getCurrency(currency)?.let { c ->
-            EconomyService.instance().account(c, uuid)
-        }
+    private fun getAccount(uuid: UUID, currency: Currency): CompletableFuture<Account> {
+        return EconomyService.instance().account(currency, uuid)
     }
 
     private fun getCurrency(id: String) : Currency? {
@@ -59,10 +51,7 @@ class ImpactorEconomyService : IEconomyService {
 
         val currency: Optional<Currency> = EconomyService.instance().currencies().currency(Key.key(id))
         if (currency.isEmpty) {
-            Utils.printError(
-                "Could not find a currency by the ID $id! Valid currencies: " +
-                        "${EconomyService.instance().currencies().registered().map { it.key() }}"
-            )
+            Utils.printError("Could not find a currency by the ID $id! Valid currencies: ${EconomyService.instance().currencies().registered().map { it.key().asString() }}")
             return null
         }
 
