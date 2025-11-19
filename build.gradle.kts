@@ -3,8 +3,8 @@
 plugins {
     java
     idea
-    id("quiet-fabric-loom") version ("1.7-SNAPSHOT")
-    id("org.jetbrains.kotlin.jvm").version("2.0.0")
+    id("quiet-fabric-loom") version ("1.9-SNAPSHOT")
+    kotlin("jvm") version ("2.1.0")
 }
 
 val modId = project.properties["mod_id"].toString()
@@ -33,6 +33,7 @@ repositories {
     maven("https://oss.sonatype.org/content/repositories/snapshots")
     maven("https://maven.impactdev.net/repository/development/")
     maven("https://repo.lucko.me")
+    maven("https://maven.pokeskies.com/releases/")
 }
 
 loom {
@@ -70,7 +71,7 @@ dependencies {
         include(it)
     }
 
-    modImplementation("com.cobblemon:fabric:1.6.1+1.21.1-SNAPSHOT")
+    modImplementation("com.cobblemon:fabric:1.7.0+1.21.1-main-488f38c")
 
     // Placeholders
     modImplementation("eu.pb4:placeholder-api:2.4.1+1.21")
