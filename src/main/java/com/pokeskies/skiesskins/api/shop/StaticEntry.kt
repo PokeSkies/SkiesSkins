@@ -1,6 +1,7 @@
 package com.pokeskies.skiesskins.api.shop
 
 import com.cobblemon.mod.common.CobblemonItemComponents
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
 import com.cobblemon.mod.common.item.components.PokemonItemComponent
@@ -74,7 +75,10 @@ class StaticEntry(
         if (stack.item is PokemonItem) {
             val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
             if (pokemon != null) {
-                stack.set(CobblemonItemComponents.POKEMON_ITEM, PokemonItemComponent(skinConfig.species, skinConfig.aspects.apply.toSet(), null))
+                for (aspect in skinConfig.aspects.apply) {
+                    PokemonProperties.parse(aspect).apply(pokemon)
+                }
+                stack.set(CobblemonItemComponents.POKEMON_ITEM, PokemonItemComponent(pokemon.species.resourceIdentifier, pokemon.aspects, null))
             }
         }
 
