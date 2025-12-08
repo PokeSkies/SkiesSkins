@@ -26,7 +26,6 @@ class SkinConfig(
     val infinite: Boolean = false,
     val untradable: Boolean? = null,
     val token: TokenOptions? = null,
-
 ) {
     lateinit var id: String
 

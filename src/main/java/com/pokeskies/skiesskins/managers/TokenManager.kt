@@ -29,6 +29,8 @@ object TokenManager {
     }
 
     private fun handleInteract(item: ItemStack, player: ServerPlayer): InteractionResult {
+        if (item.isEmpty) return InteractionResult.PASS
+
         val skin = SkiesSkinsAPI.getTokenSkin(item) ?: return InteractionResult.PASS
 
         if (!SkiesSkinsAPI.canTokenize(skin)) {
