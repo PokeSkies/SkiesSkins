@@ -11,7 +11,7 @@ import java.math.BigDecimal
 import java.util.*
 import java.util.concurrent.CompletableFuture
 
-class ImpactorEconomyService : IEconomyService {
+class ImpactorEconomyService : IEconomyService() {
     init {
         Utils.printInfo("Impactor has been found and loaded for any Currency actions/requirements!")
     }
@@ -38,6 +38,12 @@ class ImpactorEconomyService : IEconomyService {
         return getAccount(player.uuid, getCurrency(currency) ?: return false).thenCompose {
             CompletableFuture.completedFuture(it.set(BigDecimal(amount)))
         }.join().successful()
+    }
+
+    override fun getCurrencyFormatted(currency: String, singular: Boolean): String {
+        return getCurrency(currency)?.let {
+            Utils.plainSerializer.serialize(if (singular) it.singular() else it.plural())
+        } ?: super.getCurrencyFormatted(currency, singular)
     }
 
     private fun getAccount(uuid: UUID, currency: Currency): CompletableFuture<Account> {

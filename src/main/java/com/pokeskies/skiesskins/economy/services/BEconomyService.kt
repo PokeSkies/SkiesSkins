@@ -3,10 +3,10 @@ package com.pokeskies.skiesskins.economy.services
 import com.pokeskies.skiesskins.economy.IEconomyService
 import com.pokeskies.skiesskins.utils.Utils
 import net.minecraft.server.level.ServerPlayer
-import org.beconomy.api.BEconomy
+import org.krripe.beconomy.api.BEconomy
 import java.math.BigDecimal
 
-class BEconomyService : IEconomyService {
+class BEconomyService : IEconomyService() {
     init {
         Utils.printInfo("BlanketEconomy has been found and loaded for any Currency actions/requirements!")
     }

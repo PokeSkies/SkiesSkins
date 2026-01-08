@@ -3,8 +3,8 @@
 plugins {
     java
     idea
-    id("quiet-fabric-loom") version ("1.9-SNAPSHOT")
-    kotlin("jvm") version ("2.1.0")
+    id("quiet-fabric-loom") version ("1.13-SNAPSHOT")
+    id("org.jetbrains.kotlin.jvm").version("2.3.0")
 }
 
 val modId = project.properties["mod_id"].toString()
@@ -13,7 +13,7 @@ group = project.properties["group"].toString()
 
 val minecraftVersion = project.properties["minecraft_version"].toString()
 
-base.archivesBaseName = project.properties["mod_name"].toString()
+base.archivesName.set(project.properties["mod_name"].toString())
 
 repositories {
     mavenCentral()

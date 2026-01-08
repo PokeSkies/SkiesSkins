@@ -8,7 +8,7 @@ import fr.harmex.cobbledollars.common.utils.extensions.setCobbleDollars
 import net.minecraft.server.level.ServerPlayer
 import java.math.BigInteger
 
-class CobbleDollarsEconomyService : IEconomyService {
+class CobbleDollarsEconomyService : IEconomyService() {
     init {
         Utils.printInfo("CobbleDollars has been found and loaded for any Currency actions/requirements!")
     }

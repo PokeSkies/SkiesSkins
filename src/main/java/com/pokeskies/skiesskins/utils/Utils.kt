@@ -11,6 +11,7 @@ import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
 import eu.pb4.sgui.api.elements.GuiElementBuilder
 import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer
 import net.minecraft.core.Registry
 import net.minecraft.core.component.DataComponentPatch
 import net.minecraft.core.component.DataComponents
@@ -26,6 +27,7 @@ import java.util.stream.Collectors
 
 object Utils {
     val miniMessage: MiniMessage = MiniMessage.miniMessage()
+    val plainSerializer: PlainTextComponentSerializer = PlainTextComponentSerializer.plainText()
 
     fun deserializeText(text: String): Component {
         return SkiesSkins.INSTANCE.adventure!!.toNative(miniMessage.deserialize(text))
@@ -81,7 +83,7 @@ object Utils {
         return GuiElementBuilder
             .from(ItemStack(Items.BARRIER).also {
                 it.applyComponents(DataComponentPatch.builder()
-                    .set(DataComponents.ITEM_NAME, Utils.deserializeText(text))
+                    .set(DataComponents.ITEM_NAME, deserializeText(text))
                     .build())
             })
     }
@@ -126,7 +128,7 @@ object Utils {
     data class RegistrySerializer<T>(val registry: Registry<T>) : JsonSerializer<T>, JsonDeserializer<T> {
         @Throws(JsonParseException::class)
         override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): T? {
-            var parsed = if (json.isJsonPrimitive) registry.get(ResourceLocation.tryParse(json.asString)) else null
+            val parsed = if (json.isJsonPrimitive) registry.get(ResourceLocation.tryParse(json.asString)) else null
             if (parsed == null)
                 printError("There was an error while deserializing a Registry Type: $registry")
             return parsed
@@ -141,7 +143,7 @@ object Utils {
         override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): T? {
             return try {
                 codec.decode(JsonOps.INSTANCE, json).orThrow.first
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 printError("There was an error while deserializing a Codec: $codec")
                 null
             }
@@ -153,7 +155,7 @@ object Utils {
                     codec.encodeStart(JsonOps.INSTANCE, src).orThrow
                 else
                     JsonNull.INSTANCE
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
                 printError("There was an error while serializing a Codec: $codec")
                 JsonNull.INSTANCE
             }
