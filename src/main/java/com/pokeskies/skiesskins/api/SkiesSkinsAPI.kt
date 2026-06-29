@@ -69,7 +69,7 @@ object SkiesSkinsAPI {
                 // gather a list of aspects that cannot be present
                 val blacklistedAspects: MutableList<String> = mutableListOf()
                 for (aspect in skin.aspects.blacklist) {
-                    blacklistedAspects.removeAll(PokemonProperties.parse(aspect).aspects)
+                    blacklistedAspects.addAll(PokemonProperties.parse(aspect).aspects)
                 }
 
                 if (pokemon.aspects.containsAll(requiredAspects) && pokemon.aspects.none { blacklistedAspects.contains(it) }) {
