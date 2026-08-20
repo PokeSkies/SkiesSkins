@@ -73,7 +73,7 @@ class InventoryGui(
                     }
 
                     val pokemon = species.create()
-                    for (aspect in skin.aspects.apply) {
+                    for (aspect in skin.aspects.required + skin.aspects.apply) {
                         PokemonProperties.parse(aspect).apply(pokemon)
                     }
 

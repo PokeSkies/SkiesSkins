@@ -75,7 +75,7 @@ class StaticEntry(
         if (stack.item is PokemonItem) {
             val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
             if (pokemon != null) {
-                for (aspect in skinConfig.aspects.apply) {
+                for (aspect in skinConfig.aspects.required + skinConfig.aspects.apply) {
                     PokemonProperties.parse(aspect).apply(pokemon)
                 }
                 stack.set(CobblemonItemComponents.POKEMON_ITEM, PokemonItemComponent(pokemon.species.resourceIdentifier, pokemon.aspects, null))

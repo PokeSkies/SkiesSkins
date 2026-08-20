@@ -151,7 +151,9 @@ object SkiesSkinsAPI {
         if (!canTokenize(skin)) return null
         val pokemon = PokemonSpecies.getByIdentifier(skin.species)?.create(1)
         if (pokemon != null) {
-            applySkin(pokemon, skin)
+            for (aspect in skin.aspects.required + skin.aspects.apply) {
+                PokemonProperties.parse(aspect).apply(pokemon)
+            }
         }
         val tokenItem = skin.token!!.display.createItemStack(player, pokemon)
         if (tokenItem.isEmpty) return null

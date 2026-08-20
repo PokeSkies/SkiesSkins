@@ -61,7 +61,7 @@ class ScrapConfirmGui(
                 setSlots(guiConfig.skin.slots, Utils.getErrorButton("<red>Error while fetching Skin! Invalid Species?"))
             } else {
                 val pokemon = species.create()
-                for (aspect in skinConfig.aspects.apply) {
+                for (aspect in skinConfig.aspects.required + skinConfig.aspects.apply) {
                     PokemonProperties.parse(aspect).apply(pokemon)
                 }
 
