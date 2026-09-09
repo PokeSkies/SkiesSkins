@@ -1,10 +1,8 @@
 package com.pokeskies.skiesskins.api.shop
 
 import com.cobblemon.mod.common.CobblemonItemComponents
-import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
 import com.cobblemon.mod.common.item.PokemonItem
-import com.cobblemon.mod.common.item.components.PokemonItemComponent
 import com.pokeskies.skiesskins.config.SkinConfig
 import com.pokeskies.skiesskins.config.gui.items.ShopItem.Companion.amountRegex
 import com.pokeskies.skiesskins.config.gui.items.ShopItem.Companion.currencyRegex
@@ -87,12 +85,9 @@ class RandomEntry(
     override fun modifyStack(stack: ItemStack, player: ServerPlayer): ItemStack {
         // If the item type is a PokemonItem and the Pokemon is valid, set it to the Pokemon Model item
         if (stack.item is PokemonItem) {
-            val pokemon = PokemonSpecies.getByIdentifier(skinConfig.species)?.create()
-            if (pokemon != null) {
-                for (aspect in skinConfig.aspects.required + skinConfig.aspects.apply) {
-                    PokemonProperties.parse(aspect).apply(pokemon)
-                }
-                stack.set(CobblemonItemComponents.POKEMON_ITEM, PokemonItemComponent(pokemon.species.resourceIdentifier, pokemon.aspects, null))
+            val displayData = skinConfig.createDisplayItem()?.get(CobblemonItemComponents.POKEMON_ITEM)
+            if (displayData != null) {
+                stack.set(CobblemonItemComponents.POKEMON_ITEM, displayData)
             }
         }
 

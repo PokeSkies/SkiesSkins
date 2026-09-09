@@ -1,8 +1,5 @@
 package com.pokeskies.skiesskins.gui
 
-import com.cobblemon.mod.common.api.pokemon.PokemonProperties
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
-import com.cobblemon.mod.common.item.PokemonItem
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
@@ -56,17 +53,12 @@ class ScrapConfirmGui(
                 )
             }
 
-            val species = PokemonSpecies.getByIdentifier(skinConfig.species)
-            if (species == null) {
+            val displayItem = skinConfig.createDisplayItem()
+            if (displayItem == null) {
                 setSlots(guiConfig.skin.slots, Utils.getErrorButton("<red>Error while fetching Skin! Invalid Species?"))
             } else {
-                val pokemon = species.create()
-                for (aspect in skinConfig.aspects.required + skinConfig.aspects.apply) {
-                    PokemonProperties.parse(aspect).apply(pokemon)
-                }
-
                 setSlots(guiConfig.skin.slots, GuiElementBuilder
-                    .from(PokemonItem.from(pokemon, 1))
+                    .from(displayItem)
                     .setName(skinConfig.parse(guiConfig.skin.name, player))
                     .setLore(skinConfig.parse(guiConfig.skin.lore, player))
                 )

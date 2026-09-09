@@ -1,8 +1,5 @@
 package com.pokeskies.skiesskins.gui
 
-import com.cobblemon.mod.common.api.pokemon.PokemonProperties
-import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
-import com.cobblemon.mod.common.item.PokemonItem
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.api.SkiesSkinsAPI
 import com.pokeskies.skiesskins.config.ConfigManager
@@ -66,19 +63,14 @@ class InventoryGui(
                         continue
                     }
 
-                    val species = PokemonSpecies.getByIdentifier(skin.species)
-                    if (species == null) {
+                    val displayItem = skin.createDisplayItem()
+                    if (displayItem == null) {
                         setSlot(slot, Utils.getErrorButton("<red>Error while fetching Skin! Invalid Species?"))
                         continue
                     }
 
-                    val pokemon = species.create()
-                    for (aspect in skin.aspects.required + skin.aspects.apply) {
-                        PokemonProperties.parse(aspect).apply(pokemon)
-                    }
-
                     setSlot(slot, GuiElementBuilder.from(
-                        PokemonItem.from(pokemon, 1).also { stack ->
+                        displayItem.also { stack ->
                             stack.applyComponents(DataComponentPatch.builder()
                                 .set(DataComponents.ITEM_NAME, Component.empty().setStyle(Style.EMPTY.withItalic(false))
                                     .append(skin.parse(ConfigManager.INVENTORY_GUI.skinOptions.name, player)))

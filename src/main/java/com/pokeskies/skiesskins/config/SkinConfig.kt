@@ -1,6 +1,10 @@
 package com.pokeskies.skiesskins.config
 
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties
 import com.cobblemon.mod.common.api.pokemon.PokemonSpecies
+import com.cobblemon.mod.common.item.PokemonItem as CobblemonPokemonItem
+import com.cobblemon.mod.common.pokemon.properties.AspectPropertyType
+import com.cobblemon.mod.common.pokemon.properties.StringProperty
 import com.google.gson.annotations.JsonAdapter
 import com.pokeskies.skiesskins.SkiesSkins
 import com.pokeskies.skiesskins.config.gui.items.PokemonItem
@@ -11,6 +15,7 @@ import com.pokeskies.skiesskins.utils.Utils.parsePlaceholders
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.level.ServerPlayer
+import net.minecraft.world.item.ItemStack
 
 /*
  * The config for a specific skin, pulls from /skins/{*}.json
@@ -129,6 +134,24 @@ class SkinConfig(
             }
         }
         return newList
+    }
+
+    fun createDisplayItem(): ItemStack? {
+        val species = PokemonSpecies.getByIdentifier(species) ?: return null
+        val properties = PokemonProperties.parse(buildList {
+            add(species.resourceIdentifier.toString())
+            addAll(aspects.required)
+            addAll(aspects.apply)
+        }.joinToString(" "))
+
+        properties.updateAspects()
+
+        val forcedAspects = properties.customProperties
+            .filterIsInstance<StringProperty>()
+            .filter { it.key in AspectPropertyType.keys }
+            .map { it.value }
+
+        return CobblemonPokemonItem.from(species, properties.aspects + forcedAspects)
     }
 
     override fun toString(): String {
